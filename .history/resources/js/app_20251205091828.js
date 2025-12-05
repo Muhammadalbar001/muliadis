@@ -1,0 +1,8 @@
+import './bootstrap';
+
+// import Alpine from 'alpinejs';
+
+// window.Alpine = Alpine;
+
+// Alpine.start();
+console.log('App.js loaded - Alpine handled by Livewire');
