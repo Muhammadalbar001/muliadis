@@ -17,9 +17,9 @@ class ProdukIndex extends Component
     // --- Properties Tampilan ---
     public $search = '';
     public $isInputOpen = false;  // Modal untuk Input Manual/Edit
-    public $isImportOpen = false; // Modal Khusus Import Excel
+    public $isImportOpen = false; // Modal Khusus Import Excel (BARU)
     
-    // --- Properties Form Manual (Untuk Edit Data) ---
+    // --- Properties Form Manual (Untuk Edit Data Salah) ---
     public $productId;
     public $kode_item;   
     public $nama_item;   
@@ -37,14 +37,12 @@ class ProdukIndex extends Component
 
     public function render()
     {
-        // Query Produk (Sesuaikan dengan kolom database)
-        // Kita cari berdasarkan Nama Item, SKU, atau Cabang
+        // Query disesuaikan dengan kolom database Anda: 'sku', 'name_item', 'stok'
         $produks = Produk::query()
             ->where('name_item', 'like', '%' . $this->search . '%')
             ->orWhere('sku', 'like', '%' . $this->search . '%') 
-            ->orWhere('cabang', 'like', '%' . $this->search . '%')
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // Menampilkan 10 data per halaman
+            ->paginate(10);
 
         return view('livewire.master.produk-index', [
             'produks' => $produks
@@ -57,15 +55,15 @@ class ProdukIndex extends Component
 
     public function openImportModal()
     {
-        $this->resetErrorBag(); // Hapus pesan error sebelumnya
         $this->isImportOpen = true;
+        $this->resetErrorBag();
     }
 
     public function closeImportModal()
     {
         $this->isImportOpen = false;
         $this->file = null;
-        $this->iteration++; // Reset input file di view
+        $this->iteration++; // Reset file input di view
     }
 
     public function import()
@@ -78,29 +76,30 @@ class ProdukIndex extends Component
             $filename = $this->file->store('temp-imports', 'local');
             $fullPath = Storage::disk('local')->path($filename);
 
-            if (!file_exists($fullPath)) throw new \Exception("File gagal disimpan.");
+            if (!file_exists($fullPath)) {
+                throw new \Exception("File gagal disimpan di server.");
+            }
 
+            // PROSES IMPORT
             $importService = new ProdukImportService();
             $stats = $importService->handle($fullPath);
 
+            // HAPUS FILE TEMP
             if (Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
             
             $this->closeImportModal();
 
-            // --- NOTIFIKASI DETAIL UNTUK USER ---
+            // BUAT PESAN NOTIFIKASI LENGKAP
+            $message = "Selesai! Diproses: " . number_format($stats['processed']) . 
+                       " baris. (Total Excel: " . number_format($stats['total_rows']) . ")";
             
-            // Hitung Data Bersih (Tanpa Duplikat)
-            $uniqueCount = $stats['processed'] - $stats['duplicates'];
-
-            $message = "PROSES SELESAI!\n" .
-                       "📊 Total Baris Excel: " . number_format($stats['total_rows']) . "\n" .
-                       "✅ Data Masuk (Unik): " . number_format($uniqueCount) . "\n" .
-                       "♻️ Data Duplikat (Digabung): " . number_format($stats['duplicates']) . "\n";
-
             if ($stats['skipped_empty'] > 0) {
-                $message .= "⚠️ Skipped (SKU Kosong): " . number_format($stats['skipped_empty']);
+                $message .= " | Skipped (Empty SKU): " . number_format($stats['skipped_empty']);
+            }
+            if ($stats['skipped_error'] > 0) {
+                $message .= " | Error: " . number_format($stats['skipped_error']);
             }
 
             session()->flash('success', $message);
@@ -115,7 +114,7 @@ class ProdukIndex extends Component
     }
 
     // ==========================================
-    // BAGIAN 2: LOGIKA MANUAL (CRUD)
+    // BAGIAN 2: LOGIKA MANUAL (PELENGKAP/EDIT)
     // ==========================================
 
     public function create()
@@ -129,7 +128,7 @@ class ProdukIndex extends Component
         $produk = Produk::findOrFail($id);
         $this->productId = $id;
         
-        // Mapping Data Database ke Form Input
+        // Mapping Kolom Database -> Form
         $this->kode_item   = $produk->sku;
         $this->nama_item   = $produk->name_item;
         $this->satuan_jual = $produk->oum;
@@ -141,7 +140,6 @@ class ProdukIndex extends Component
     public function store()
     {
         $this->validate([
-            // Validasi SKU unik, kecuali untuk ID yang sedang diedit
             'kode_item' => 'required|unique:produks,sku,' . $this->productId,
             'nama_item' => 'required',
         ]);
@@ -151,10 +149,10 @@ class ProdukIndex extends Component
             'name_item' => $this->nama_item,
             'oum'       => $this->satuan_jual,
             'buy'       => $this->harga_jual ?? 0, 
-            'stok'      => '0', // Default stok 0 untuk input manual
+            'stok'      => '0', // Default
         ]);
 
-        session()->flash('success', $this->productId ? 'Produk berhasil diperbarui.' : 'Produk berhasil ditambahkan.');
+        session()->flash('success', 'Data produk berhasil disimpan.');
         $this->closeInputModal();
     }
 
@@ -162,7 +160,7 @@ class ProdukIndex extends Component
     {
         try {
             Produk::find($id)->delete();
-            session()->flash('success', 'Produk berhasil dihapus.');
+            session()->flash('success', 'Produk dihapus.');
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal hapus: ' . $e->getMessage());
         }

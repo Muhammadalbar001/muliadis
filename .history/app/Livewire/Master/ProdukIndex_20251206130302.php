@@ -17,9 +17,9 @@ class ProdukIndex extends Component
     // --- Properties Tampilan ---
     public $search = '';
     public $isInputOpen = false;  // Modal untuk Input Manual/Edit
-    public $isImportOpen = false; // Modal Khusus Import Excel
+    public $isImportOpen = false; // Modal Khusus Import Excel (BARU)
     
-    // --- Properties Form Manual (Untuk Edit Data) ---
+    // --- Properties Form Manual (Untuk Edit Data Salah) ---
     public $productId;
     public $kode_item;   
     public $nama_item;   
@@ -37,14 +37,12 @@ class ProdukIndex extends Component
 
     public function render()
     {
-        // Query Produk (Sesuaikan dengan kolom database)
-        // Kita cari berdasarkan Nama Item, SKU, atau Cabang
+        // Query disesuaikan dengan kolom database Anda: 'sku', 'name_item', 'stok'
         $produks = Produk::query()
             ->where('name_item', 'like', '%' . $this->search . '%')
             ->orWhere('sku', 'like', '%' . $this->search . '%') 
-            ->orWhere('cabang', 'like', '%' . $this->search . '%')
             ->orderBy('created_at', 'desc')
-            ->paginate(10); // Menampilkan 10 data per halaman
+            ->paginate(10);
 
         return view('livewire.master.produk-index', [
             'produks' => $produks
@@ -57,65 +55,63 @@ class ProdukIndex extends Component
 
     public function openImportModal()
     {
-        $this->resetErrorBag(); // Hapus pesan error sebelumnya
         $this->isImportOpen = true;
+        $this->resetErrorBag();
     }
 
     public function closeImportModal()
     {
         $this->isImportOpen = false;
         $this->file = null;
-        $this->iteration++; // Reset input file di view
+        $this->iteration++; // Reset file input di view
     }
 
     public function import()
     {
         $this->validate([
-            'file' => 'required|file|mimes:xlsx,csv,xls|max:102400',
+            'file' => 'required|file|mimes:xlsx,csv,xls|max:102400', // Max 100MB
         ]);
 
+        $path = null;
+
         try {
+            // 1. Simpan file sementara
             $filename = $this->file->store('temp-imports', 'local');
             $fullPath = Storage::disk('local')->path($filename);
 
-            if (!file_exists($fullPath)) throw new \Exception("File gagal disimpan.");
+            if (!file_exists($fullPath)) {
+                throw new \Exception("File gagal disimpan di server.");
+            }
 
+            // 2. Panggil Service Import (Yang sudah Anda miliki)
             $importService = new ProdukImportService();
-            $stats = $importService->handle($fullPath);
+            $count = $importService->handle($fullPath);
 
+            // 3. Hapus file temporary
             if (Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
             
+            // 4. Tutup Modal & Beri Pesan Sukses
             $this->closeImportModal();
-
-            // --- NOTIFIKASI DETAIL UNTUK USER ---
-            
-            // Hitung Data Bersih (Tanpa Duplikat)
-            $uniqueCount = $stats['processed'] - $stats['duplicates'];
-
-            $message = "PROSES SELESAI!\n" .
-                       "📊 Total Baris Excel: " . number_format($stats['total_rows']) . "\n" .
-                       "✅ Data Masuk (Unik): " . number_format($uniqueCount) . "\n" .
-                       "♻️ Data Duplikat (Digabung): " . number_format($stats['duplicates']) . "\n";
-
-            if ($stats['skipped_empty'] > 0) {
-                $message .= "⚠️ Skipped (SKU Kosong): " . number_format($stats['skipped_empty']);
-            }
-
-            session()->flash('success', $message);
+            session()->flash('success', "SUKSES! $count data produk berhasil direkap/diimport.");
 
         } catch (\Exception $e) {
+            // Log error
+            Log::error('Import Gagal: ' . $e->getMessage());
+            
+            // Hapus file jika error di tengah jalan
             if (isset($filename) && Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
-            Log::error('Import Gagal: ' . $e->getMessage());
-            $this->addError('file', 'GAGAL: ' . $e->getMessage());
+
+            // Tampilkan error ke user
+            $this->addError('file', 'Terjadi Kesalahan: ' . $e->getMessage());
         }
     }
 
     // ==========================================
-    // BAGIAN 2: LOGIKA MANUAL (CRUD)
+    // BAGIAN 2: LOGIKA MANUAL (PELENGKAP/EDIT)
     // ==========================================
 
     public function create()
@@ -129,7 +125,7 @@ class ProdukIndex extends Component
         $produk = Produk::findOrFail($id);
         $this->productId = $id;
         
-        // Mapping Data Database ke Form Input
+        // Mapping Kolom Database -> Form
         $this->kode_item   = $produk->sku;
         $this->nama_item   = $produk->name_item;
         $this->satuan_jual = $produk->oum;
@@ -141,7 +137,6 @@ class ProdukIndex extends Component
     public function store()
     {
         $this->validate([
-            // Validasi SKU unik, kecuali untuk ID yang sedang diedit
             'kode_item' => 'required|unique:produks,sku,' . $this->productId,
             'nama_item' => 'required',
         ]);
@@ -151,10 +146,10 @@ class ProdukIndex extends Component
             'name_item' => $this->nama_item,
             'oum'       => $this->satuan_jual,
             'buy'       => $this->harga_jual ?? 0, 
-            'stok'      => '0', // Default stok 0 untuk input manual
+            'stok'      => '0', // Default
         ]);
 
-        session()->flash('success', $this->productId ? 'Produk berhasil diperbarui.' : 'Produk berhasil ditambahkan.');
+        session()->flash('success', 'Data produk berhasil disimpan.');
         $this->closeInputModal();
     }
 
@@ -162,7 +157,7 @@ class ProdukIndex extends Component
     {
         try {
             Produk::find($id)->delete();
-            session()->flash('success', 'Produk berhasil dihapus.');
+            session()->flash('success', 'Produk dihapus.');
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal hapus: ' . $e->getMessage());
         }

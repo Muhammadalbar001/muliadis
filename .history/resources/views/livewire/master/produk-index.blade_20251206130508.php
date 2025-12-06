@@ -9,19 +9,29 @@
             </div>
             <input wire:model.live.debounce.300ms="search" type="text"
                 class="pl-10 pr-4 py-2.5 w-full border-gray-200 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500 placeholder-gray-400 transition-colors"
-                placeholder="Cari SKU, Nama Produk, atau Cabang...">
+                placeholder="Cari SKU atau Nama Produk...">
         </div>
 
-        <div class="flex gap-3 w-full md:w-auto">
-            <button wire:click="openImportModal"
-                class="inline-flex items-center px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                <i class="fas fa-file-excel mr-2 fa-lg"></i> Import Excel
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+            <button wire:click="import" wire:loading.attr="disabled" type="button"
+                class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-wait">
+
+                <span wire:loading.remove wire:target="import">Mulai Import</span>
+
+                <span wire:loading wire:target="import" class="flex items-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                    Sedang Memproses...
+                </span>
             </button>
 
-            <button wire:click="create"
-                class="inline-flex items-center px-4 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
-                <i class="fas fa-plus mr-2"></i> Input
-            </button>
+            <button wire:click="closeImportModal" ...>Batal</button>
         </div>
     </div>
 
@@ -30,16 +40,15 @@
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
                 <thead class="text-xs text-gray-600 uppercase bg-gray-100 sticky top-0 z-20 shadow-sm">
                     <tr>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[50px] text-center sticky left-0 z-30">
-                            No</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[50px] text-center">No</th>
                         <th
-                            class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-center sticky left-[50px] z-30 font-bold">
+                            class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-center sticky left-0 z-30 font-bold">
                             Aksi</th>
 
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">Cabang</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px]">C-Code</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">SKU</th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[150px]">Kategori</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">Kategori</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[250px]">Nama Item</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[90px]">Expired Date</th>
 
@@ -49,7 +58,7 @@
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[60px]">OUM</th>
 
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right">Good</th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">Good Konv</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px]">Good Konv</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right">Ktn</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px] text-right">Good Amount</th>
 
@@ -60,20 +69,18 @@
 
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right text-red-600">Bad
                         </th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">Bad Konv</th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right text-red-600">Bad Ktn
-                        </th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px] text-right text-red-600">Bad
-                            Amount</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px]">Bad Konv</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right">Bad Ktn</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px] text-right">Bad Amount</th>
 
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right">WRH 1</th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">WRH 1 Konv</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px]">WRH 1 Konv</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px] text-right">WRH 1 Amt</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right">WRH 2</th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">WRH 2 Konv</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px]">WRH 2 Konv</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px] text-right">WRH 2 Amt</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px] text-right">WRH 3</th>
-                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">WRH 3 Konv</th>
+                        <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[80px]">WRH 3 Konv</th>
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px] text-right">WRH 3 Amt</th>
 
                         <th class="px-3 py-3 border-b border-r bg-gray-100 min-w-[100px]">Good Storage</th>
@@ -107,12 +114,10 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 bg-white">
                     @forelse($produks as $index => $item)
-                    <tr class="hover:bg-indigo-50 transition-colors group">
-                        <td
-                            class="px-3 py-2 border-r text-center text-gray-500 bg-white sticky left-0 z-10 group-hover:bg-indigo-50">
-                            {{ $produks->firstItem() + $index }}</td>
-                        <td
-                            class="px-3 py-2 border-r text-center bg-white sticky left-[50px] z-10 shadow-sm group-hover:bg-indigo-50">
+                    <tr class="hover:bg-indigo-50 transition-colors">
+                        <td class="px-3 py-2 border-r text-center text-gray-500">{{ $produks->firstItem() + $index }}
+                        </td>
+                        <td class="px-3 py-2 border-r text-center bg-white sticky left-0 z-10 shadow-sm">
                             <div class="flex justify-center gap-2">
                                 <button wire:click="edit({{ $item->id }})" class="text-blue-600 hover:text-blue-800"
                                     title="Edit">
@@ -129,18 +134,17 @@
                         <td class="px-3 py-2 border-r text-indigo-600 font-medium">{{ $item->cabang }}</td>
                         <td class="px-3 py-2 border-r">{{ $item->ccode }}</td>
                         <td class="px-3 py-2 border-r font-mono text-gray-700">{{ $item->sku }}</td>
-                        <td class="px-3 py-2 border-r whitespace-normal max-w-[150px]">{{ $item->kategori }}</td>
-                        <td class="px-3 py-2 border-r font-medium text-gray-800 whitespace-normal max-w-[250px]">
-                            {{ $item->name_item }}</td>
-                        <td class="px-3 py-2 border-r text-red-500">
+                        <td class="px-3 py-2 border-r">{{ $item->kategori }}</td>
+                        <td class="px-3 py-2 border-r font-medium text-gray-800">{{ $item->name_item }}</td>
+                        <td class="px-3 py-2 border-r">
                             {{ $item->expired_date ? \Carbon\Carbon::parse($item->expired_date)->format('d-m-Y') : '-' }}
                         </td>
 
                         <td
-                            class="px-3 py-2 border-r text-center font-bold {{ (float)str_replace(',', '', $item->stok) > 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50' }}">
+                            class="px-3 py-2 border-r text-center font-bold {{ (float)$item->stok > 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50' }}">
                             {{ $item->stok }}
                         </td>
-                        <td class="px-3 py-2 border-r text-center">{{ $item->oum }}</td>
+                        <td class="px-3 py-2 border-r">{{ $item->oum }}</td>
 
                         <td class="px-3 py-2 border-r text-right">{{ $item->good }}</td>
                         <td class="px-3 py-2 border-r">{{ $item->good_konversi }}</td>
@@ -150,13 +154,7 @@
                         <td class="px-3 py-2 border-r text-right">{{ $item->avg_3m_in_oum }}</td>
                         <td class="px-3 py-2 border-r text-right">{{ $item->avg_3m_in_ktn }}</td>
                         <td class="px-3 py-2 border-r text-right">{{ $item->avg_3m_in_value }}</td>
-                        <td class="px-3 py-2 border-r text-center">
-                            @if($item->not_move_3m == 'Yes')
-                            <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[10px]">Yes</span>
-                            @else
-                            {{ $item->not_move_3m }}
-                            @endif
-                        </td>
+                        <td class="px-3 py-2 border-r">{{ $item->not_move_3m }}</td>
 
                         <td class="px-3 py-2 border-r text-right text-red-500">{{ $item->bad }}</td>
                         <td class="px-3 py-2 border-r">{{ $item->bad_konversi }}</td>
@@ -200,21 +198,18 @@
                         <td class="px-3 py-2 border-r text-right">{{ $item->percent_margin }}</td>
                         <td class="px-3 py-2 border-r">{{ $item->order_no }}</td>
 
-                        <td class="px-3 py-2 border-r whitespace-normal max-w-[150px]">{{ $item->supplier }}</td>
+                        <td class="px-3 py-2 border-r">{{ $item->supplier }}</td>
                         <td class="px-3 py-2 border-r">{{ $item->mother_sku }}</td>
-                        <td class="px-3 py-2 border-r whitespace-normal max-w-[150px]">{{ $item->last_supplier }}</td>
+                        <td class="px-3 py-2 border-r">{{ $item->last_supplier }}</td>
                         <td class="px-3 py-2 border-r">{{ $item->divisi }}</td>
                         <td class="px-3 py-2 border-r text-gray-400 text-[10px]">{{ $item->unique_id }}</td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="53" class="px-6 py-12 text-center text-gray-400 bg-gray-50">
-                            <div class="flex flex-col items-center justify-center gap-2">
-                                <i class="fas fa-box-open fa-3x text-gray-300"></i>
-                                <p class="text-lg font-medium">Belum Ada Data Produk</p>
-                                <p class="text-sm">Silakan klik tombol <span class="font-bold text-emerald-600">Import
-                                        Excel</span> di atas untuk mengisi data.</p>
-                            </div>
+                            <i class="fas fa-box-open fa-3x mb-3 text-gray-300"></i>
+                            <p class="text-lg font-medium">Belum Ada Data Produk</p>
+                            <p class="text-sm">Silakan Import Excel untuk mengisi data.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -232,9 +227,7 @@
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm"
                 wire:click="closeImportModal"></div>
-
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
             <div
                 class="relative inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
@@ -244,20 +237,14 @@
                             <i class="fas fa-file-import text-emerald-600"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">
-                                Import Master Produk
-                            </h3>
+                            <h3 class="text-lg leading-6 font-bold text-gray-900">Import Master Produk</h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-500 mb-4">
-                                    Pilih file Excel (.xlsx) untuk update data produk. Pastikan format kolom sesuai
-                                    template.
+                                <p class="text-sm text-gray-500 mb-4">Pilih file Excel (.xlsx) untuk update data produk.
                                 </p>
-
                                 <div
-                                    class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-colors relative cursor-pointer group">
+                                    class="mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-colors relative">
                                     <div class="space-y-1 text-center">
-                                        <i
-                                            class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2 group-hover:text-emerald-500 transition-colors"></i>
+                                        <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
                                         <div class="text-sm text-gray-600">
                                             <label for="file-upload-prod-{{ $iteration }}"
                                                 class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none">
@@ -266,56 +253,22 @@
                                                     type="file" class="sr-only">
                                             </label>
                                         </div>
-                                        <p class="text-xs text-gray-500">XLSX, CSV up to 100MB</p>
                                     </div>
                                 </div>
-
-                                <div wire:loading wire:target="file" class="w-full mt-3 text-center">
-                                    <span class="inline-flex items-center text-sm text-emerald-600 font-medium">
-                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-emerald-600"
-                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                            </path>
-                                        </svg>
-                                        Mengupload file...
-                                    </span>
-                                </div>
-                                <div wire:loading wire:target="import" class="w-full mt-3 text-center">
-                                    <span
-                                        class="inline-flex items-center text-sm text-indigo-600 font-medium animate-pulse">
-                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-indigo-600"
-                                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                                stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor"
-                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                            </path>
-                                        </svg>
-                                        Sedang memproses data... (Mohon Tunggu)
-                                    </span>
-                                </div>
-
-                                @error('file')
-                                <div
-                                    class="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600 flex items-center">
-                                    <i class="fas fa-exclamation-circle mr-2"></i> {{ $message }}
-                                </div>
-                                @enderror
+                                <div wire:loading wire:target="file"
+                                    class="w-full mt-2 text-center text-sm text-emerald-600">Mengupload file...</div>
+                                @error('file') <div class="mt-2 text-sm text-red-600">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
                     <button wire:click="import" wire:loading.attr="disabled" type="button"
-                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-wait">
-                        <span wire:loading.remove wire:target="import">Mulai Import</span>
-                        <span wire:loading wire:target="import">Memproses...</span>
+                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+                        Proses Import
                     </button>
-                    <button wire:click="closeImportModal" wire:loading.attr="disabled" type="button"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm">
+                    <button wire:click="closeImportModal" type="button"
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
                         Batal
                     </button>
                 </div>
@@ -336,15 +289,14 @@
                     <h3 class="text-lg font-bold text-gray-900">
                         {{ $productId ? 'Edit Data Produk' : 'Tambah Produk Baru' }}
                     </h3>
-                    <p class="text-xs text-gray-500 mt-1">Input manual hanya untuk data utama. Gunakan Import Excel
-                        untuk data lengkap.</p>
+                    <p class="text-xs text-gray-500 mt-1">Hanya data utama yang bisa diedit manual. Untuk data lengkap
+                        gunakan Import Excel.</p>
                 </div>
                 <div class="px-6 py-4 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">SKU</label>
                         <input type="text" wire:model="kode_item"
-                            class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="Contoh: 1018240">
+                            class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 sm:text-sm">
                         @error('kode_item') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
@@ -354,10 +306,9 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Satuan (OUM)</label>
+                            <label class="block text-sm font-medium text-gray-700">Satuan</label>
                             <input type="text" wire:model="satuan_jual"
-                                class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="Pcs/Box">
+                                class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 sm:text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Harga Beli</label>
@@ -366,11 +317,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button wire:click="store"
                         class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm">Simpan</button>
                     <button wire:click="closeInputModal"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Batal</button>
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Batal</button>
                 </div>
             </div>
         </div>

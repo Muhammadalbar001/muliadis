@@ -19,70 +19,54 @@ class ProdukImportService
             $reader = SimpleExcelReader::create($filePath)->noHeaderRow();
 
             $stats = [
-                'total_rows'     => 0, // Total baris Excel yang dibaca
-                'processed'      => 0, // Data unik yang dikirim ke DB
-                'duplicates'     => 0, // Data kembar yang ditemukan
-                'skipped_empty'  => 0, 
-                'skipped_error'  => 0,
+                'total_rows'     => 0,
+                'processed'      => 0, // Total yang dikirim ke database
+                'skipped_empty'  => 0, // Skip karena SKU kosong
+                'skipped_error'  => 0, // Skip karena error format
             ];
 
             $batchSize = 1000;
             $batchData = [];
             $now       = date('Y-m-d H:i:s');
             
-            // Variabel Helper
+            // Variabel untuk fitur "Fill Down" (Isi otomatis ke bawah)
             $lastCabang = null; 
-            $seenKeys   = []; // Array untuk melacak duplikat (Cabang + SKU)
 
             foreach ($reader->getRows() as $rawRow) {
                 try {
                     $stats['total_rows']++;
                     $row = array_values($rawRow);
 
-                    // --- 1. FILL DOWN CABANG (Otomatis isi jika kosong) ---
-                    $currentCabang = $this->getStr($row, 0); // Kolom A
+                    // --- 1. LOGIKA FILL DOWN CABANG ---
+                    // Ambil nilai kolom 0 (Cabang)
+                    $currentCabang = $this->getStr($row, 0);
 
+                    // Jika ada isinya, simpan sebagai referensi terakhir
                     if ($currentCabang !== '') {
                         $lastCabang = $currentCabang;
-                    } else {
+                    } 
+                    // Jika kosong, gunakan referensi terakhir (dari baris atasnya)
+                    else {
                         $currentCabang = $lastCabang;
                     }
 
-                    // Skip jika header atau masih kosong
+                    // Validasi: Jika masih kosong juga (awal file kosong), skip
                     if (empty($currentCabang) || strcasecmp($currentCabang, 'cabang') === 0) {
                         continue;
                     }
 
-                    // --- 2. SOLUSI SKU KOSONG ---
-                    $skuRaw   = $this->getStr($row, 2); // Kolom C
-                    $ccodeRaw = $this->getStr($row, 1); // Kolom B
-                    
-                    // Prioritas: Pakai SKU, kalau kosong pakai CCODE
-                    $finalSku = $skuRaw !== '' ? $skuRaw : $ccodeRaw;
-
-                    if ($finalSku === '') {
+                    // --- 2. VALIDASI SKU ---
+                    $skuRaw = $this->getStr($row, 2); // Kolom C (SKU)
+                    if ($skuRaw === '') {
                         $stats['skipped_empty']++;
-                        continue; 
+                        continue;
                     }
 
-                    // --- 3. CEK DUPLIKAT ---
-                    // Kunci Unik: Cabang + SKU
-                    $uniqueKey = strtolower($currentCabang . '|' . $finalSku);
-
-                    if (isset($seenKeys[$uniqueKey])) {
-                        // Ini adalah data kembar di file Excel
-                        $stats['duplicates']++;
-                        // Tetap kita proses agar data terakhir yang meng-update, 
-                        // tapi kita catat sebagai duplikat.
-                    } else {
-                        $seenKeys[$uniqueKey] = true;
-                    }
-
-                    // --- 4. MAPPING DATA ---
+                    // --- 3. MAPPING DATA (53 KOLOM) ---
                     $batchData[] = [
-                        'cabang'            => $currentCabang,
-                        'ccode'             => $ccodeRaw,
-                        'sku'               => $finalSku,
+                        'cabang'            => $currentCabang,          // Pakai hasil fill down
+                        'ccode'             => $this->getStr($row, 1),
+                        'sku'               => $skuRaw,
                         'kategori'          => $this->getStr($row, 3),
                         'name_item'         => $this->getStr($row, 4),
                         'expired_date'      => $this->getDate($row, 5),
@@ -156,11 +140,13 @@ class ProdukImportService
 
                 } catch (Throwable $e) {
                     $stats['skipped_error']++;
-                    if ($stats['skipped_error'] <= 5) Log::error("Row Error: " . $e->getMessage());
+                    if ($stats['skipped_error'] <= 5) {
+                        Log::error("Import Row Error: " . $e->getMessage());
+                    }
                 }
             }
 
-            // Sisa Batch
+            // Batch Terakhir
             if (count($batchData) > 0) {
                 $this->processBatch($batchData);
                 $stats['processed'] += count($batchData);
@@ -202,24 +188,36 @@ class ProdukImportService
         });
     }
 
+    // Helper: Bersihkan string & tanda petik excel
     private function getStr(array &$row, int $index): string
     {
         if (!isset($row[$index])) return '';
         $v = $row[$index];
+        
         if (is_null($v)) return '';
+        
         $str = trim((string)$v);
-        if (str_starts_with($str, "'")) $str = substr($str, 1);
+        // Hapus tanda petik tunggal di awal (common excel issue)
+        if (str_starts_with($str, "'")) {
+            $str = substr($str, 1);
+        }
         return $str;
     }
 
+    // Helper: Parse Date
     private function getDate(array &$row, int $index): ?string
     {
         $v = $this->getStr($row, $index);
         if ($v === '' || $v === '-' || $v === 'Blank') return null;
+
         try {
-            if (is_numeric($v)) return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($v)->format('Y-m-d');
+            if (is_numeric($v)) {
+                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($v)->format('Y-m-d');
+            }
             $ts = strtotime($v);
             return $ts ? date('Y-m-d', $ts) : null;
-        } catch (Throwable $e) { return null; }
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 }

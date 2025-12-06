@@ -70,47 +70,58 @@ class ProdukIndex extends Component
 
     public function import()
     {
+        // 1. Validasi File
         $this->validate([
-            'file' => 'required|file|mimes:xlsx,csv,xls|max:102400',
+            'file' => 'required|file|mimes:xlsx,csv,xls|max:102400', // Max 100MB
         ]);
 
+        $filename = null;
+
         try {
+            // 2. Simpan file sementara ke folder 'temp-imports'
             $filename = $this->file->store('temp-imports', 'local');
+            
+            // Ambil Full Path agar bisa dibaca oleh Library Excel
             $fullPath = Storage::disk('local')->path($filename);
 
-            if (!file_exists($fullPath)) throw new \Exception("File gagal disimpan.");
+            if (!file_exists($fullPath)) {
+                throw new \Exception("Gagal menyimpan file sementara di server.");
+            }
 
+            // 3. Panggil Service Import
             $importService = new ProdukImportService();
             $stats = $importService->handle($fullPath);
 
+            // 4. Hapus file temporary setelah selesai
             if (Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
             
             $this->closeImportModal();
 
-            // --- NOTIFIKASI DETAIL UNTUK USER ---
+            // 5. BUAT PESAN NOTIFIKASI DETAIL
+            // Contoh: "Selesai! Diproses: 14,400 baris. (Total Excel: 14,400)"
+            $message = "Selesai! Berhasil diproses: " . number_format($stats['processed']) . 
+                       " dari Total: " . number_format($stats['total_rows']);
             
-            // Hitung Data Bersih (Tanpa Duplikat)
-            $uniqueCount = $stats['processed'] - $stats['duplicates'];
-
-            $message = "PROSES SELESAI!\n" .
-                       "📊 Total Baris Excel: " . number_format($stats['total_rows']) . "\n" .
-                       "✅ Data Masuk (Unik): " . number_format($uniqueCount) . "\n" .
-                       "♻️ Data Duplikat (Digabung): " . number_format($stats['duplicates']) . "\n";
-
+            // Tambahkan info jika ada yang di-skip (Opsional, harusnya 0 dengan logic baru)
             if ($stats['skipped_empty'] > 0) {
-                $message .= "⚠️ Skipped (SKU Kosong): " . number_format($stats['skipped_empty']);
+                $message .= " | Skipped (Empty): " . number_format($stats['skipped_empty']);
+            }
+            if ($stats['skipped_error'] > 0) {
+                $message .= " | Error: " . number_format($stats['skipped_error']);
             }
 
             session()->flash('success', $message);
 
         } catch (\Exception $e) {
-            if (isset($filename) && Storage::disk('local')->exists($filename)) {
+            // Cleanup: Hapus file jika terjadi error di tengah jalan
+            if ($filename && Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
+
             Log::error('Import Gagal: ' . $e->getMessage());
-            $this->addError('file', 'GAGAL: ' . $e->getMessage());
+            $this->addError('file', 'Terjadi Kesalahan: ' . $e->getMessage());
         }
     }
 
