@@ -274,10 +274,10 @@
                                 <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
                             </div>
 
-                            <!-- <a href="{{ route('profile.edit') }}"
+                            <a href="{{ route('profile.edit') }}"
                                 class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                 <i class="fas fa-user-circle w-5 mr-2"></i> Profile
-                            </a> -->
+                            </a>
                             <a href="#"
                                 class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
                                 <i class="fas fa-cog w-5 mr-2"></i> Settings

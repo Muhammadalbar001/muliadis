@@ -29,7 +29,7 @@
             </div>
             <input wire:model.live.debounce.300ms="search" type="text"
                 class="pl-10 pr-4 py-2.5 w-full border-gray-200 rounded-lg text-sm focus:border-orange-500 focus:ring-orange-500 placeholder-gray-400 transition-colors"
-                placeholder="Cari Invoice, Pelanggan, Sales...">
+                placeholder="Cari Invoice, Customer, Sales...">
         </div>
     </div>
 
@@ -40,7 +40,7 @@
                     class="bg-gray-50 text-gray-600 font-semibold uppercase text-xs tracking-wider border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-4">Invoice / Tgl</th>
-                        <th class="px-6 py-4">Pelanggan</th>
+                        <th class="px-6 py-4">Customer</th>
                         <th class="px-6 py-4">Jatuh Tempo</th>
                         <th class="px-6 py-4 text-center">Umur (Hari)</th>
                         <th class="px-6 py-4 text-right">Nilai Awal</th>
@@ -52,45 +52,42 @@
                     @forelse($ars as $item)
                     <tr class="hover:bg-gray-50 transition-colors group">
                         <td class="px-6 py-4">
-                            <div class="font-bold text-gray-800">{{ $item->no_penjualan }}</div>
+                            <div class="font-bold text-gray-800">{{ $item->no_inv }}</div>
                             <div class="text-xs text-gray-500 mt-0.5">
-                                {{ $item->tgl_penjualan ? \Carbon\Carbon::parse($item->tgl_penjualan)->format('d/m/Y') : '-' }}
+                                {{ $item->ar_date ? \Carbon\Carbon::parse($item->ar_date)->format('d/m/Y') : '-' }}
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="font-medium text-gray-800">{{ $item->pelanggan_name }}</div>
+                            <div class="font-medium text-gray-800">{{ $item->customer_name }}</div>
                             <div class="text-xs text-gray-400">{{ $item->sales_name }}</div>
                         </td>
                         <td class="px-6 py-4 text-gray-600">
-                            {{ $item->jatuh_tempo ? \Carbon\Carbon::parse($item->jatuh_tempo)->format('d M Y') : '-' }}
+                            {{ $item->due_date ? \Carbon\Carbon::parse($item->due_date)->format('d M Y') : ($item->top ?? '-') }}
                         </td>
                         <td class="px-6 py-4 text-center">
-                            @php $umur = (int)$item->umur_piutang; @endphp
-
-                            @if($umur > 60)
+                            @if($item->umur > 60)
                             <span
-                                class="px-2 py-1 rounded-full bg-red-100 text-red-700 font-bold text-xs">{{ $umur }}</span>
-                            @elseif($umur > 30)
+                                class="px-2 py-1 rounded-full bg-red-100 text-red-700 font-bold text-xs">{{ $item->umur }}</span>
+                            @elseif($item->umur > 30)
                             <span
-                                class="px-2 py-1 rounded-full bg-orange-100 text-orange-700 font-bold text-xs">{{ $umur }}</span>
+                                class="px-2 py-1 rounded-full bg-orange-100 text-orange-700 font-bold text-xs">{{ $item->umur }}</span>
                             @else
                             <span
-                                class="px-2 py-1 rounded-full bg-green-100 text-green-700 font-bold text-xs">{{ $umur }}</span>
+                                class="px-2 py-1 rounded-full bg-green-100 text-green-700 font-bold text-xs">{{ $item->umur }}</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right text-gray-500">
-                            {{ number_format((float)$item->total_nilai, 0, ',', '.') }}
+                            {{ number_format((float)$item->bill_amount, 0, ',', '.') }}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            @php $sisa = (float)$item->nilai; @endphp
-                            <span class="font-bold {{ $sisa > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                Rp {{ number_format($sisa, 0, ',', '.') }}
+                            <span class="font-bold {{ (float)$item->balance > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                Rp {{ number_format((float)$item->balance, 0, ',', '.') }}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-center">
                             <button wire:click="delete({{ $item->id }})"
                                 onclick="return confirm('Hapus data AR ini?') || event.stopImmediatePropagation()"
-                                class="text-gray-400 hover:text-red-600 transition" title="Hapus">
+                                class="text-gray-400 hover:text-red-600 transition">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
@@ -137,7 +134,7 @@
                                         <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl"></i>
                                         <div class="text-sm text-gray-600">
                                             <label for="file-upload-ar-{{ $iteration }}"
-                                                class="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none">
+                                                class="font-medium text-orange-600 hover:text-orange-500">
                                                 <span>Upload File</span>
                                                 <input id="file-upload-ar-{{ $iteration }}" wire:model="file"
                                                     type="file" class="sr-only">
@@ -148,8 +145,6 @@
 
                                 <div wire:loading wire:target="file"
                                     class="w-full mt-2 text-center text-sm text-orange-600">Uploading...</div>
-                                <div wire:loading wire:target="import"
-                                    class="w-full mt-2 text-center text-sm text-indigo-600">Memproses Import...</div>
                                 @error('file') <div class="mt-2 text-red-600 text-sm">{{ $message }}</div> @enderror
                             </div>
                         </div>

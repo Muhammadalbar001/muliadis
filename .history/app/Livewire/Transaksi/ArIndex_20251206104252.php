@@ -5,8 +5,8 @@ namespace App\Livewire\Transaksi;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use App\Models\Keuangan\AccountReceivable;
-use App\Services\Import\ArImportService;
+use App\Models\Keuangan\AccountReceivable; // Pastikan Model ini ada
+use App\Services\Import\ArImportService;   // Pastikan Service ini ada
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
@@ -17,6 +17,7 @@ class ArIndex extends Component
     public $search = '';
     public $isImportOpen = false;
     
+    // Upload properties
     public $file;
     public $iteration = 1;
 
@@ -27,12 +28,12 @@ class ArIndex extends Component
 
     public function render()
     {
-        // PERBAIKAN: Sesuaikan dengan nama kolom di Migration 'account_receivables'
+        // Query AR
         $ars = AccountReceivable::query()
-            ->where('no_penjualan', 'like', '%' . $this->search . '%') // SEBELUMNYA: no_inv
-            ->orWhere('pelanggan_name', 'like', '%' . $this->search . '%') // SEBELUMNYA: customer_name
+            ->where('no_inv', 'like', '%' . $this->search . '%')
+            ->orWhere('customer_name', 'like', '%' . $this->search . '%')
             ->orWhere('sales_name', 'like', '%' . $this->search . '%')
-            ->orderBy('tgl_penjualan', 'desc') // SEBELUMNYA: ar_date
+            ->orderBy('ar_date', 'desc') // Urutkan dari yang terbaru
             ->paginate(10);
 
         return view('livewire.transaksi.ar-index', [
@@ -67,7 +68,7 @@ class ArIndex extends Component
 
             if (!file_exists($fullPath)) throw new \Exception("Gagal simpan file.");
 
-            // Pastikan Anda sudah membuat Service ini dan menyesuaikan mapping kolomnya juga
+            // Panggil Service Import AR
             $importService = new ArImportService();
             $stats = $importService->handle($fullPath);
 
@@ -79,11 +80,9 @@ class ArIndex extends Component
             session()->flash('success', "Import AR Selesai! Total: {$stats['total_rows']}, Sukses: {$stats['imported']}");
 
         } catch (\Exception $e) {
-            // Bersihkan file jika error
             if (isset($filename) && Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
-            
             Log::error('Import AR Gagal: ' . $e->getMessage());
             $this->addError('file', 'Error: ' . $e->getMessage());
         }

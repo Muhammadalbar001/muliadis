@@ -5,18 +5,17 @@ namespace App\Livewire\Transaksi;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
-use App\Models\Keuangan\AccountReceivable;
-use App\Services\Import\ArImportService;
+use App\Models\Keuangan\Collection; // Pastikan Model ada
+use App\Services\Import\CollectionImportService; // Pastikan Service ada
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
-class ArIndex extends Component
+class CollectionIndex extends Component
 {
     use WithFileUploads, WithPagination;
 
     public $search = '';
     public $isImportOpen = false;
-    
     public $file;
     public $iteration = 1;
 
@@ -27,20 +26,20 @@ class ArIndex extends Component
 
     public function render()
     {
-        // PERBAIKAN: Sesuaikan dengan nama kolom di Migration 'account_receivables'
-        $ars = AccountReceivable::query()
-            ->where('no_penjualan', 'like', '%' . $this->search . '%') // SEBELUMNYA: no_inv
-            ->orWhere('pelanggan_name', 'like', '%' . $this->search . '%') // SEBELUMNYA: customer_name
-            ->orWhere('sales_name', 'like', '%' . $this->search . '%')
-            ->orderBy('tgl_penjualan', 'desc') // SEBELUMNYA: ar_date
+        // Query Collection
+        $collections = Collection::query()
+            ->where('invoice_no', 'like', '%' . $this->search . '%')
+            ->orWhere('customer_name', 'like', '%' . $this->search . '%')
+            ->orWhere('payment_method', 'like', '%' . $this->search . '%')
+            ->orderBy('payment_date', 'desc')
             ->paginate(10);
 
-        return view('livewire.transaksi.ar-index', [
-            'ars' => $ars
-        ])->layout('layouts.app', ['header' => 'Monitoring Piutang (AR)']);
+        return view('livewire.transaksi.collection-index', [
+            'collections' => $collections
+        ])->layout('layouts.app', ['header' => 'Data Collection (Lunas)']);
     }
 
-    // --- IMPORT LOGIC ---
+    // --- IMPORT ---
 
     public function openImportModal()
     {
@@ -65,10 +64,9 @@ class ArIndex extends Component
             $filename = $this->file->store('temp-imports', 'local');
             $fullPath = Storage::disk('local')->path($filename);
 
-            if (!file_exists($fullPath)) throw new \Exception("Gagal simpan file.");
+            if (!file_exists($fullPath)) throw new \Exception("File error.");
 
-            // Pastikan Anda sudah membuat Service ini dan menyesuaikan mapping kolomnya juga
-            $importService = new ArImportService();
+            $importService = new CollectionImportService();
             $stats = $importService->handle($fullPath);
 
             if (Storage::disk('local')->exists($filename)) {
@@ -76,15 +74,13 @@ class ArIndex extends Component
             }
 
             $this->closeImportModal();
-            session()->flash('success', "Import AR Selesai! Total: {$stats['total_rows']}, Sukses: {$stats['imported']}");
+            session()->flash('success', "Import Collection Selesai. Total: {$stats['total_rows']}, Sukses: {$stats['imported']}");
 
         } catch (\Exception $e) {
-            // Bersihkan file jika error
             if (isset($filename) && Storage::disk('local')->exists($filename)) {
                 Storage::disk('local')->delete($filename);
             }
-            
-            Log::error('Import AR Gagal: ' . $e->getMessage());
+            Log::error('Import Collection Gagal: ' . $e->getMessage());
             $this->addError('file', 'Error: ' . $e->getMessage());
         }
     }
@@ -92,10 +88,10 @@ class ArIndex extends Component
     public function delete($id)
     {
         try {
-            AccountReceivable::destroy($id);
-            session()->flash('success', 'Data piutang dihapus.');
+            Collection::destroy($id);
+            session()->flash('success', 'Data collection dihapus.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Gagal hapus data.');
+            session()->flash('error', 'Gagal hapus.');
         }
     }
 }
