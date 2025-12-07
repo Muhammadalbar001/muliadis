@@ -78,7 +78,7 @@ class PenjualanIndex extends Component
             Cache::forget('penjualan_opt_cabang'); // Reset cache filter
 
             $msg = "Selesai! Total: " . number_format($stats['total_rows']) . "\n" .
-                "✅ Masuk DB: " . number_format($stats['processed']);
+                   "✅ Masuk DB: " . number_format($stats['processed']);
 
             $this->dispatch('show-toast', ['type' => 'success', 'title' => 'Import Sukses', 'message' => $msg]);
 
@@ -90,7 +90,7 @@ class PenjualanIndex extends Component
 
     $msg = "Selesai!\n" . 
             "📂 Total Baris Excel: " . number_format($stats['total_rows']) . "\n" .
-            "✅ Masuk Database: " . number_format($stats['processed']);
+           "✅ Masuk Database: " . number_format($stats['processed']);
     
     if ($stats['skipped_empty'] > 0) {
         $msg .= "\n⚠️ Skipped (Kosong): " . number_format($stats['skipped_empty']);
