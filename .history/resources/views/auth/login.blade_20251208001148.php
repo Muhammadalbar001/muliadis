@@ -78,18 +78,16 @@
                             @endif
                         </div>
                         <div class="relative" x-data="{ show: false }">
-                            <input id="password" type="password" :type="show ? 'text' : 'password'" name="password"
-                                required autocomplete="current-password"
+                            <input id="password" :type="show ? 'text' : 'password'" name="password" required
+                                autocomplete="current-password"
                                 class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-gray-400 text-slate-800"
                                 placeholder="••••••••">
-
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-lock text-gray-400"></i>
                             </div>
-
                             <button type="button" @click="show = !show"
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <i class="far" :class="show ? 'fa-eye' : 'fa-eye-slash'"></i>
                             </button>
                         </div>
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />

@@ -60,7 +60,7 @@
                     <div class="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-white">
                         <i class="fas fa-cube text-sm"></i>
                     </div>
-                    <span class="text-lg font-bold tracking-wide">MULIADIS</span>
+                    <span class="text-lg font-bold tracking-wide">PT</span>
                 </div>
             </div>
 

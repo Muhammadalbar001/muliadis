@@ -77,45 +77,57 @@
                             </a>
                             @endif
                         </div>
-                        <div class="relative" x-data="{ show: false }">
-                            <input id="password" type="password" :type="show ? 'text' : 'password'" name="password"
-                                required autocomplete="current-password"
-                                class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-gray-400 text-slate-800"
-                                placeholder="••••••••">
-
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-lock text-gray-400"></i>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label for="password" class="text-sm font-semibold text-slate-700">Kata Sandi</label>
+                                @if (Route::has('password.request'))
+                                <a href="{{ route('password.request') }}"
+                                    class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
+                                    Lupa sandi?
+                                </a>
+                                @endif
                             </div>
 
-                            <button type="button" @click="show = !show"
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
-                                <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
-                            </button>
+                            <div class="relative" x-data="{ show: false }">
+                                <input id="password" type="password" :type="show ? 'text' : 'password'" name="password"
+                                    required autocomplete="current-password"
+                                    class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-gray-400 text-slate-800"
+                                    placeholder="••••••••">
+
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-lock text-gray-400"></i>
+                                </div>
+
+                                <button type="button" @click="show = !show"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                                    <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
+                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                    </div>
 
-                    <div class="flex items-center">
-                        <label for="remember_me" class="inline-flex items-center group cursor-pointer">
-                            <input id="remember_me" type="checkbox"
-                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 cursor-pointer"
-                                name="remember">
-                            <span class="ms-2 text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Ingat
-                                saya di perangkat ini</span>
-                        </label>
-                    </div>
+                        <div class="flex items-center">
+                            <label for="remember_me" class="inline-flex items-center group cursor-pointer">
+                                <input id="remember_me" type="checkbox"
+                                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 cursor-pointer"
+                                    name="remember">
+                                <span
+                                    class="ms-2 text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Ingat
+                                    saya di perangkat ini</span>
+                            </label>
+                        </div>
 
-                    <button type="submit"
-                        class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Masuk Dashboard
-                    </button>
+                        <button type="submit"
+                            class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Masuk Dashboard
+                        </button>
 
-                    <div class="text-center mt-6">
-                        <p class="text-xs text-slate-400">
-                            Mengalami kendala akses? <a href="#"
-                                class="text-indigo-600 hover:text-indigo-500 font-medium">Hubungi IT Support</a>
-                        </p>
-                    </div>
+                        <div class="text-center mt-6">
+                            <p class="text-xs text-slate-400">
+                                Mengalami kendala akses? <a href="#"
+                                    class="text-indigo-600 hover:text-indigo-500 font-medium">Hubungi IT Support</a>
+                            </p>
+                        </div>
                 </form>
             </div>
         </div>
