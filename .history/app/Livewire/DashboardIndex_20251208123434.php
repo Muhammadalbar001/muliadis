@@ -49,11 +49,12 @@ class DashboardIndex extends Component
             ->selectRaw("nama_pelanggan, SUM(CAST(total_grand AS DECIMAL(20,2))) as total_beli")
             ->groupBy('nama_pelanggan')->orderByDesc('total_beli')->limit(10)->get();
 
+        // [BARU] TOP SUPPLIER
         $topSupplier = $this->queryPenjualan()
             ->selectRaw("supplier, SUM(CAST(total_grand AS DECIMAL(20,2))) as total_beli")
             ->groupBy('supplier')->orderByDesc('total_beli')->limit(10)->get();
 
-        // 3. FILTER
+        // 3. FILTER OPTION
         $optCabang = Cache::remember('dash_cabang', 3600, fn() => Penjualan::select('cabang')->distinct()->whereNotNull('cabang')->pluck('cabang'));
         $optSales  = Cache::remember('dash_sales', 3600, fn() => Penjualan::select('sales_name')->distinct()->whereNotNull('sales_name')->pluck('sales_name'));
 
@@ -61,11 +62,12 @@ class DashboardIndex extends Component
 
         return view('livewire.dashboard-index', compact(
             'salesSum', 'returSum', 'arSum', 'collSum', 'persenRetur',
-            'topProduk', 'topCustomer', 'topSupplier',
+            'topProduk', 'topCustomer', 'topSupplier', // Pass variable
             'optCabang', 'optSales', 'chartData'
         ))->layout('layouts.app', ['header' => 'Executive Dashboard']);
     }
 
+    // --- CHART DATA LOGIC ---
     private function getChartData()
     {
         $dates = $this->getDatesRange();
@@ -84,37 +86,36 @@ class DashboardIndex extends Component
             $dataColl[]  = (float)($dailyColl[$date] ?? 0);
         }
 
-        // B. SALESMAN PERFORMANCE & SUPPLIER BREAKDOWN
+        // B. SALESMAN PERFORMANCE
         $salesPerf = $this->getSalesmanPerformance();
 
         return [
             'dates' => $dates,
-            'sales' => $dataSales, 'retur' => $dataRetur, 'ar' => $dataAR, 'coll' => $dataColl,
+            'sales' => $dataSales,
+            'retur' => $dataRetur,
+            'ar'    => $dataAR,
+            'coll'  => $dataColl,
             
-            // Salesman Data
+            // C. SALESMAN DATA
             'salesNames'    => $salesPerf['names'],
             'salesTargetIMS'=> $salesPerf['target_ims'], 'salesRealIMS' => $salesPerf['real_ims'],
             'salesTargetOA' => $salesPerf['target_oa'],  'salesRealOA'  => $salesPerf['real_oa'],
             'salesARLancar' => $salesPerf['ar_lancar'],  'salesARMacet' => $salesPerf['ar_macet'],
-            
-            // [BARU] Stacked Series untuk Supplier
-            'salesSuppSeries' => $salesPerf['supp_series'], 
         ];
     }
 
+    // ... (Fungsi getSalesmanPerformance, baseFilter, queryPenjualan, dll TETAP SAMA) ...
+    // Pastikan fungsi-fungsi private di bawah ini tetap ada seperti sebelumnya
+    
     private function getSalesmanPerformance()
     {
         $q = Sales::query();
         if(!empty($this->filterCabang)) $q->whereIn('city', $this->filterCabang);
-        // Ambil Top 20 Sales (Urut Abjad)
         $listSales = $q->orderBy('sales_name')->take(20)->get();
-        $salesNamesList = $listSales->pluck('sales_name')->toArray();
 
-        // Init Arrays
         $names = []; $targetIMS = []; $realIMS = []; $targetOA = []; $realOA = []; $arLancar = []; $arMacet = [];
-        
-        // Data Pendukung
         $start = Carbon::parse($this->startDate);
+
         $realSales = Penjualan::selectRaw("sales_name, SUM(CAST(total_grand AS DECIMAL(20,2))) as total, COUNT(DISTINCT kode_pelanggan) as oa")->whereBetween('tgl_penjualan', [$this->startDate, $this->endDate])->groupBy('sales_name')->get()->keyBy('sales_name');
         $realAR = AccountReceivable::selectRaw("sales_name, SUM(CASE WHEN CAST(umur_piutang AS UNSIGNED) <= 30 THEN CAST(nilai AS DECIMAL(20,2)) ELSE 0 END) as lancar, SUM(CASE WHEN CAST(umur_piutang AS UNSIGNED) > 30 THEN CAST(nilai AS DECIMAL(20,2)) ELSE 0 END) as macet")->where('nilai', '>', 0)->groupBy('sales_name')->get()->keyBy('sales_name');
         $targets = SalesTarget::where('year', $start->year)->where('month', $start->month)->get()->keyBy('sales_id');
@@ -130,60 +131,7 @@ class DashboardIndex extends Component
             $arLancar[] = $a ? (float)$a->lancar : 0;
             $arMacet[]  = $a ? (float)$a->macet : 0;
         }
-
-        // --- LOGIC SUPPLIER STACKED ---
-        // 1. Ambil Top 5 Supplier Global di periode ini
-        $topSuppliers = Penjualan::selectRaw('supplier, SUM(CAST(total_grand AS DECIMAL(20,2))) as total')
-            ->whereBetween('tgl_penjualan', [$this->startDate, $this->endDate])
-            ->groupBy('supplier')
-            ->orderByDesc('total')
-            ->limit(5)
-            ->pluck('supplier')
-            ->toArray();
-
-        // 2. Ambil Data Penjualan per Sales per Supplier
-        $salesBySupp = Penjualan::selectRaw("sales_name, supplier, SUM(CAST(total_grand AS DECIMAL(20,2))) as total")
-            ->whereBetween('tgl_penjualan', [$this->startDate, $this->endDate])
-            ->whereIn('sales_name', $salesNamesList)
-            ->groupBy('sales_name', 'supplier')
-            ->get();
-
-        // 3. Susun Series untuk ApexCharts
-        $suppSeries = [];
-        
-        // Loop untuk Top 5 Supplier
-        foreach ($topSuppliers as $suppName) {
-            $data = [];
-            foreach ($names as $salesName) {
-                // Cari data penjualan sales ini untuk supplier ini
-                $row = $salesBySupp->where('sales_name', $salesName)->where('supplier', $suppName)->first();
-                $data[] = $row ? (float)$row->total : 0;
-            }
-            $suppSeries[] = ['name' => $suppName, 'data' => $data];
-        }
-
-        // Loop untuk "Others" (Sisa Supplier)
-        $othersData = [];
-        foreach ($names as $salesName) {
-            $totalSales = $realSales->get($salesName)->total ?? 0;
-            // Hitung total dari Top 5
-            $top5Sum = 0;
-            foreach ($suppSeries as $series) {
-                // Cari index salesName di array names
-                $idx = array_search($salesName, $names);
-                $top5Sum += $series['data'][$idx];
-            }
-            $othersData[] = max(0, $totalSales - $top5Sum);
-        }
-        $suppSeries[] = ['name' => 'Others', 'data' => $othersData];
-
-        return [
-            'names' => $names,
-            'target_ims' => $targetIMS, 'real_ims' => $realIMS,
-            'target_oa' => $targetOA, 'real_oa' => $realOA,
-            'ar_lancar' => $arLancar, 'ar_macet' => $arMacet,
-            'supp_series' => $suppSeries // [BARU]
-        ];
+        return ['names' => $names, 'target_ims' => $targetIMS, 'real_ims' => $realIMS, 'target_oa' => $targetOA, 'real_oa' => $realOA, 'ar_lancar' => $arLancar, 'ar_macet' => $arMacet];
     }
 
     private function baseFilter($query, $dateCol) {

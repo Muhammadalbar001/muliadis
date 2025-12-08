@@ -43,7 +43,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan/retur', RekapReturIndex::class)->name('laporan.retur');
     Route::get('/laporan/ar', RekapArIndex::class)->name('laporan.ar');
     Route::get('/laporan/collection', RekapCollectionIndex::class)->name('laporan.collection');
-    Route::get('/laporan/kinerja-sales', KinerjaSalesIndex::class)->name('laporan.kinerja-sales');
 
     // PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

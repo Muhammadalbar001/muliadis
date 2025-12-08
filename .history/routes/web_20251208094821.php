@@ -16,7 +16,6 @@ use App\Livewire\Laporan\RekapPenjualanIndex;
 use App\Livewire\Laporan\RekapReturIndex;
 use App\Livewire\Laporan\RekapArIndex;
 use App\Livewire\Laporan\RekapCollectionIndex;
-use App\Livewire\Laporan\KinerjaSalesIndex;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -30,7 +29,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // MASTER DATA
     Route::get('/master/produk', ProdukIndex::class)->name('master.produk');
     Route::get('/master/supplier', SupplierIndex::class)->name('master.supplier');
-    Route::get('/master/sales', SalesIndex::class)->name('master.sales');
 
     // TRANSAKSI
     Route::get('/transaksi/penjualan', PenjualanIndex::class)->name('transaksi.penjualan');
@@ -43,7 +41,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan/retur', RekapReturIndex::class)->name('laporan.retur');
     Route::get('/laporan/ar', RekapArIndex::class)->name('laporan.ar');
     Route::get('/laporan/collection', RekapCollectionIndex::class)->name('laporan.collection');
-    Route::get('/laporan/kinerja-sales', KinerjaSalesIndex::class)->name('laporan.kinerja-sales');
 
     // PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

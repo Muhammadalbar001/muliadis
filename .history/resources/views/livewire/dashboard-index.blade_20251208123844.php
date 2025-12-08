@@ -183,7 +183,7 @@ document.addEventListener('livewire:init', () => {
         cNames: @json($topCustomer -> pluck('nama_pelanggan')),
         cVal: @json($topCustomer -> pluck('total_beli')),
         sNames: @json($topSupplier -> pluck('supplier')),
-        sVal: @json($topSupplier -> pluck('total_beli'))
+        sVal: @json($topSupplier - > pluck('total_beli'))
     };
 
     const renderAll = (data) => {

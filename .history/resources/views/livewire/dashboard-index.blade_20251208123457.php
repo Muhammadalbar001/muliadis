@@ -103,6 +103,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h4 class="font-bold text-slate-800 text-lg">📈 Tren Omzet vs Retur</h4>
+                        <p class="text-xs text-slate-400">Perbandingan penjualan kotor dan barang kembali harian.</p>
                     </div>
                 </div>
                 <div id="chart-sales-retur" style="min-height: 350px;"></div>
@@ -111,6 +112,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h4 class="font-bold text-slate-800 text-lg">💰 Tagihan vs Pembayaran</h4>
+                        <p class="text-xs text-slate-400">Analisa cashflow harian (Piutang terbentuk vs Uang masuk).</p>
                     </div>
                 </div>
                 <div id="chart-ar-coll" style="min-height: 350px;"></div>
@@ -120,22 +122,31 @@
 
     <div x-show="activeTab === 'ranking'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
         wire:ignore>
+
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
             <h4 class="font-bold text-slate-700 text-lg mb-6 flex items-center gap-2 pb-2 border-b border-slate-100">
                 <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i
-                        class="fas fa-trophy"></i></span>Top 10 Produk Terlaris (Qty)</h4>
+                        class="fas fa-trophy"></i></span>
+                Top 10 Produk Terlaris (Qty)
+            </h4>
             <div id="chart-top-produk" style="min-height: 400px;"></div>
         </div>
+
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
             <h4 class="font-bold text-slate-700 text-lg mb-6 flex items-center gap-2 pb-2 border-b border-slate-100">
                 <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center"><i
-                        class="fas fa-crown"></i></span>Top 10 Pelanggan Terbaik (Value)</h4>
+                        class="fas fa-crown"></i></span>
+                Top 10 Pelanggan Terbaik (Value)
+            </h4>
             <div id="chart-top-customer" style="min-height: 400px;"></div>
         </div>
+
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
             <h4 class="font-bold text-slate-700 text-lg mb-6 flex items-center gap-2 pb-2 border-b border-slate-100">
                 <span class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center"><i
-                        class="fas fa-truck"></i></span>Top 10 Supplier (Omzet)</h4>
+                        class="fas fa-truck"></i></span>
+                Top 10 Supplier (Principal)
+            </h4>
             <div id="chart-top-supplier" style="min-height: 400px;"></div>
         </div>
     </div>
@@ -147,20 +158,11 @@
                 (IMS)</h4>
             <div id="chart-ims" style="min-height: 400px;"></div>
         </div>
-
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h4 class="font-bold text-lg text-purple-900 mb-4 pb-2 border-b border-slate-50">📦 Komposisi Penjualan by
-                Supplier</h4>
-            <p class="text-xs text-slate-400 mb-2">5 Supplier Terbesar + Others</p>
-            <div id="chart-sales-supp" style="min-height: 450px;"></div>
-        </div>
-
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h4 class="font-bold text-lg text-orange-900 mb-4 pb-2 border-b border-slate-50">💸 Kualitas Piutang (AR)
             </h4>
             <div id="chart-ar-quality" style="min-height: 400px;"></div>
         </div>
-
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h4 class="font-bold text-lg text-emerald-900 mb-4 pb-2 border-b border-slate-50">🏪 Distribusi Toko (OA)
             </h4>
@@ -180,10 +182,10 @@ document.addEventListener('livewire:init', () => {
     const initTop = {
         pNames: @json($topProduk -> pluck('nama_item')),
         pQty: @json($topProduk -> pluck('total_qty')),
-        cNames: @json($topCustomer -> pluck('nama_pelanggan')),
-        cVal: @json($topCustomer -> pluck('total_beli')),
-        sNames: @json($topSupplier -> pluck('supplier')),
-        sVal: @json($topSupplier -> pluck('total_beli'))
+        cNames: @json($topCustomer - > pluck('nama_pelanggan')),
+        cVal: @json($topCustomer - > pluck('total_beli')),
+        sNames: @json($topSupplier - > pluck('supplier')),
+        sVal: @json($topSupplier - > pluck('total_beli'))
     };
 
     const renderAll = (data) => {
@@ -191,6 +193,7 @@ document.addEventListener('livewire:init', () => {
         const fmtRp = (v) => "Rp " + new Intl.NumberFormat('id-ID').format(v);
         const fmtJt = (v) => (v / 1000000).toFixed(1) + " Jt";
 
+        // Common Options Horizontal
         const hBarOpts = {
             chart: {
                 type: 'bar',
@@ -228,137 +231,7 @@ document.addEventListener('livewire:init', () => {
             }
         };
 
-        // 1. IMS Chart
-        if (charts.ims) charts.ims.destroy();
-        charts.ims = new ApexCharts(document.querySelector("#chart-ims"), {
-            ...hBarOpts,
-            series: [{
-                name: 'Realisasi',
-                data: data.salesRealIMS
-            }, {
-                name: 'Target',
-                data: data.salesTargetIMS
-            }],
-            colors: ['#4f46e5', '#e2e8f0'],
-            dataLabels: {
-                enabled: false
-            },
-            xaxis: {
-                categories: data.salesNames,
-                labels: {
-                    formatter: (v) => (v / 1000000).toFixed(0) + "Jt"
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: fmtRp
-                }
-            }
-        });
-        charts.ims.render();
-
-        // 2. Sales By Supplier (STACKED) - BARU
-        if (charts.salesSupp) charts.salesSupp.destroy();
-        charts.salesSupp = new ApexCharts(document.querySelector("#chart-sales-supp"), {
-            chart: {
-                type: 'bar',
-                height: 450,
-                stacked: true,
-                toolbar: {
-                    show: false
-                },
-                fontFamily: font
-            },
-            series: data.salesSuppSeries,
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    barHeight: '70%',
-                    borderRadius: 2
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            xaxis: {
-                categories: data.salesNames,
-                labels: {
-                    formatter: (v) => (v / 1000000).toFixed(0) + "Jt"
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: fmtRp
-                }
-            },
-            legend: {
-                position: 'top'
-            },
-            colors: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-                '#94a3b8'] // Warna-warni
-        });
-        charts.salesSupp.render();
-
-        // 3. AR Quality
-        if (charts.arQ) charts.arQ.destroy();
-        charts.arQ = new ApexCharts(document.querySelector("#chart-ar-quality"), {
-            ...hBarOpts,
-            chart: {
-                type: 'bar',
-                stacked: true,
-                height: 400,
-                toolbar: {
-                    show: false
-                },
-                fontFamily: font
-            },
-            series: [{
-                name: 'Lancar',
-                data: data.salesARLancar
-            }, {
-                name: 'Macet (>30)',
-                data: data.salesARMacet
-            }],
-            colors: ['#10b981', '#ef4444'],
-            dataLabels: {
-                enabled: false
-            },
-            xaxis: {
-                categories: data.salesNames,
-                labels: {
-                    show: false
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: fmtRp
-                }
-            }
-        });
-        charts.arQ.render();
-
-        // 4. OA Chart
-        if (charts.oa) charts.oa.destroy();
-        charts.oa = new ApexCharts(document.querySelector("#chart-oa"), {
-            ...hBarOpts,
-            series: [{
-                name: 'Realisasi',
-                data: data.salesRealOA
-            }, {
-                name: 'Target',
-                data: data.salesTargetOA
-            }],
-            colors: ['#059669', '#d1fae5'],
-            dataLabels: {
-                enabled: false
-            },
-            xaxis: {
-                categories: data.salesNames
-            }
-        });
-        charts.oa.render();
-
-        // 5. Trend Sales vs Retur
+        // 1. Sales vs Retur
         if (charts.salesRetur) charts.salesRetur.destroy();
         charts.salesRetur = new ApexCharts(document.querySelector("#chart-sales-retur"), {
             series: [{
@@ -416,7 +289,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.salesRetur.render();
 
-        // 6. Trend AR vs Coll
+        // 2. AR vs Coll
         if (charts.arColl) charts.arColl.destroy();
         charts.arColl = new ApexCharts(document.querySelector("#chart-ar-coll"), {
             series: [{
@@ -465,6 +338,92 @@ document.addEventListener('livewire:init', () => {
             }
         });
         charts.arColl.render();
+
+        // 3. Salesman Charts (IMS, AR, OA)
+        if (charts.ims) charts.ims.destroy();
+        charts.ims = new ApexCharts(document.querySelector("#chart-ims"), {
+            ...hBarOpts,
+            series: [{
+                name: 'Realisasi',
+                data: data.salesRealIMS
+            }, {
+                name: 'Target',
+                data: data.salesTargetIMS
+            }],
+            colors: ['#4f46e5', '#e2e8f0'],
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: data.salesNames,
+                labels: {
+                    formatter: (v) => (v / 1000000).toFixed(0) + "Jt"
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: fmtRp
+                }
+            }
+        });
+        charts.ims.render();
+
+        if (charts.arQ) charts.arQ.destroy();
+        charts.arQ = new ApexCharts(document.querySelector("#chart-ar-quality"), {
+            ...hBarOpts,
+            chart: {
+                type: 'bar',
+                stacked: true,
+                height: 400,
+                toolbar: {
+                    show: false
+                },
+                fontFamily: font
+            },
+            series: [{
+                name: 'Lancar',
+                data: data.salesARLancar
+            }, {
+                name: 'Macet (>30)',
+                data: data.salesARMacet
+            }],
+            colors: ['#10b981', '#ef4444'],
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: data.salesNames,
+                labels: {
+                    show: false
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: fmtRp
+                }
+            }
+        });
+        charts.arQ.render();
+
+        if (charts.oa) charts.oa.destroy();
+        charts.oa = new ApexCharts(document.querySelector("#chart-oa"), {
+            ...hBarOpts,
+            series: [{
+                name: 'Realisasi',
+                data: data.salesRealOA
+            }, {
+                name: 'Target',
+                data: data.salesTargetOA
+            }],
+            colors: ['#059669', '#d1fae5'],
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                categories: data.salesNames
+            },
+        });
+        charts.oa.render();
     };
 
     const renderTop = () => {
@@ -491,9 +450,10 @@ document.addEventListener('livewire:init', () => {
                 labels: {
                     show: false
                 }
-            }
+            },
         };
 
+        // Top Prod
         charts.topProd = new ApexCharts(document.querySelector("#chart-top-produk"), {
             ...hBarTop,
             series: [{
@@ -517,6 +477,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.topProd.render();
 
+        // Top Cust
         charts.topCust = new ApexCharts(document.querySelector("#chart-top-customer"), {
             ...hBarTop,
             series: [{
@@ -545,6 +506,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.topCust.render();
 
+        // Top Supplier (BARU)
         charts.topSupp = new ApexCharts(document.querySelector("#chart-top-supplier"), {
             ...hBarTop,
             series: [{

@@ -124,10 +124,6 @@
                     class="flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('laporan.collection') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                     <i class="fas fa-hand-holding-usd w-6 text-center mr-2"></i> Rekap Collection
                 </a>
-                <a href="{{ route('laporan.kinerja-sales') }}"
-                    class="flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('laporan.kinerja-sales') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
-                    <i class="fas fa-user-graduate w-6 text-center mr-2"></i> Kinerja Sales (Rapor)
-                </a>
 
             </div>
 

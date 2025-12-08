@@ -180,10 +180,10 @@ document.addEventListener('livewire:init', () => {
     const initTop = {
         pNames: @json($topProduk -> pluck('nama_item')),
         pQty: @json($topProduk -> pluck('total_qty')),
-        cNames: @json($topCustomer -> pluck('nama_pelanggan')),
-        cVal: @json($topCustomer -> pluck('total_beli')),
-        sNames: @json($topSupplier -> pluck('supplier')),
-        sVal: @json($topSupplier -> pluck('total_beli'))
+        cNames: @json($topCustomer - > pluck('nama_pelanggan')),
+        cVal: @json($topCustomer - > pluck('total_beli')),
+        sNames: @json($topSupplier - > pluck('supplier')),
+        sVal: @json($topSupplier - > pluck('total_beli'))
     };
 
     const renderAll = (data) => {
