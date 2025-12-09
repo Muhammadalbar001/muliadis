@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,7 +19,7 @@ class DatabaseSeeder extends Seeder
         'name' => 'Administrator',
         'username' => 'admin', // Username untuk login
         'email' => 'admin@muliadis.com',
-        'password' => Hash::make('password'), // Password default
+        'password' => Hash::make('adminmulia'), // Password default
     ]);
 }
 }

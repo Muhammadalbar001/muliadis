@@ -41,11 +41,12 @@ class LoginRequest extends FormRequest
     {
     $this->ensureIsNotRateLimited();
 
+    // GANTI 'email' MENJADI 'username' DI SINI
     if (! Auth::attempt($this->only('username', 'password'), $this->boolean('remember'))) {
         RateLimiter::hit($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'username' => trans('auth.failed'), 
+            'username' => trans('auth.failed'), // Pesan error jika gagal
         ]);
     }
 
