@@ -1,6 +1,6 @@
 <aside
-    class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 text-white transition-transform duration-300 flex flex-col -translate-x-full lg:translate-x-0"
-    :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen, 'lg:translate-x-0': true }">
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 text-white transition-transform duration-300 transform flex flex-col"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
 
     <div
         class="h-20 flex-none flex items-center justify-between px-6 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-xl">
@@ -119,25 +119,29 @@
     <div class="p-4 border-t border-slate-800 bg-slate-950 flex-none">
         <div class="flex items-center justify-between gap-3">
 
-            <a href="{{ route('profile.edit') }}"
-                onclick="document.querySelector('aside').classList.add('-translate-x-full'); document.querySelector('aside').classList.remove('translate-x-0');"
-                class="flex items-center gap-3 flex-1 min-w-0 group hover:bg-slate-800 p-2 rounded-xl transition-all cursor-pointer"
-                title="Edit Profil">
-                <div class="relative">
-                    <div
-                        class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-white border-2 border-slate-600 group-hover:border-indigo-500 transition-colors">
-                        {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+            <div class="flex-1 min-w-0" @click="sidebarOpen = false">
+                <a href="{{ route('profile.edit') }}"
+                    class="flex items-center gap-3 w-full group hover:bg-slate-800 p-2 rounded-xl transition-all cursor-pointer"
+                    title="Edit Profil">
+
+                    <div class="relative">
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold text-white border-2 border-slate-600 group-hover:border-indigo-500 transition-colors">
+                            {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        </div>
+                        <div
+                            class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-slate-900 rounded-full">
+                        </div>
                     </div>
-                    <div
-                        class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-slate-900 rounded-full">
+
+                    <div class="flex-1 min-w-0">
+                        <p
+                            class="text-sm font-medium text-white truncate group-hover:text-indigo-400 transition-colors">
+                            {{ Auth::user()->name ?? 'User' }}</p>
+                        <p class="text-[10px] text-slate-500 truncate group-hover:text-slate-400">Administrator</p>
                     </div>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-white truncate group-hover:text-indigo-400 transition-colors">
-                        {{ Auth::user()->name ?? 'User' }}</p>
-                    <p class="text-[10px] text-slate-500 truncate group-hover:text-slate-400">Administrator</p>
-                </div>
-            </a>
+                </a>
+            </div>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
