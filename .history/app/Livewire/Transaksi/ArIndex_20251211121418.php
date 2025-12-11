@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Livewire\Transaksi;
+
+use Livewire\Component;
+use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use App\Models\Keuangan\AccountReceivable;
+use App\Services\Import\ArImportService;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+
+class ArIndex extends Component
+{
+    use WithPagination, WithFileUploads;
+
+    public $search = '';
+    public $filterCabang = [];
+    public $filterSales = [];
+    public $filterUmur = ''; // 'lancar', 'macet'
+
+    // Modal
+    public $isImportOpen = false;
+    public $file;
+    public $resetData = false;
+
+    public function updatedSearch() { $this->resetPage(); }
+    public function updatedFilterCabang() { $this->resetPage(); }
+    public function updatedFilterSales() { $this->resetPage(); }
+
+    public function resetFilter()
+    {
+        $this->reset(['search', 'filterCabang', 'filterSales', 'filterUmur']);
+        $this->resetPage();
+    }
+
+    public function render()
+    {
+        $query = AccountReceivable::query();
+
+        // 1. Search
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('no_penjualan', 'like', '%'.$this->search.'%')
+                  ->orWhere('pelanggan_name', 'like', '%'.$this->search.'%')
+                  ->orWhere('unique_id', 'like', '%'.$this->search.'%');
+            });
+        }
+
+        // 2. Filters
+        if (!empty($this->filterCabang)) {
+            $query->whereIn('cabang', $this->filterCabang);
+        }
+        if (!empty($this->filterSales)) {
+            $query->whereIn('sales_name', $this->filterSales);
+        }
+
+        // 3. Filter Umur (Lancar / Macet)
+        if ($this->filterUmur === 'lancar') {
+            $query->where('umur_piutang', '<=', 30);
+        } elseif ($this->filterUmur === 'macet') {
+            $query->where('umur_piutang', '>', 30);
+        }
+
+        // --- SUMMARY STATS (HITUNG TOTAL) ---
+        // Kita hitung ini SEBELUM paginate agar angkanya total keseluruhan filter
+        $summary = [
+            'total_piutang' => (clone $query)->sum('nilai'),
+            'total_faktur'  => (clone $query)->count(),
+            // Hitung potensi macet (Piutang > 30 hari)
+            'total_macet'   => (clone $query)->where('umur_piutang', '>', 30)->sum('nilai'),
+        ];
+
+        // 4. Data Table (Urutkan dari yang paling lama nunggak)
+        $ars = $query->orderBy('umur_piutang', 'desc')->paginate(10);
+
+        // Options Cache
+        $optCabang = Cache::remember('opt_ar_cabang', 3600, fn() => AccountReceivable::select('cabang')->distinct()->whereNotNull('cabang')->pluck('cabang'));
+        $optSales = Cache::remember('opt_ar_sales', 3600, fn() => AccountReceivable::select('sales_name')->distinct()->whereNotNull('sales_name')->pluck('sales_name'));
+
+        return view('livewire.transaksi.ar-index', compact('ars', 'optCabang', 'optSales', 'summary'))
+            ->layout('layouts.app', ['header' => 'Monitoring Piutang (AR)']);
+    }
+
+    // --- IMPORT LOGIC (BIG DATA READY) ---
+    public function openImportModal() { $this->resetErrorBag(); $this->isImportOpen = true; }
+    public function closeImportModal() { $this->isImportOpen = false; $this->file = null; }
+    
+    public function import() 
+    {
+        $this->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:153600']);
+
+        // Lock Process
+        $lock = Cache::lock('importing_ar', 600);
+        if (!$lock->get()) {
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Import sedang berjalan. Tunggu sebentar!']);
+            return;
+        }
+
+        ini_set('memory_limit', '-1');
+        set_time_limit(0);
+
+        try {
+            $path = $this->file->store('temp-import', 'local');
+            $fullPath = Storage::disk('local')->path($path);
+
+            // Panggil Service dengan parameter resetData
+            $stats = (new ArImportService)->handle($fullPath, $this->resetData); 
+            $count = $stats['processed'] ?? 0;
+            $skipped = $stats['skipped_empty'] ?? 0;
+
+            if(Storage::disk('local')->exists($path)) { Storage::disk('local')->delete($path); }
+            Cache::forget('opt_ar_cabang');
+            Cache::forget('opt_ar_sales');
+            $this->closeImportModal();
+            
+            $this->dispatch('show-toast', [
+                'type' => 'success', 
+                'message' => "BERHASIL! Masuk: " . number_format($count) . " Data Piutang. (Skip: $skipped)"
+            ]);
+
+        } catch (\Exception $e) {
+            if(isset($path) && Storage::disk('local')->exists($path)) { Storage::disk('local')->delete($path); }
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Gagal: ' . $e->getMessage()]);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    public function delete($id) {
+        AccountReceivable::destroy($id);
+        $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Data AR dihapus']);
+    }
+}
