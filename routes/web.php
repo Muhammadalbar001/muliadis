@@ -46,8 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ====================================================
     // 1. LOGIKA REDIRECT DASHBOARD (PENTING)
     // ====================================================
-    // Route ini mencegat user yang mengakses '/dashboard' biasa
-    // dan melempar mereka ke halaman khusus role masing-masing.
+    // Route ini bernama 'dashboard' (tanpa embel-embel) agar sidebar tombol 'Dashboard' tidak error.
     Route::get('/dashboard', function () {
         $role = auth()->user()->role;
         
@@ -67,13 +66,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ====================================================
     // 2. AREA KHUSUS ADMIN & PIMPINAN
     // ====================================================
-    // Hanya role 'admin' dan 'pimpinan' yang bisa akses URL berawalan /admin
-    Route::middleware(['role:admin,pimpinan'])->prefix('admin')->name('admin.')->group(function () {
+    // PERBAIKAN: Saya HAPUS "->name('admin.')" agar nama route di dalamnya tidak berubah jadi 'admin.master.sales'
+    Route::middleware(['role:admin,pimpinan'])->prefix('admin')->group(function () {
         
-        // Dashboard Berat (Chart, Statistik, dll)
-        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
+        // Dashboard Admin (Wajib diberi nama spesifik 'admin.dashboard' untuk tujuan redirect di atas)
+        Route::get('/dashboard', AdminDashboard::class)->name('admin.dashboard');
 
-        // Master Data (Hanya Admin yang boleh edit data master)
+        // Master Data (Route tetap: master.sales, master.produk, dll. Sesuai Sidebar)
         Route::prefix('master')->name('master.')->group(function () {
             Route::get('/sales', SalesIndex::class)->name('sales');
             Route::get('/produk', ProdukIndex::class)->name('produk');
@@ -81,7 +80,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/user', UserIndex::class)->name('user'); 
         });
 
-        // Laporan (Analisa berat hanya untuk Pimpinan/Admin)
+        // Laporan (Route tetap: laporan.kinerja-sales, dll)
         Route::prefix('laporan')->name('laporan.')->group(function () {
             Route::get('/kinerja-sales', KinerjaSalesIndex::class)->name('kinerja-sales');
             Route::get('/rekap-penjualan', RekapPenjualanIndex::class)->name('rekap-penjualan');
@@ -95,14 +94,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ====================================================
     // 3. AREA KHUSUS STAFF / PENGGUNA
     // ====================================================
-    // Role 'pengguna' akan bekerja di sini
-    // Note: Jika Admin juga butuh input transaksi, tambahkan role admin di middleware bawah ini
-    Route::middleware(['role:pengguna,admin'])->prefix('staff')->name('staff.')->group(function () {
+    // PERBAIKAN: Saya HAPUS "->name('staff.')" agar route 'transaksi' tetap terbaca oleh sidebar
+    Route::middleware(['role:pengguna,admin'])->prefix('staff')->group(function () {
         
-        // Dashboard Ringan (Tanpa Chart Berat)
-        Route::get('/dashboard', StaffDashboard::class)->name('dashboard');
+        // Dashboard Staff
+        Route::get('/dashboard', StaffDashboard::class)->name('staff.dashboard');
 
-        // Transaksi Operasional Harian
+        // Transaksi (Route tetap: transaksi.penjualan, dll)
         Route::prefix('transaksi')->name('transaksi.')->group(function () {
             Route::get('/penjualan', PenjualanIndex::class)->name('penjualan');
             Route::get('/retur', ReturIndex::class)->name('retur');

@@ -34,10 +34,10 @@
 
                 <div
                     class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-sm h-[38px]">
-                    <input type="date" wire:model.change="startDate"
+                    <input type="date" wire:model="startDate"
                         class="border-none text-xs font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-24 cursor-pointer">
                     <span class="text-slate-300 text-[10px]">-</span>
-                    <input type="date" wire:model.change="endDate"
+                    <input type="date" wire:model="endDate"
                         class="border-none text-xs font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-24 cursor-pointer">
                 </div>
 
@@ -55,7 +55,7 @@
                         @foreach($optCabang as $cab)
                         <label
                             class="flex items-center px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer transition-colors">
-                            <input type="checkbox" value="{{ $cab }}" wire:model.change="filterCabang"
+                            <input type="checkbox" value="{{ $cab }}" wire:model="filterCabang"
                                 class="rounded border-slate-300 text-slate-600 mr-2 h-3 w-3 focus:ring-slate-500">
                             <span class="text-xs text-slate-600">{{ $cab }}</span>
                         </label>
@@ -63,113 +63,133 @@
                     </div>
                 </div>
 
-                <div wire:loading class="text-slate-600 ml-2">
-                    <i class="fas fa-circle-notch fa-spin"></i>
-                </div>
+                <button wire:click="applyFilter" wire:target="applyFilter"
+                    wire:loading.class="opacity-75 cursor-not-allowed pointer-events-none"
+                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md hover:bg-indigo-700 transition-all h-[38px] flex items-center gap-2">
+
+                    <div wire:loading.remove wire:target="applyFilter" class="flex items-center gap-2">
+                        <i class="fas fa-filter"></i>
+                        <span>Terapkan</span>
+                    </div>
+
+                    <div wire:loading wire:target="applyFilter" class="flex items-center gap-2 hidden">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <span>Memproses...</span>
+                    </div>
+                </button>
+
             </div>
         </div>
     </div>
 
-    <div x-show="activeTab === 'overview'" x-transition.opacity.duration.300ms class="space-y-6">
+    <div wire:loading.class="opacity-50 pointer-events-none" wire:target="applyFilter"
+        class="transition-opacity duration-200">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div
-                class="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-2xl shadow-lg shadow-emerald-500/20 text-white relative overflow-hidden group">
-                <div class="relative z-10">
-                    <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Penjualan
+        <div x-show="activeTab === 'overview'" x-transition.opacity.duration.300ms class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div
+                    class="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-2xl shadow-lg shadow-emerald-500/20 text-white relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total
+                            Penjualan</p>
+                        <h3 class="text-xl font-extrabold tracking-tight">Rp {{ $this->formatCompact($salesSum) }}</h3>
+                        <p class="text-[10px] mt-0.5 text-emerald-100 opacity-80">Real:
+                            {{ number_format($salesSum, 0, ',', '.') }}</p>
+                    </div>
+                    <i
+                        class="fas fa-chart-line absolute right-3 top-3 text-white/20 text-5xl group-hover:scale-110 transition-transform"></i>
+                </div>
+
+                <div
+                    class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:border-rose-300 transition-colors">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Retur</p>
+                    <h3 class="text-xl font-extrabold text-rose-500 tracking-tight">Rp
+                        {{ $this->formatCompact($returSum) }}</h3>
+                    <div class="mt-1 inline-flex items-center px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100">
+                        <span class="text-[9px] font-bold text-rose-600">Rasio:
+                            {{ number_format($persenRetur, 2) }}%</span>
+                    </div>
+                    <i
+                        class="fas fa-undo absolute right-3 top-3 text-rose-100 text-5xl group-hover:rotate-[-12deg] transition-transform"></i>
+                </div>
+
+                <div
+                    class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm relative overflow-hidden hover:border-orange-300 transition-colors">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Piutang Baru</p>
+                    <h3 class="text-xl font-extrabold text-orange-500 tracking-tight">Rp
+                        {{ $this->formatCompact($arSum) }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Tagihan Terbentuk</p>
+                    <i class="fas fa-file-invoice-dollar absolute right-3 top-3 text-orange-100 text-5xl"></i>
+                </div>
+
+                <div
+                    class="bg-white p-4 rounded-2xl border border-cyan-100 shadow-sm relative overflow-hidden hover:border-cyan-300 transition-colors">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Uang Masuk (Coll)
                     </p>
-                    <h3 class="text-xl font-extrabold tracking-tight">Rp {{ $this->formatCompact($salesSum) }}</h3>
-                    <p class="text-[10px] mt-0.5 text-emerald-100 opacity-80">Real:
-                        {{ number_format($salesSum, 0, ',', '.') }}</p>
+                    <h3 class="text-xl font-extrabold text-cyan-600 tracking-tight">Rp
+                        {{ $this->formatCompact($collSum) }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Pembayaran Diterima</p>
+                    <i class="fas fa-wallet absolute right-3 top-3 text-cyan-100 text-5xl"></i>
                 </div>
-                <i
-                    class="fas fa-chart-line absolute right-3 top-3 text-white/20 text-5xl group-hover:scale-110 transition-transform"></i>
             </div>
 
-            <div
-                class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:border-rose-300 transition-colors">
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Retur</p>
-                <h3 class="text-xl font-extrabold text-rose-500 tracking-tight">Rp {{ $this->formatCompact($returSum) }}
-                </h3>
-                <div class="mt-1 inline-flex items-center px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100">
-                    <span class="text-[9px] font-bold text-rose-600">Rasio: {{ number_format($persenRetur, 2) }}%</span>
-                </div>
-                <i
-                    class="fas fa-undo absolute right-3 top-3 text-rose-100 text-5xl group-hover:rotate-[-12deg] transition-transform"></i>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm relative overflow-hidden hover:border-orange-300 transition-colors">
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Piutang Baru</p>
-                <h3 class="text-xl font-extrabold text-orange-500 tracking-tight">Rp {{ $this->formatCompact($arSum) }}
-                </h3>
-                <p class="text-[10px] text-slate-400 mt-0.5">Tagihan Terbentuk</p>
-                <i class="fas fa-file-invoice-dollar absolute right-3 top-3 text-orange-100 text-5xl"></i>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-2xl border border-cyan-100 shadow-sm relative overflow-hidden hover:border-cyan-300 transition-colors">
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Uang Masuk (Coll)</p>
-                <h3 class="text-xl font-extrabold text-cyan-600 tracking-tight">Rp {{ $this->formatCompact($collSum) }}
-                </h3>
-                <p class="text-[10px] text-slate-400 mt-0.5">Pembayaran Diterima</p>
-                <i class="fas fa-wallet absolute right-3 top-3 text-cyan-100 text-5xl"></i>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-6" wire:ignore>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
-                    <div
-                        class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                        <i class="fas fa-chart-area"></i>
+            <div class="grid grid-cols-1 gap-6" wire:ignore>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                            <i class="fas fa-chart-area"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm">Tren Penjualan vs Retur (Harian)</h4>
                     </div>
-                    <h4 class="font-bold text-slate-800 text-sm">Tren Penjualan vs Retur (Harian)</h4>
+                    <div id="chart-sales-retur" style="min-height: 350px;"></div>
                 </div>
-                <div id="chart-sales-retur" style="min-height: 350px;"></div>
-            </div>
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
-                    <div
-                        class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
-                        <i class="fas fa-balance-scale"></i>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
+                        <div
+                            class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm">Tagihan vs Pembayaran (Harian)</h4>
                     </div>
-                    <h4 class="font-bold text-slate-800 text-sm">Tagihan vs Pembayaran (Harian)</h4>
+                    <div id="chart-ar-coll" style="min-height: 350px;"></div>
                 </div>
-                <div id="chart-ar-coll" style="min-height: 350px;"></div>
             </div>
         </div>
-    </div>
 
-    <div x-show="activeTab === 'ranking'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
-        wire:ignore>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
-                    class="fas fa-box text-blue-500"></i> Top 10 Produk (Qty)</h4>
-            <div id="chart-top-produk" style="min-height: 400px;"></div>
+        <div x-show="activeTab === 'ranking'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
+            wire:ignore>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
+                        class="fas fa-box text-blue-500"></i> Top 10 Produk (Qty)</h4>
+                <div id="chart-top-produk" style="min-height: 400px;"></div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
+                        class="fas fa-users text-purple-500"></i> Top 10 Pelanggan (Omzet)</h4>
+                <div id="chart-top-customer" style="min-height: 400px;"></div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
+                        class="fas fa-truck text-pink-500"></i> Top 10 Supplier (Omzet)</h4>
+                <div id="chart-top-supplier" style="min-height: 400px;"></div>
+            </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
-                    class="fas fa-users text-purple-500"></i> Top 10 Pelanggan (Omzet)</h4>
-            <div id="chart-top-customer" style="min-height: 400px;"></div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
-                    class="fas fa-truck text-pink-500"></i> Top 10 Supplier (Omzet)</h4>
-            <div id="chart-top-supplier" style="min-height: 400px;"></div>
-        </div>
-    </div>
 
-    <div x-show="activeTab === 'salesman'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
-        wire:ignore>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <h4 class="font-bold text-lg text-indigo-900 mb-4 pb-2 border-b border-slate-50 flex items-center gap-2"><i
-                    class="fas fa-bullseye text-indigo-500"></i> Top 10 Sales Performance (Target vs Realisasi)</h4>
-            <div id="chart-sales-perf" style="min-height: 500px;"></div>
+        <div x-show="activeTab === 'salesman'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
+            wire:ignore>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                <h4
+                    class="font-bold text-lg text-indigo-900 mb-4 pb-2 border-b border-slate-50 flex items-center gap-2">
+                    <i class="fas fa-bullseye text-indigo-500"></i> Top 10 Sales Performance (Target vs Realisasi)
+                </h4>
+                <div id="chart-sales-perf" style="min-height: 500px;"></div>
+            </div>
         </div>
-    </div>
 
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -291,7 +311,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.ac.render();
 
-        // Konfigurasi Umum Ranking
+        // Config Ranking
         const rankingOpts = {
             chart: {
                 type: 'bar',
@@ -395,7 +415,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.ts.render();
 
-        // 6. Sales Performance
+        // 6. Sales Perf
         if (charts.sp) charts.sp.destroy();
         charts.sp = new ApexCharts(document.querySelector("#chart-sales-perf"), {
             series: [{
@@ -443,9 +463,7 @@ document.addEventListener('livewire:init', () => {
 
     if (initData) renderCharts(initData);
 
-    // Listener saat ada update dari Livewire
     Livewire.on('update-charts', (event) => {
-        // Handle format data yang mungkin berbeda antar versi Livewire
         const newData = event.data || (event[0] && event[0].data) || event;
         if (newData) renderCharts(newData);
     });

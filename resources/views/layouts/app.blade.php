@@ -37,7 +37,6 @@
         background-color: #475569;
     }
 
-    /* Hide AlpineJS elements before load */
     [x-cloak] {
         display: none !important;
     }
@@ -52,10 +51,6 @@
             localStorage.setItem('sidebarExpanded', this.isSidebarExpanded);
         }
     }" x-on:livewire:navigated.window="sidebarOpen = false">
-
-    <!-- <div wire:loading.delay.longest
-        class="fixed top-0 left-0 w-full h-1 z-[9999] bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 animate-pulse">
-    </div> -->
 
     @include('layouts.sidebar')
 

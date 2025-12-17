@@ -4,7 +4,6 @@ namespace App\Livewire\Staff;
 
 use Livewire\Component;
 use Livewire\Attributes\Computed;
-use App\Models\Master\Sales;
 use App\Models\Master\SalesTarget;
 use App\Models\Transaksi\Penjualan;
 use App\Models\Transaksi\Retur;
@@ -27,8 +26,11 @@ class Dashboard extends Component
         $this->endDate   = date('Y-m-d');
     }
 
-    public function updated($propertyName) 
-    { 
+    // --- PERBAIKAN: HAPUS function updated() ---
+    // Kita hanya pakai function ini untuk tombol.
+    public function applyFilter()
+    {
+        // Kirim event ke Javascript untuk update chart
         $this->dispatch('update-charts', data: $this->chartData);
     }
 
@@ -42,73 +44,78 @@ class Dashboard extends Component
     #[Computed]
     public function kpiStats()
     {
-        $salesSum = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
-        $returSum = $this->baseFilter(Retur::query(), 'tgl_retur')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
-        $arSum    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->sum(DB::raw('CAST(nilai AS DECIMAL(20,2))'));
-        $collSum  = $this->baseFilter(Collection::query(), 'tanggal')->sum(DB::raw('CAST(receive_amount AS DECIMAL(20,2))'));
+        // Cache kunci berdasarkan filter yang dipilih agar performa maksimal
+        $key = 'kpi-' . md5(json_encode([$this->startDate, $this->endDate, $this->filterCabang, $this->filterSales]));
         
-        $persenRetur = $salesSum > 0 ? ($returSum / $salesSum) * 100 : 0;
-        $totalOa     = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->distinct('kode_pelanggan')->count();
-        $totalEc     = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->distinct('trans_no')->count();
+        return Cache::remember($key, 60 * 60, function () {
+            $salesSum = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
+            $returSum = $this->baseFilter(Retur::query(), 'tgl_retur')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
+            $arSum    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->sum(DB::raw('CAST(nilai AS DECIMAL(20,2))'));
+            $collSum  = $this->baseFilter(Collection::query(), 'tanggal')->sum(DB::raw('CAST(receive_amount AS DECIMAL(20,2))'));
+            
+            $persenRetur = $salesSum > 0 ? ($returSum / $salesSum) * 100 : 0;
+            $totalOa     = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->distinct('kode_pelanggan')->count();
+            $totalEc     = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->distinct('trans_no')->count();
 
-        return compact('salesSum', 'returSum', 'arSum', 'collSum', 'persenRetur', 'totalOa', 'totalEc');
+            return compact('salesSum', 'returSum', 'arSum', 'collSum', 'persenRetur', 'totalOa', 'totalEc');
+        });
     }
 
     #[Computed]
     public function chartData()
     {
-        $dates = [];
-        $start = $this->startDate ? Carbon::parse($this->startDate) : Carbon::now()->startOfMonth();
-        $end   = $this->endDate ? Carbon::parse($this->endDate) : Carbon::now();
-        
-        $c = $start->copy();
-        $limit = 0; 
-        while ($c <= $end && $limit < 366) { 
-            $dates[] = $c->format('Y-m-d'); 
-            $c->addDay();
-            $limit++;
-        }
+        // Cache kunci grafik
+        $key = 'chart-' . md5(json_encode([$this->startDate, $this->endDate, $this->filterCabang, $this->filterSales]));
 
-        $dailySales = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
-        $dailyRetur = $this->baseFilter(Retur::query(), 'tgl_retur')->selectRaw("DATE(tgl_retur) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
-        $dailyAR    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_nilai) as total")->groupBy('tgl')->pluck('total', 'tgl');
-        $dailyColl  = $this->baseFilter(Collection::query(), 'tanggal')->selectRaw("DATE(tanggal) as tgl, SUM(receive_amount) as total")->groupBy('tgl')->pluck('total', 'tgl');
+        return Cache::remember($key, 60 * 60, function () {
+            $dates = [];
+            $start = $this->startDate ? Carbon::parse($this->startDate) : Carbon::now()->startOfMonth();
+            $end   = $this->endDate ? Carbon::parse($this->endDate) : Carbon::now();
+            
+            $c = $start->copy();
+            $limit = 0; 
+            while ($c <= $end && $limit < 366) { 
+                $dates[] = $c->format('Y-m-d'); 
+                $c->addDay();
+                $limit++;
+            }
 
-        $dSales = []; $dRetur = []; $dAR = []; $dColl = [];
-        foreach ($dates as $d) {
-            $dSales[] = (float)($dailySales[$d] ?? 0);
-            $dRetur[] = (float)($dailyRetur[$d] ?? 0);
-            $dAR[]    = (float)($dailyAR[$d] ?? 0);
-            $dColl[]  = (float)($dailyColl[$d] ?? 0);
-        }
+            $dailySales = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
+            $dailyRetur = $this->baseFilter(Retur::query(), 'tgl_retur')->selectRaw("DATE(tgl_retur) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
+            $dailyAR    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_nilai) as total")->groupBy('tgl')->pluck('total', 'tgl');
+            $dailyColl  = $this->baseFilter(Collection::query(), 'tanggal')->selectRaw("DATE(tanggal) as tgl, SUM(receive_amount) as total")->groupBy('tgl')->pluck('total', 'tgl');
 
-        $topProduk = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
-            ->selectRaw("nama_item, SUM(qty) as total")->groupBy('nama_item')->orderByDesc('total')->limit(10)->get();
-        
-        $topCustomer = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
-            ->selectRaw("nama_pelanggan, SUM(total_grand) as total")->groupBy('nama_pelanggan')->orderByDesc('total')->limit(10)->get();
+            $dSales = []; $dRetur = []; $dAR = []; $dColl = [];
+            foreach ($dates as $d) {
+                $dSales[] = (float)($dailySales[$d] ?? 0);
+                $dRetur[] = (float)($dailyRetur[$d] ?? 0);
+                $dAR[]    = (float)($dailyAR[$d] ?? 0);
+                $dColl[]  = (float)($dailyColl[$d] ?? 0);
+            }
 
-        $topSupplier = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
-            ->selectRaw("supplier, SUM(total_grand) as total")->groupBy('supplier')->orderByDesc('total')->limit(10)->get();
+            $topProduk = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("nama_item, SUM(qty) as total")->groupBy('nama_item')->orderByDesc('total')->limit(10)->get();
+            $topCustomer = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("nama_pelanggan, SUM(total_grand) as total")->groupBy('nama_pelanggan')->orderByDesc('total')->limit(10)->get();
+            $topSupplier = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("supplier, SUM(total_grand) as total")->groupBy('supplier')->orderByDesc('total')->limit(10)->get();
 
-        $salesPerf = $this->getSalesmanPerformance();
+            $salesPerf = $this->getSalesmanPerformance();
 
-        return [
-            'dates'         => $dates,
-            'trend_sales'   => $dSales,
-            'trend_retur'   => $dRetur,
-            'trend_ar'      => $dAR,
-            'trend_coll'    => $dColl,
-            'top_produk_lbl' => $topProduk->pluck('nama_item'),
-            'top_produk_val' => $topProduk->pluck('total'),
-            'top_cust_lbl'   => $topCustomer->pluck('nama_pelanggan'),
-            'top_cust_val'   => $topCustomer->pluck('total'),
-            'top_supp_lbl'   => $topSupplier->pluck('supplier'),
-            'top_supp_val'   => $topSupplier->pluck('total'),
-            'sales_names'   => $salesPerf['names'],
-            'sales_real'    => $salesPerf['real'],
-            'sales_target'  => $salesPerf['target'],
-        ];
+            return [
+                'dates'         => $dates,
+                'trend_sales'   => $dSales,
+                'trend_retur'   => $dRetur,
+                'trend_ar'      => $dAR,
+                'trend_coll'    => $dColl,
+                'top_produk_lbl' => $topProduk->pluck('nama_item'),
+                'top_produk_val' => $topProduk->pluck('total'),
+                'top_cust_lbl'   => $topCustomer->pluck('nama_pelanggan'),
+                'top_cust_val'   => $topCustomer->pluck('total'),
+                'top_supp_lbl'   => $topSupplier->pluck('supplier'),
+                'top_supp_val'   => $topSupplier->pluck('total'),
+                'sales_names'   => $salesPerf['names'],
+                'sales_real'    => $salesPerf['real'],
+                'sales_target'  => $salesPerf['target'],
+            ];
+        });
     }
 
     private function getSalesmanPerformance()
@@ -150,13 +157,12 @@ class Dashboard extends Component
         $stats = $this->kpiStats;
         $chartData = $this->chartData;
 
-        // PENTING: Arahkan ke view khusus Staff
-        return view('livewire.staff.dashboard', array_merge(
+        return view('livewire.admin.dashboard', array_merge(
             $stats, 
             compact('optCabang', 'optSales', 'chartData')
-        ))->layout('layouts.app', ['header' => 'Staff Dashboard']);
+        ))->layout('layouts.app', ['header' => 'Executive Dashboard']);
     }
-    
+
     public function formatCompact($val)
     {
         if ($val >= 1000000000) {
