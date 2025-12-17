@@ -31,12 +31,13 @@
             </div>
 
             <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center w-full xl:w-auto justify-end">
+
                 <div
                     class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-sm h-[38px]">
-                    <input type="date" wire:model.live="startDate"
+                    <input type="date" wire:model.change="startDate"
                         class="border-none text-xs font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-24 cursor-pointer">
                     <span class="text-slate-300 text-[10px]">-</span>
-                    <input type="date" wire:model.live="endDate"
+                    <input type="date" wire:model.change="endDate"
                         class="border-none text-xs font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-24 cursor-pointer">
                 </div>
 
@@ -54,15 +55,18 @@
                         @foreach($optCabang as $cab)
                         <label
                             class="flex items-center px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer transition-colors">
-                            <input type="checkbox" value="{{ $cab }}" wire:model.live="filterCabang"
+                            <input type="checkbox" value="{{ $cab }}" wire:model.change="filterCabang"
                                 class="rounded border-slate-300 text-slate-600 mr-2 h-3 w-3 focus:ring-slate-500">
                             <span class="text-xs text-slate-600">{{ $cab }}</span>
                         </label>
                         @endforeach
                     </div>
                 </div>
-                <!-- <div wire:loading class="text-slate-600 ml-1"><i class="fas fa-circle-notch fa-spin"></i></div>
-            </div> -->
+
+                <div wire:loading class="text-slate-600 ml-2">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -118,7 +122,8 @@
                 <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
                     <div
                         class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                        <i class="fas fa-chart-area"></i></div>
+                        <i class="fas fa-chart-area"></i>
+                    </div>
                     <h4 class="font-bold text-slate-800 text-sm">Tren Penjualan vs Retur (Harian)</h4>
                 </div>
                 <div id="chart-sales-retur" style="min-height: 350px;"></div>
@@ -128,7 +133,8 @@
                 <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
                     <div
                         class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
-                        <i class="fas fa-balance-scale"></i></div>
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
                     <h4 class="font-bold text-slate-800 text-sm">Tagihan vs Pembayaran (Harian)</h4>
                 </div>
                 <div id="chart-ar-coll" style="min-height: 350px;"></div>
@@ -177,6 +183,7 @@ document.addEventListener('livewire:init', () => {
         const fmtRp = (v) => "Rp " + new Intl.NumberFormat('id-ID').format(v);
         const fmtJt = (v) => (v / 1000000).toFixed(1) + " Jt";
 
+        // 1. Sales vs Retur (Area)
         if (charts.sr) charts.sr.destroy();
         charts.sr = new ApexCharts(document.querySelector("#chart-sales-retur"), {
             series: [{
@@ -234,6 +241,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.sr.render();
 
+        // 2. AR vs Collection (Bar)
         if (charts.ac) charts.ac.destroy();
         charts.ac = new ApexCharts(document.querySelector("#chart-ar-coll"), {
             series: [{
@@ -283,6 +291,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.ac.render();
 
+        // Konfigurasi Umum Ranking
         const rankingOpts = {
             chart: {
                 type: 'bar',
@@ -318,6 +327,7 @@ document.addEventListener('livewire:init', () => {
             }
         };
 
+        // 3. Top Produk
         if (charts.tp) charts.tp.destroy();
         charts.tp = new ApexCharts(document.querySelector("#chart-top-produk"), {
             ...rankingOpts,
@@ -337,6 +347,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.tp.render();
 
+        // 4. Top Customer
         if (charts.tc) charts.tc.destroy();
         charts.tc = new ApexCharts(document.querySelector("#chart-top-customer"), {
             ...rankingOpts,
@@ -360,6 +371,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.tc.render();
 
+        // 5. Top Supplier
         if (charts.ts) charts.ts.destroy();
         charts.ts = new ApexCharts(document.querySelector("#chart-top-supplier"), {
             ...rankingOpts,
@@ -383,6 +395,7 @@ document.addEventListener('livewire:init', () => {
         });
         charts.ts.render();
 
+        // 6. Sales Performance
         if (charts.sp) charts.sp.destroy();
         charts.sp = new ApexCharts(document.querySelector("#chart-sales-perf"), {
             series: [{
@@ -429,10 +442,12 @@ document.addEventListener('livewire:init', () => {
     };
 
     if (initData) renderCharts(initData);
+
+    // Listener saat ada update dari Livewire
     Livewire.on('update-charts', (event) => {
-        const newData = event.data || event[0].data;
-        renderCharts(newData);
+        // Handle format data yang mungkin berbeda antar versi Livewire
+        const newData = event.data || (event[0] && event[0].data) || event;
+        if (newData) renderCharts(newData);
     });
 });
 </script>
-</div>

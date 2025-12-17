@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-// --- 1. DASHBOARD ---
-use App\Livewire\DashboardIndex;
+// --- 1. IMPORT DASHBOARD BARU (DIPISAH) ---
+use App\Livewire\Admin\Dashboard as AdminDashboard;
+use App\Livewire\Staff\Dashboard as StaffDashboard;
 
 // --- 2. MASTER DATA ---
 use App\Livewire\Master\SalesIndex;
@@ -39,54 +40,75 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// GROUP UTAMA: HANYA PERLU LOGIN (AUTH)
+// GROUP UTAMA: HARUS LOGIN
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // ====================================================
-    // 1. DASHBOARD & PROFILE
+    // 1. LOGIKA REDIRECT DASHBOARD (PENTING)
     // ====================================================
-    Route::get('/dashboard', DashboardIndex::class)->name('dashboard');
+    // Route ini mencegat user yang mengakses '/dashboard' biasa
+    // dan melempar mereka ke halaman khusus role masing-masing.
+    Route::get('/dashboard', function () {
+        $role = auth()->user()->role;
+        
+        if (in_array($role, ['admin', 'pimpinan'])) {
+            return redirect()->route('admin.dashboard');
+        } else {
+            return redirect()->route('staff.dashboard');
+        }
+    })->name('dashboard');
 
+    // Profile bisa diakses semua role
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 
     // ====================================================
-    // 2. MASTER DATA (SEMUA ROLE BISA AKSES)
+    // 2. AREA KHUSUS ADMIN & PIMPINAN
     // ====================================================
-    Route::prefix('master')->name('master.')->group(function () {
-        Route::get('/sales', SalesIndex::class)->name('sales');
-        Route::get('/produk', ProdukIndex::class)->name('produk');
-        Route::get('/supplier', SupplierIndex::class)->name('supplier');
-        Route::get('/user', UserIndex::class)->name('user'); 
-    });
-
-
-    // ====================================================
-    // 3. OPERASIONAL / TRANSAKSI (SEMUA ROLE BISA AKSES)
-    // ====================================================
-    Route::prefix('transaksi')->name('transaksi.')->group(function () {
-        Route::get('/penjualan', PenjualanIndex::class)->name('penjualan');
-        Route::get('/retur', ReturIndex::class)->name('retur');
-        Route::get('/ar', ArIndex::class)->name('ar');
-        Route::get('/collection', CollectionIndex::class)->name('collection');
-    });
-
-
-    // ====================================================
-    // 4. LAPORAN & ANALISA (SEMUA ROLE BISA AKSES)
-    // ====================================================
-    Route::prefix('laporan')->name('laporan.')->group(function () {
+    // Hanya role 'admin' dan 'pimpinan' yang bisa akses URL berawalan /admin
+    Route::middleware(['role:admin,pimpinan'])->prefix('admin')->name('admin.')->group(function () {
         
-        // A. Analisa Kinerja (Rapor Sales)
-        Route::get('/kinerja-sales', KinerjaSalesIndex::class)->name('kinerja-sales');
+        // Dashboard Berat (Chart, Statistik, dll)
+        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
 
-        // B. Rekapitulasi (Tabel Full Excel)
-        Route::get('/rekap-penjualan', RekapPenjualanIndex::class)->name('rekap-penjualan');
-        Route::get('/rekap-retur', RekapReturIndex::class)->name('rekap-retur');
-        Route::get('/rekap-ar', RekapArIndex::class)->name('rekap-ar');
-        Route::get('/rekap-collection', RekapCollectionIndex::class)->name('rekap-collection');
+        // Master Data (Hanya Admin yang boleh edit data master)
+        Route::prefix('master')->name('master.')->group(function () {
+            Route::get('/sales', SalesIndex::class)->name('sales');
+            Route::get('/produk', ProdukIndex::class)->name('produk');
+            Route::get('/supplier', SupplierIndex::class)->name('supplier');
+            Route::get('/user', UserIndex::class)->name('user'); 
+        });
+
+        // Laporan (Analisa berat hanya untuk Pimpinan/Admin)
+        Route::prefix('laporan')->name('laporan.')->group(function () {
+            Route::get('/kinerja-sales', KinerjaSalesIndex::class)->name('kinerja-sales');
+            Route::get('/rekap-penjualan', RekapPenjualanIndex::class)->name('rekap-penjualan');
+            Route::get('/rekap-retur', RekapReturIndex::class)->name('rekap-retur');
+            Route::get('/rekap-ar', RekapArIndex::class)->name('rekap-ar');
+            Route::get('/rekap-collection', RekapCollectionIndex::class)->name('rekap-collection');
+        });
+    });
+
+
+    // ====================================================
+    // 3. AREA KHUSUS STAFF / PENGGUNA
+    // ====================================================
+    // Role 'pengguna' akan bekerja di sini
+    // Note: Jika Admin juga butuh input transaksi, tambahkan role admin di middleware bawah ini
+    Route::middleware(['role:pengguna,admin'])->prefix('staff')->name('staff.')->group(function () {
+        
+        // Dashboard Ringan (Tanpa Chart Berat)
+        Route::get('/dashboard', StaffDashboard::class)->name('dashboard');
+
+        // Transaksi Operasional Harian
+        Route::prefix('transaksi')->name('transaksi.')->group(function () {
+            Route::get('/penjualan', PenjualanIndex::class)->name('penjualan');
+            Route::get('/retur', ReturIndex::class)->name('retur');
+            Route::get('/ar', ArIndex::class)->name('ar');
+            Route::get('/collection', CollectionIndex::class)->name('collection');
+        });
     });
 
 });

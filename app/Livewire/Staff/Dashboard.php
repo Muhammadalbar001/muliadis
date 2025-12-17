@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Staff;
 
 use Livewire\Component;
-use Livewire\Attributes\Lazy; // 1. Import Lazy Attribute
+use Livewire\Attributes\Computed;
 use App\Models\Master\Sales;
 use App\Models\Master\SalesTarget;
 use App\Models\Transaksi\Penjualan;
@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
-#[Lazy] // 2. Aktifkan Lazy Loading
-class DashboardIndex extends Component
+class Dashboard extends Component
 {
     public $startDate;
     public $endDate;
@@ -28,32 +27,9 @@ class DashboardIndex extends Component
         $this->endDate   = date('Y-m-d');
     }
 
-    // 3. Method placeholder untuk tampilan saat loading awal (Skeleton)
-    public function placeholder()
-    {
-        return view('livewire.dashboard-skeleton'); 
-        // Jika belum punya file skeleton, bisa return HTML string simple:
-        /*
-        return <<<'HTML'
-        <div class="min-h-screen p-6 space-y-4 animate-pulse">
-            <div class="h-8 bg-slate-200 rounded w-1/4"></div>
-            <div class="grid grid-cols-4 gap-4">
-                <div class="h-32 bg-slate-200 rounded-xl"></div>
-                <div class="h-32 bg-slate-200 rounded-xl"></div>
-                <div class="h-32 bg-slate-200 rounded-xl"></div>
-                <div class="h-32 bg-slate-200 rounded-xl"></div>
-            </div>
-            <div class="h-96 bg-slate-200 rounded-xl"></div>
-        </div>
-        HTML;
-        */
-    }
-
-    // 4. Trigger Manual Filter (Hanya jalan saat tombol ditekan)
-    public function applyFilter()
-    {
-        // Kirim data chart baru ke Frontend via Event
-        $this->dispatch('update-charts', data: $this->getChartData());
+    public function updated($propertyName) 
+    { 
+        $this->dispatch('update-charts', data: $this->chartData);
     }
 
     private function baseFilter($query, $dateCol) {
@@ -63,14 +39,9 @@ class DashboardIndex extends Component
                      ->when(!empty($this->filterSales), fn($q) => $q->whereIn('sales_name', $this->filterSales));
     }
 
-    public function render()
+    #[Computed]
+    public function kpiStats()
     {
-        // Query Ringan (Cache)
-        $optCabang = Cache::remember('dash_cabang', 3600, fn() => Penjualan::select('cabang')->distinct()->whereNotNull('cabang')->pluck('cabang'));
-        $optSales  = Cache::remember('dash_sales', 3600, fn() => Penjualan::select('sales_name')->distinct()->whereNotNull('sales_name')->pluck('sales_name'));
-
-        // Query Berat (Jalan di background karena Lazy)
-        // Note: Hapus CAST jika database sudah diperbaiki tipe datanya
         $salesSum = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
         $returSum = $this->baseFilter(Retur::query(), 'tgl_retur')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
         $arSum    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->sum(DB::raw('CAST(nilai AS DECIMAL(20,2))'));
@@ -80,21 +51,23 @@ class DashboardIndex extends Component
         $totalOa     = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->distinct('kode_pelanggan')->count();
         $totalEc     = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->distinct('trans_no')->count();
 
-        // Siapkan Data Chart
-        $chartData = $this->getChartData();
-
-        return view('livewire.dashboard-index', compact(
-            'salesSum', 'returSum', 'arSum', 'collSum', 'persenRetur', 
-            'totalOa', 'totalEc', 'optCabang', 'optSales', 'chartData'
-        ))->layout('layouts.app', ['header' => 'Executive Dashboard']);
+        return compact('salesSum', 'returSum', 'arSum', 'collSum', 'persenRetur', 'totalOa', 'totalEc');
     }
 
-    private function getChartData()
+    #[Computed]
+    public function chartData()
     {
         $dates = [];
-        $c = Carbon::parse($this->startDate);
-        $e = Carbon::parse($this->endDate);
-        while ($c <= $e) { $dates[] = $c->format('Y-m-d'); $c->addDay(); }
+        $start = $this->startDate ? Carbon::parse($this->startDate) : Carbon::now()->startOfMonth();
+        $end   = $this->endDate ? Carbon::parse($this->endDate) : Carbon::now();
+        
+        $c = $start->copy();
+        $limit = 0; 
+        while ($c <= $end && $limit < 366) { 
+            $dates[] = $c->format('Y-m-d'); 
+            $c->addDay();
+            $limit++;
+        }
 
         $dailySales = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
         $dailyRetur = $this->baseFilter(Retur::query(), 'tgl_retur')->selectRaw("DATE(tgl_retur) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
@@ -142,15 +115,19 @@ class DashboardIndex extends Component
     {
         $realSales = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
             ->selectRaw("sales_name, SUM(total_grand) as total")
-            ->groupBy('sales_name')->orderByDesc('total')->limit(10)->get();
+            ->groupBy('sales_name')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
         
         $names = $realSales->pluck('sales_name')->toArray();
-        $start = Carbon::parse($this->startDate);
+        $start = $this->startDate ? Carbon::parse($this->startDate) : Carbon::now();
         
         $targets = SalesTarget::where('year', $start->year)
             ->where('month', $start->month)
             ->whereHas('sales', fn($q) => $q->whereIn('sales_name', $names))
-            ->with('sales')->get()
+            ->with('sales')
+            ->get()
             ->mapWithKeys(fn($item) => [$item->sales->sales_name => $item->target_ims]);
 
         $dataTarget = [];
@@ -158,13 +135,36 @@ class DashboardIndex extends Component
             $dataTarget[] = (float)($targets[strtoupper($n)] ?? $targets[$n] ?? 0);
         }
 
-        return ['names' => $names, 'real' => $realSales->pluck('total')->toArray(), 'target' => $dataTarget];
+        return [
+            'names'  => $names,
+            'real'   => $realSales->pluck('total')->toArray(),
+            'target' => $dataTarget
+        ];
     }
 
+    public function render()
+    {
+        $optCabang = Cache::remember('dash_cabang', 3600, fn() => Penjualan::select('cabang')->distinct()->whereNotNull('cabang')->pluck('cabang'));
+        $optSales  = Cache::remember('dash_sales', 3600, fn() => Penjualan::select('sales_name')->distinct()->whereNotNull('sales_name')->pluck('sales_name'));
+
+        $stats = $this->kpiStats;
+        $chartData = $this->chartData;
+
+        // PENTING: Arahkan ke view khusus Staff
+        return view('livewire.staff.dashboard', array_merge(
+            $stats, 
+            compact('optCabang', 'optSales', 'chartData')
+        ))->layout('layouts.app', ['header' => 'Staff Dashboard']);
+    }
+    
     public function formatCompact($val)
     {
-        if ($val >= 1000000000) return number_format($val / 1000000000, 2, ',', '.') . ' M'; 
-        elseif ($val >= 1000000) return number_format($val / 1000000, 1, ',', '.') . ' Jt'; 
-        return number_format($val, 0, ',', '.');
+        if ($val >= 1000000000) {
+            return number_format($val / 1000000000, 2, ',', '.') . ' M'; 
+        } elseif ($val >= 1000000) {
+            return number_format($val / 1000000, 1, ',', '.') . ' Jt'; 
+        } else {
+            return number_format($val, 0, ',', '.');
+        }
     }
 }

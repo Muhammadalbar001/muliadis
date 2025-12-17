@@ -96,7 +96,7 @@
 
                 <button wire:click="resetFilter"
                     class="px-3 py-2 bg-white border border-emerald-200 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-50 shadow-sm"
-                    title="Reset">
+                    title="Reset Filter">
                     <i class="fas fa-undo"></i>
                 </button>
 
@@ -105,11 +105,6 @@
                     <span wire:loading.remove wire:target="export"><i class="fas fa-file-excel"></i> Export</span>
                     <span wire:loading wire:target="export"><i class="fas fa-spinner fa-spin"></i> Proses...</span>
                 </button>
-
-                <!-- <div wire:loading.delay wire:target="search, startDate, endDate, filterCabang, filterSales"
-                    class="text-emerald-600 ml-2">
-                    <i class="fas fa-circle-notch fa-spin text-lg"></i>
-                </div> -->
 
             </div>
         </div>
