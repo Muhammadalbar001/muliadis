@@ -38,7 +38,8 @@
                         style="display: none;">
                         <div @click="selected = []"
                             class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset</div>
+                            <i class="fas fa-times-circle"></i> Reset
+                        </div>
                         @foreach($optCabang as $c)
                         <div @click="selected.includes('{{ $c }}') ? selected = selected.filter(i => i !== '{{ $c }}') : selected.push('{{ $c }}')"
                             class="flex items-center px-2 py-1.5 hover:bg-amber-50 rounded cursor-pointer transition-colors group">
@@ -66,7 +67,8 @@
                         style="display: none;">
                         <div @click="selected = []"
                             class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset</div>
+                            <i class="fas fa-times-circle"></i> Reset
+                        </div>
                         @foreach($optDivisi as $d)
                         <div @click="selected.includes('{{ $d }}') ? selected = selected.filter(i => i !== '{{ $d }}') : selected.push('{{ $d }}')"
                             class="flex items-center px-2 py-1.5 hover:bg-amber-50 rounded cursor-pointer transition-colors group">
@@ -87,12 +89,17 @@
                     class="px-3 py-2 bg-white border border-amber-200 text-amber-600 rounded-lg text-xs font-bold hover:bg-amber-50 shadow-sm"
                     title="Reset Filters"><i class="fas fa-undo"></i></button>
 
-                <button wire:click="export" wire:loading.attr="disabled"
-                    class="px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-lg text-xs font-bold hover:from-amber-600 hover:to-yellow-700 shadow-md shadow-amber-500/20 flex items-center gap-2 transform hover:-translate-y-0.5">
+                <button wire:click="export" wire:loading.attr="disabled" wire:target="export"
+                    class="px-3 py-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-lg text-xs font-bold hover:from-amber-600 hover:to-yellow-700 shadow-md shadow-amber-500/20 flex items-center gap-2 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed">
                     <span wire:loading.remove wire:target="export"><i class="fas fa-file-excel"></i> Export</span>
                     <span wire:loading wire:target="export"><i class="fas fa-spinner fa-spin"></i> Proses...</span>
                 </button>
-                <!-- <div wire:loading class="text-amber-600 ml-1"><i class="fas fa-circle-notch fa-spin"></i></div> -->
+
+                <div wire:loading
+                    class="px-3 py-2 bg-white border border-amber-200 text-amber-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+
             </div>
         </div>
     </div>
@@ -148,7 +155,8 @@
                 class="fas fa-users-viewfinder"></i> Produktifitas</button>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden min-h-[500px]">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden min-h-[500px]"
+        wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
 
         <div x-show="activeTab === 'penjualan'" x-transition>
             <div class="p-4 border-b border-slate-200 bg-emerald-50/30 flex justify-between items-center">
@@ -311,4 +319,5 @@
         </div>
 
     </div>
+
 </div>

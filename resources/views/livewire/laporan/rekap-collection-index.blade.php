@@ -43,7 +43,8 @@
                         style="display: none;">
                         <div @click="selected = []"
                             class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset</div>
+                            <i class="fas fa-times-circle"></i> Reset
+                        </div>
                         @foreach($optCabang as $c)
                         <div @click="selected.includes('{{ $c }}') ? selected = selected.filter(i => i !== '{{ $c }}') : selected.push('{{ $c }}')"
                             class="flex items-center px-2 py-1.5 hover:bg-cyan-50 rounded cursor-pointer transition-colors group">
@@ -71,7 +72,8 @@
                         style="display: none;">
                         <div @click="selected = []"
                             class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset</div>
+                            <i class="fas fa-times-circle"></i> Reset
+                        </div>
                         @foreach($optSales as $s)
                         <div @click="selected.includes('{{ $s }}') ? selected = selected.filter(i => i !== '{{ $s }}') : selected.push('{{ $s }}')"
                             class="flex items-center px-2 py-1.5 hover:bg-cyan-50 rounded cursor-pointer transition-colors group">
@@ -92,64 +94,77 @@
                     class="px-3 py-2 bg-white border border-cyan-200 text-cyan-600 rounded-lg text-xs font-bold hover:bg-cyan-50 shadow-sm"
                     title="Reset"><i class="fas fa-undo"></i></button>
 
-                <button wire:click="export" wire:loading.attr="disabled"
+                <button wire:click="export" wire:loading.attr="disabled" wire:target="export"
                     class="px-3 py-2 bg-cyan-600 text-white rounded-lg text-xs font-bold hover:bg-cyan-700 shadow-md shadow-cyan-500/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
                     <span wire:loading.remove wire:target="export"><i class="fas fa-file-excel"></i> Export</span>
                     <span wire:loading wire:target="export"><i class="fas fa-spinner fa-spin"></i> Proses...</span>
                 </button>
+
+                <div wire:loading
+                    class="px-3 py-2 bg-white border border-cyan-200 text-cyan-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
-        <div class="overflow-auto flex-1 w-full custom-scrollbar">
-            <table class="text-[10px] text-left border-collapse whitespace-nowrap min-w-max w-full">
-                <thead
-                    class="bg-slate-50 font-bold text-slate-500 uppercase border-b border-slate-200 sticky top-0 z-20">
-                    <tr>
-                        <th class="px-3 py-3 border-r border-slate-200 bg-slate-50 sticky left-0 z-30 shadow-sm">Cabang
-                        </th>
-                        <th class="px-3 py-3 border-r border-slate-200 bg-slate-50 sticky left-[60px] z-30 shadow-sm">No
-                            Bukti</th>
-                        <th class="px-3 py-3 border-r border-slate-200">Status</th>
-                        <th class="px-3 py-3 border-r border-slate-200">Tanggal</th>
-                        <th class="px-3 py-3 border-r border-slate-200">Penagih</th>
-                        <th class="px-3 py-3 border-r border-slate-200">No Invoice</th>
-                        <th class="px-3 py-3 border-r border-slate-200">Code Customer</th>
-                        <th class="px-3 py-3 border-r border-slate-200 min-w-[200px]">Outlet Name</th>
-                        <th class="px-3 py-3 border-r border-slate-200">Sales Name</th>
-                        <th class="px-3 py-3 border-r border-slate-200 text-right bg-cyan-50 text-cyan-700">Receive
-                            Amount</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 bg-white">
-                    @forelse($collections as $item)
-                    <tr class="hover:bg-cyan-50/20 transition-colors odd:bg-white even:bg-slate-50/30">
-                        <td class="px-3 py-2 border-r border-slate-100 font-bold sticky left-0 bg-inherit z-10">
-                            {{ $item->cabang }}</td>
-                        <td
-                            class="px-3 py-2 border-r border-slate-100 font-mono text-cyan-600 sticky left-[60px] bg-inherit z-10">
-                            {{ $item->receive_no }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100">{{ $item->status }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100">{{ date('d/m/Y', strtotime($item->tanggal)) }}
-                        </td>
-                        <td class="px-3 py-2 border-r border-slate-100">{{ $item->penagih }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100 font-mono">{{ $item->invoice_no }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100">{{ $item->code_customer }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100 font-bold text-slate-700 truncate max-w-[200px]"
-                            title="{{ $item->outlet_name }}">{{ $item->outlet_name }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100">{{ $item->sales_name }}</td>
-                        <td class="px-3 py-2 border-r border-slate-100 text-right font-bold text-cyan-700">
-                            {{ number_format($item->receive_amount, 0, ',', '.') }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="10" class="px-6 py-12 text-center text-slate-400">Data tidak ditemukan</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
+            <div class="overflow-auto flex-1 w-full custom-scrollbar">
+                <table class="text-[10px] text-left border-collapse whitespace-nowrap min-w-max w-full">
+                    <thead
+                        class="bg-slate-50 font-bold text-slate-500 uppercase border-b border-slate-200 sticky top-0 z-20">
+                        <tr>
+                            <th class="px-3 py-3 border-r border-slate-200 bg-slate-50 sticky left-0 z-30 shadow-sm">
+                                Cabang
+                            </th>
+                            <th
+                                class="px-3 py-3 border-r border-slate-200 bg-slate-50 sticky left-[60px] z-30 shadow-sm">
+                                No
+                                Bukti</th>
+                            <th class="px-3 py-3 border-r border-slate-200">Status</th>
+                            <th class="px-3 py-3 border-r border-slate-200">Tanggal</th>
+                            <th class="px-3 py-3 border-r border-slate-200">Penagih</th>
+                            <th class="px-3 py-3 border-r border-slate-200">No Invoice</th>
+                            <th class="px-3 py-3 border-r border-slate-200">Code Customer</th>
+                            <th class="px-3 py-3 border-r border-slate-200 min-w-[200px]">Outlet Name</th>
+                            <th class="px-3 py-3 border-r border-slate-200">Sales Name</th>
+                            <th class="px-3 py-3 border-r border-slate-200 text-right bg-cyan-50 text-cyan-700">
+                                Receive
+                                Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse($collections as $item)
+                        <tr class="hover:bg-cyan-50/20 transition-colors odd:bg-white even:bg-slate-50/30">
+                            <td class="px-3 py-2 border-r border-slate-100 font-bold sticky left-0 bg-inherit z-10">
+                                {{ $item->cabang }}</td>
+                            <td
+                                class="px-3 py-2 border-r border-slate-100 font-mono text-cyan-600 sticky left-[60px] bg-inherit z-10">
+                                {{ $item->receive_no }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->status }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100">
+                                {{ date('d/m/Y', strtotime($item->tanggal)) }}
+                            </td>
+                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->penagih }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100 font-mono">{{ $item->invoice_no }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->code_customer }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100 font-bold text-slate-700 truncate max-w-[200px]"
+                                title="{{ $item->outlet_name }}">{{ $item->outlet_name }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->sales_name }}</td>
+                            <td class="px-3 py-2 border-r border-slate-100 text-right font-bold text-cyan-700">
+                                {{ number_format($item->receive_amount, 0, ',', '.') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="10" class="px-6 py-12 text-center text-slate-400">Data tidak ditemukan</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-4 py-3 border-t border-slate-200 bg-slate-50/50">{{ $collections->links() }}</div>
         </div>
-        <div class="px-4 py-3 border-t border-slate-200 bg-slate-50/50">{{ $collections->links() }}</div>
     </div>
 </div>

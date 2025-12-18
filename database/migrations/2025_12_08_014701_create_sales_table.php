@@ -7,20 +7,17 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     public function up()
-    {
-        Schema::create('sales', function (Blueprint $table) {
-            $table->id();
-            
-            $table->string('sales_name')->index();
-            $table->string('divisi')->nullable();
-            $table->string('status')->default('Active');
-            $table->string('target_ims')->default('0'); // String agar aman dari format excel
-            $table->string('target_oa')->default('0');
-            $table->string('city')->nullable(); // Cabang/Kota
-
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('sales', function (Blueprint $table) {
+        $table->id();
+        $table->string('sales_code')->nullable()->unique(); 
+        $table->string('sales_name');
+        $table->string('divisi')->nullable();
+        $table->string('city')->nullable();
+        $table->enum('status', ['Active', 'Inactive'])->default('Active');
+        $table->timestamps();
+    });
+}
 
     public function down()
     {

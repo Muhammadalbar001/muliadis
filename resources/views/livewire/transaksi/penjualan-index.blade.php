@@ -70,7 +70,7 @@
                 <button wire:click="openDeleteDateModal"
                     class="px-3 py-2 bg-white border border-rose-200 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 shadow-sm flex items-center gap-2"
                     title="Hapus per Tanggal">
-                    <i class="fas fa-trash-alt"></i> <span class="hidden xl:inline">Hapus Tgl</span>
+                    <i class="fas fa-trash-alt"></i> <span class="hidden xl:inline">Hapus</span>
                 </button>
 
                 <button wire:click="openImportModal"
@@ -78,99 +78,108 @@
                     <i class="fas fa-file-excel"></i> <span class="hidden sm:inline">Import</span>
                 </button>
 
-                <!-- <div wire:loading class="text-emerald-600 ml-1"><i class="fas fa-circle-notch fa-spin"></i></div> -->
+                <div wire:loading
+                    class="px-3 py-2 bg-white border border-emerald-200 text-emerald-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+
             </div>
         </div>
     </div>
 
-    @if(isset($summary))
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
-        <div
-            class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white shadow-sm shadow-emerald-500/20 relative overflow-hidden group">
-            <div class="relative z-10">
-                <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Omzet</p>
-                <h3 class="text-xl font-extrabold tracking-tight">Rp
-                    {{ number_format($summary['total_omzet'], 0, ',', '.') }}</h3>
+    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
+        @if(isset($summary))
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+            <div
+                class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white shadow-sm shadow-emerald-500/20 relative overflow-hidden group">
+                <div class="relative z-10">
+                    <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Omzet</p>
+                    <h3 class="text-xl font-extrabold tracking-tight">Rp
+                        {{ number_format($summary['total_omzet'], 0, ',', '.') }}</h3>
+                </div>
+                <i class="fas fa-chart-line absolute right-3 top-3 text-white/20 text-5xl rotate-12"></i>
             </div>
-            <i class="fas fa-chart-line absolute right-3 top-3 text-white/20 text-5xl rotate-12"></i>
-        </div>
-        <div
-            class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-emerald-300">
-            <div>
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Faktur</p>
-                <h3 class="text-xl font-extrabold text-slate-800">
-                    {{ number_format($summary['total_faktur'], 0, ',', '.') }}</h3>
+            <div
+                class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-emerald-300">
+                <div>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Faktur</p>
+                    <h3 class="text-xl font-extrabold text-slate-800">
+                        {{ number_format($summary['total_faktur'], 0, ',', '.') }}</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><i
+                        class="fas fa-file-invoice text-lg"></i></div>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><i
-                    class="fas fa-file-invoice text-lg"></i></div>
-        </div>
-        <div
-            class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-orange-300">
-            <div>
-                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Item Terjual</p>
-                <h3 class="text-xl font-extrabold text-slate-800">
-                    {{ number_format($summary['total_items'], 0, ',', '.') }}</h3>
+            <div
+                class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-orange-300">
+                <div>
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Item Terjual</p>
+                    <h3 class="text-xl font-extrabold text-slate-800">
+                        {{ number_format($summary['total_items'], 0, ',', '.') }}</h3>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600"><i
+                        class="fas fa-boxes-stacked text-lg"></i></div>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600"><i
-                    class="fas fa-boxes-stacked text-lg"></i></div>
         </div>
-    </div>
-    @endif
+        @endif
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
-        <div class="overflow-auto flex-1 w-full custom-scrollbar">
-            <table class="text-xs text-left border-collapse whitespace-nowrap w-full">
-                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-                    <tr>
-                        <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Tanggal</th>
-                        <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">No Faktur
-                        </th>
-                        <th
-                            class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 min-w-[200px]">
-                            Pelanggan</th>
-                        <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Salesman</th>
-                        <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 text-center">
-                            Cabang</th>
-                        <th
-                            class="px-6 py-4 font-bold text-emerald-700 uppercase border-r border-slate-200 text-right bg-emerald-50/50">
-                            Total (Rp)</th>
-                        <th
-                            class="px-6 py-4 font-bold text-slate-500 uppercase text-center bg-slate-50 sticky right-0 z-20 border-l border-slate-200">
-                            Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 bg-white">
-                    @forelse($penjualans as $item)
-                    <tr class="hover:bg-emerald-50/20 transition-colors group">
-                        <td class="px-6 py-3 border-r border-slate-100 text-slate-600 font-medium">
-                            {{ date('d/m/Y', strtotime($item->tgl_penjualan)) }}</td>
-                        <td class="px-6 py-3 border-r border-slate-100 font-mono text-emerald-700 font-bold">
-                            {{ $item->trans_no }}</td>
-                        <td class="px-6 py-3 border-r border-slate-100 font-bold text-slate-700 truncate max-w-[250px]"
-                            title="{{ $item->nama_pelanggan }}">{{ $item->nama_pelanggan }}</td>
-                        <td class="px-6 py-3 border-r border-slate-100 text-slate-500">{{ $item->sales_name }}</td>
-                        <td class="px-6 py-3 border-r border-slate-100 text-center"><span
-                                class="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600">{{ $item->cabang }}</span>
-                        </td>
-                        <td
-                            class="px-6 py-3 border-r border-slate-100 text-right font-extrabold text-slate-800 bg-emerald-50/10">
-                            {{ number_format($item->total_grand, 0, ',', '.') }}</td>
-                        <td
-                            class="px-6 py-3 text-center sticky right-0 bg-white border-l border-slate-100 z-10 group-hover:bg-emerald-50/40">
-                            <button wire:click="delete({{ $item->id }})"
-                                onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
-                                class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="px-6 py-24 text-center text-slate-400">Tidak ada data.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
+            <div class="overflow-auto flex-1 w-full custom-scrollbar">
+                <table class="text-xs text-left border-collapse whitespace-nowrap w-full">
+                    <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Tanggal
+                            </th>
+                            <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">No Faktur
+                            </th>
+                            <th
+                                class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 min-w-[200px]">
+                                Pelanggan</th>
+                            <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Salesman
+                            </th>
+                            <th
+                                class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 text-center">
+                                Cabang</th>
+                            <th
+                                class="px-6 py-4 font-bold text-emerald-700 uppercase border-r border-slate-200 text-right bg-emerald-50/50">
+                                Total (Rp)</th>
+                            <th
+                                class="px-6 py-4 font-bold text-slate-500 uppercase text-center bg-slate-50 sticky right-0 z-20 border-l border-slate-200">
+                                Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse($penjualans as $item)
+                        <tr class="hover:bg-emerald-50/20 transition-colors group">
+                            <td class="px-6 py-3 border-r border-slate-100 text-slate-600 font-medium">
+                                {{ date('d/m/Y', strtotime($item->tgl_penjualan)) }}</td>
+                            <td class="px-6 py-3 border-r border-slate-100 font-mono text-emerald-700 font-bold">
+                                {{ $item->trans_no }}</td>
+                            <td class="px-6 py-3 border-r border-slate-100 font-bold text-slate-700 truncate max-w-[250px]"
+                                title="{{ $item->nama_pelanggan }}">{{ $item->nama_pelanggan }}</td>
+                            <td class="px-6 py-3 border-r border-slate-100 text-slate-500">{{ $item->sales_name }}</td>
+                            <td class="px-6 py-3 border-r border-slate-100 text-center"><span
+                                    class="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600">{{ $item->cabang }}</span>
+                            </td>
+                            <td
+                                class="px-6 py-3 border-r border-slate-100 text-right font-extrabold text-slate-800 bg-emerald-50/10">
+                                {{ number_format($item->total_grand, 0, ',', '.') }}</td>
+                            <td
+                                class="px-6 py-3 text-center sticky right-0 bg-white border-l border-slate-100 z-10 group-hover:bg-emerald-50/40">
+                                <button wire:click="delete({{ $item->id }})"
+                                    onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
+                                    class="text-slate-300 hover:text-rose-500"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-24 text-center text-slate-400">Tidak ada data.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $penjualans->links() }}</div>
         </div>
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $penjualans->links() }}</div>
     </div>
 
     @if($isImportOpen) @include('livewire.partials.import-modal', ['title' => 'Import Penjualan', 'color' => 'emerald'])

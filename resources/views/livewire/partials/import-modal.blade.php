@@ -1,5 +1,5 @@
 @php
-// Mapping warna agar Tailwind bisa mendeteksi class-nya saat compile
+// Mapping warna theme
 $theme = match($color ?? 'indigo') {
 'emerald' => [
 'header' => 'from-emerald-600 to-teal-600',
@@ -61,7 +61,7 @@ $theme = match($color ?? 'indigo') {
 'checkbox_txt' => 'text-cyan-700',
 'btn_submit' => 'bg-cyan-600 hover:bg-cyan-700 shadow-cyan-500/30',
 ],
-default => [ // Fallback ke Indigo
+default => [
 'header' => 'from-indigo-600 to-purple-600',
 'text_sub' => 'text-indigo-100',
 'border_hover' => 'hover:border-indigo-400',
@@ -96,9 +96,11 @@ default => [ // Fallback ke Indigo
             </div>
 
             <div class="px-6 py-6">
+
                 <div class="mb-4">
                     <div
                         class="w-full flex justify-center px-6 pt-8 pb-8 border-2 border-slate-300 border-dashed rounded-xl hover:bg-slate-50 cursor-pointer relative transition-all group {{ $theme['border_hover'] }} bg-slate-50/50">
+
                         <div class="space-y-2 text-center">
                             <div
                                 class="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
@@ -131,14 +133,14 @@ default => [ // Fallback ke Indigo
                 </div>
                 @endif
 
-                <div wire:loading wire:target="file" class="w-full text-center py-2">
+                <div wire:loading wire:target="file" class="w-full text-center py-2 mb-2">
                     <span class="inline-flex items-center text-xs {{ $theme['loading'] }} font-bold animate-pulse">
                         <i class="fas fa-spinner fa-spin mr-2"></i> Mengupload File...
                     </span>
                 </div>
 
                 <div wire:loading wire:target="import"
-                    class="w-full text-center py-4 bg-yellow-50 border border-yellow-100 rounded-lg mt-2">
+                    class="w-full text-center py-4 bg-yellow-50 border border-yellow-100 rounded-lg mt-2 mb-4">
                     <div class="flex flex-col items-center justify-center text-yellow-700">
                         <i class="fas fa-cog fa-spin text-2xl mb-2"></i>
                         <span class="font-bold text-sm">Sedang Memproses Data Besar...</span>
@@ -162,7 +164,7 @@ default => [ // Fallback ke Indigo
             </div>
 
             <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-200">
-                <button wire:click="import" wire:loading.attr="disabled"
+                <button wire:click="import" wire:loading.attr="disabled" wire:target="import, file"
                     class="w-full sm:w-auto {{ $theme['btn_submit'] }} text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
                     Import Sekarang
                 </button>

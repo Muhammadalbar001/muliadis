@@ -28,7 +28,7 @@
                     <button @click="open = !open" @click.outside="open = false"
                         class="w-full flex items-center justify-between bg-white border-white text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-50 transition-all">
                         <span class="truncate"
-                            x-text="selected.length > 0 ? selected.length + ' Cabang Dipilih' : 'Semua Cabang'"></span>
+                            x-text="selected.length > 0 ? selected.length + ' Cabang' : 'Semua Cabang'"></span>
                         <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform"
                             :class="{'rotate-180': open}"></i>
                     </button>
@@ -69,80 +69,91 @@
                     <i class="fas fa-plus"></i> <span class="hidden sm:inline">Baru</span>
                 </button>
 
-                <!-- <div wire:loading class="text-pink-600 ml-1"><i class="fas fa-circle-notch fa-spin"></i></div> -->
+                <div wire:loading wire:target="search, filterCabang, create, edit, delete"
+                    class="px-3 py-2 bg-white border border-pink-200 text-pink-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
-        <div class="overflow-auto flex-1 w-full custom-scrollbar">
-            <table class="w-full text-sm text-left border-collapse">
-                <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-                    <tr>
-                        <th
-                            class="px-6 py-4 w-16 text-center font-bold text-slate-600 text-xs uppercase tracking-wider">
-                            No</th>
-                        <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Cabang</th>
-                        <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Nama Supplier
-                        </th>
-                        <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Kontak (PIC)
-                        </th>
-                        <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Telepon</th>
-                        <th class="px-6 py-4 text-center font-bold text-slate-600 text-xs uppercase tracking-wider">Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 bg-white">
-                    @forelse($suppliers as $index => $item)
-                    <tr class="hover:bg-pink-50/20 transition-colors group">
-                        <td class="px-6 py-4 text-center text-slate-500 text-xs font-mono">
-                            {{ $suppliers->firstItem() + $index }}</td>
-                        <td class="px-6 py-4">
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">{{ $item->cabang }}</span>
-                        </td>
-                        <td class="px-6 py-4 font-bold text-slate-700 group-hover:text-pink-600 transition-colors">
-                            {{ $item->supplier_name }}</td>
-                        <td class="px-6 py-4 text-slate-600">
-                            <div class="flex items-center gap-2">
+    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
+            <div class="overflow-auto flex-1 w-full custom-scrollbar">
+                <table class="w-full text-sm text-left border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+                        <tr>
+                            <th
+                                class="px-6 py-4 w-16 text-center font-bold text-slate-600 text-xs uppercase tracking-wider">
+                                No</th>
+                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Cabang</th>
+                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Nama
+                                Supplier
+                            </th>
+                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Kontak
+                                (PIC)
+                            </th>
+                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Telepon
+                            </th>
+                            <th class="px-6 py-4 text-center font-bold text-slate-600 text-xs uppercase tracking-wider">
+                                Aksi
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @forelse($suppliers as $index => $item)
+                        <tr class="hover:bg-pink-50/20 transition-colors group">
+                            <td class="px-6 py-4 text-center text-slate-500 text-xs font-mono">
+                                {{ $suppliers->firstItem() + $index }}</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">{{ $item->cabang }}</span>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-slate-700 group-hover:text-pink-600 transition-colors">
+                                {{ $item->supplier_name }}</td>
+                            <td class="px-6 py-4 text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <div
+                                        class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs group-hover:bg-white group-hover:text-pink-400 transition-colors">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span class="font-medium">{{ $item->contact_person ?? '-' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-600">
+                                @if($item->phone)
+                                <a href="tel:{{ $item->phone }}"
+                                    class="inline-flex items-center gap-1.5 text-slate-600 hover:text-emerald-600 font-medium transition-colors bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 group-hover:border-emerald-200">
+                                    <i class="fas fa-phone text-xs text-slate-400"></i> {{ $item->phone }}
+                                </a>
+                                @else
+                                <span class="text-slate-400 text-xs italic">Tidak ada no.</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-center">
                                 <div
-                                    class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs group-hover:bg-white group-hover:text-pink-400 transition-colors">
-                                    <i class="fas fa-user"></i></div>
-                                <span class="font-medium">{{ $item->contact_person ?? '-' }}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-slate-600">
-                            @if($item->phone)
-                            <a href="tel:{{ $item->phone }}"
-                                class="inline-flex items-center gap-1.5 text-slate-600 hover:text-emerald-600 font-medium transition-colors bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 group-hover:border-emerald-200">
-                                <i class="fas fa-phone text-xs text-slate-400"></i> {{ $item->phone }}
-                            </a>
-                            @else
-                            <span class="text-slate-400 text-xs italic">Tidak ada no.</span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div
-                                class="flex justify-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                <button wire:click="edit({{ $item->id }})"
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><i
-                                        class="fas fa-edit"></i></button>
-                                <button wire:click="delete({{ $item->id }})"
-                                    onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"><i
-                                        class="fas fa-trash-alt"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-20 text-center text-slate-400">Tidak ada data supplier.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                    class="flex justify-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                    <button wire:click="edit({{ $item->id }})"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><i
+                                            class="fas fa-edit"></i></button>
+                                    <button wire:click="delete({{ $item->id }})"
+                                        onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"><i
+                                            class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-20 text-center text-slate-400">Tidak ada data supplier.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $suppliers->links() }}</div>
         </div>
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $suppliers->links() }}</div>
     </div>
 
     @if($isOpen)

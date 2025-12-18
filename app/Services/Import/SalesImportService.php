@@ -17,7 +17,7 @@ class SalesImportService
         DB::disableQueryLog();
 
         try {
-            // Baca file tanpa header (baris 1 dianggap header)
+            // Baca file tanpa header
             $reader = SimpleExcelReader::create($filePath)->noHeaderRow();
 
             $stats = [
@@ -34,35 +34,29 @@ class SalesImportService
                 $stats['total_rows']++;
                 $row = array_values($rawRow);
 
-                // --- MAPPING KOLOM (Sesuai sales.xlsx) ---
-                // 0: Sales (Nama)
-                // 1: Divisi
-                // 2: Status Active / Inactive
-                // 3: Target IMS
-                // 4: Target OA
-                // 5: City
+                /**
+                 * SESUAIKAN INDEX BERDASARKAN FILE EXCEL ANDA:
+                 * Jika Excel Anda: Kode Sales | Nama Sales | Divisi | Status | City
+                 * Maka indexnya: 0: Kode, 1: Nama, 2: Divisi, 3: Status, 4: City
+                 */
 
-                $salesName = isset($row[0]) ? trim((string)$row[0]) : '';
-                
-                // Skip jika Nama Sales kosong atau Header
-                if ($salesName === '' || strcasecmp($salesName, 'Sales') === 0) {
+                $salesCode = isset($row[0]) ? trim((string)$row[0]) : null;
+                $salesName = isset($row[1]) ? trim((string)$row[1]) : '';
+
+                // Skip jika Nama Sales kosong atau baris Header
+                if ($salesName === '' || strcasecmp($salesName, 'Sales') === 0 || strcasecmp($salesName, 'Nama Sales') === 0) {
                     $stats['skipped_empty']++;
                     continue;
                 }
 
                 $batchData[] = [
-                    'sales_name'  => $salesName,
-                    'divisi'      => isset($row[1]) ? trim((string)$row[1]) : '',
-                    'status'      => isset($row[2]) ? trim((string)$row[2]) : 'Active',
-                    
-                    // Bersihkan format angka
-                    'target_ims'  => $this->fastNum(isset($row[3]) ? $row[3] : 0),
-                    'target_oa'   => $this->fastNum(isset($row[4]) ? $row[4] : 0),
-                    
-                    'city'        => isset($row[5]) ? trim((string)$row[5]) : '',
-                    
-                    'created_at'  => $now,
-                    'updated_at'  => $now,
+                    'sales_code' => $salesCode, // Kolom baru
+                    'sales_name' => $salesName,
+                    'divisi'     => isset($row[2]) ? trim((string)$row[2]) : '',
+                    'status'     => isset($row[3]) ? trim((string)$row[3]) : 'Active',
+                    'city'       => isset($row[4]) ? trim((string)$row[4]) : '',
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
 
                 // Insert per 500 baris
@@ -83,24 +77,16 @@ class SalesImportService
 
         } catch (Throwable $e) {
             Log::error("Import Sales Error: " . $e->getMessage());
-            throw $e;
+            // Berikan info error yang lebih spesifik jika terjadi crash
+            throw new \Exception("Gagal Import: " . $e->getMessage());
         }
     }
 
     private function processBatch(array $data)
     {
         if (empty($data)) return;
-        // Gunakan INSERT agar cepat. 
-        // Jika ingin update data lama, kita bisa kosongkan tabel dulu di Controller sebelum import.
-        DB::table('sales')->insert($data);
-    }
-
-    // Helper untuk membersihkan angka (hapus koma ribuan jika ada)
-    private function fastNum($val)
-    {
-        if (is_numeric($val)) return $val;
-        if (!$val || $val === '-') return 0;
-        // Hapus koma (pemisah ribuan)
-        return str_replace([','], '', $val);
+        
+        // Menggunakan insertOrIgnore agar jika ada Kode Sales yang duplikat tidak menyebabkan Error 500
+        DB::table('sales')->insertOrIgnore($data);
     }
 }

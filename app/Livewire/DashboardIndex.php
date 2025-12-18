@@ -3,8 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\Attributes\Computed; // Penting: Import Attribute Livewire
-use App\Models\Master\Sales;
+use Livewire\Attributes\Computed;
 use App\Models\Master\SalesTarget;
 use App\Models\Transaksi\Penjualan;
 use App\Models\Transaksi\Retur;
@@ -23,15 +22,13 @@ class DashboardIndex extends Component
 
     public function mount()
     {
-        // Inisialisasi tanggal default
         $this->startDate = date('Y-m-01');
         $this->endDate   = date('Y-m-d');
     }
 
+    // Hook ini WAJIB ada untuk update chart otomatis saat filter berubah
     public function updated($propertyName) 
     { 
-        // Perbaikan: Tidak perlu query ulang manual (getChartData) disini.
-        // Kita ambil langsung dari computed property yang sudah di-cache.
         $this->dispatch('update-charts', data: $this->chartData);
     }
 
@@ -42,12 +39,10 @@ class DashboardIndex extends Component
                      ->when(!empty($this->filterSales), fn($q) => $q->whereIn('sales_name', $this->filterSales));
     }
 
-    // --- COMPUTED PROPERTIES (Cache otomatis selama 1 request) ---
-
     #[Computed]
     public function kpiStats()
     {
-        // 1. KPI CARDS (Pindahkan logika hitung kesini agar dicache)
+        // ... (Logika KPI sama seperti sebelumnya) ...
         $salesSum = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
         $returSum = $this->baseFilter(Retur::query(), 'tgl_retur')->sum(DB::raw('CAST(total_grand AS DECIMAL(20,2))'));
         $arSum    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->sum(DB::raw('CAST(nilai AS DECIMAL(20,2))'));
@@ -63,14 +58,12 @@ class DashboardIndex extends Component
     #[Computed]
     public function chartData()
     {
-        // 2. CHART DATA (Logic dipindah kesini)
+        // ... (Logika Chart sama seperti sebelumnya) ...
         $dates = [];
-        // Validasi agar tanggal aman
         $start = $this->startDate ? Carbon::parse($this->startDate) : Carbon::now()->startOfMonth();
         $end   = $this->endDate ? Carbon::parse($this->endDate) : Carbon::now();
         
         $c = $start->copy();
-        // Batasi loop maksimal 366 hari untuk keamanan performa
         $limit = 0; 
         while ($c <= $end && $limit < 366) { 
             $dates[] = $c->format('Y-m-d'); 
@@ -78,7 +71,6 @@ class DashboardIndex extends Component
             $limit++;
         }
 
-        // Query Group By Date
         $dailySales = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
         $dailyRetur = $this->baseFilter(Retur::query(), 'tgl_retur')->selectRaw("DATE(tgl_retur) as tgl, SUM(total_grand) as total")->groupBy('tgl')->pluck('total', 'tgl');
         $dailyAR    = $this->baseFilter(AccountReceivable::query(), 'tgl_penjualan')->selectRaw("DATE(tgl_penjualan) as tgl, SUM(total_nilai) as total")->groupBy('tgl')->pluck('total', 'tgl');
@@ -92,17 +84,10 @@ class DashboardIndex extends Component
             $dColl[]  = (float)($dailyColl[$d] ?? 0);
         }
 
-        // B. TOP RANKING
-        $topProduk = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
-            ->selectRaw("nama_item, SUM(qty) as total")->groupBy('nama_item')->orderByDesc('total')->limit(10)->get();
-        
-        $topCustomer = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
-            ->selectRaw("nama_pelanggan, SUM(total_grand) as total")->groupBy('nama_pelanggan')->orderByDesc('total')->limit(10)->get();
+        $topProduk = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("nama_item, SUM(qty) as total")->groupBy('nama_item')->orderByDesc('total')->limit(10)->get();
+        $topCustomer = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("nama_pelanggan, SUM(total_grand) as total")->groupBy('nama_pelanggan')->orderByDesc('total')->limit(10)->get();
+        $topSupplier = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')->selectRaw("supplier, SUM(total_grand) as total")->groupBy('supplier')->orderByDesc('total')->limit(10)->get();
 
-        $topSupplier = $this->baseFilter(Penjualan::query(), 'tgl_penjualan')
-            ->selectRaw("supplier, SUM(total_grand) as total")->groupBy('supplier')->orderByDesc('total')->limit(10)->get();
-
-        // C. SALESMAN PERFORMANCE
         $salesPerf = $this->getSalesmanPerformance();
 
         return [
@@ -156,12 +141,9 @@ class DashboardIndex extends Component
 
     public function render()
     {
-        // Cache opsi filter agar ringan
         $optCabang = Cache::remember('dash_cabang', 3600, fn() => Penjualan::select('cabang')->distinct()->whereNotNull('cabang')->pluck('cabang'));
         $optSales  = Cache::remember('dash_sales', 3600, fn() => Penjualan::select('sales_name')->distinct()->whereNotNull('sales_name')->pluck('sales_name'));
 
-        // Ambil data dari Computed Properties (Hanya dihitung 1x per request)
-        // Ini adalah kunci perbaikan performa
         $stats = $this->kpiStats;
         $chartData = $this->chartData;
 

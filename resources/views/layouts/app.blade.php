@@ -91,7 +91,6 @@
     <x-toast-notification />
     @endif
 
-    @livewireScripts
 </body>
 
 </html>

@@ -3,106 +3,117 @@
     <div
         class="sticky top-0 z-40 backdrop-blur-md bg-slate-900/90 p-4 rounded-b-2xl shadow-lg border-b border-slate-700 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6">
         <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+
             <div class="flex items-center gap-4 w-full md:w-auto">
-                <div class="p-2 bg-slate-800 rounded-lg text-slate-300 border border-slate-700"><i
-                        class="fas fa-users-cog text-xl"></i></div>
+                <div class="p-2 bg-slate-800 rounded-lg text-slate-300 border border-slate-700">
+                    <i class="fas fa-users-cog text-xl"></i>
+                </div>
                 <div>
                     <h1 class="text-xl font-extrabold text-white tracking-tight">Manajemen User</h1>
                     <p class="text-xs text-slate-400 font-medium mt-0.5">Atur akses dan role pengguna sistem.</p>
                 </div>
             </div>
 
-            <div class="flex gap-3 items-center w-full md:w-auto">
+            <div class="flex gap-3 items-center w-full md:w-auto justify-end">
+
                 <div class="relative w-full md:w-64">
                     <input wire:model.live.debounce.300ms="search" type="text"
                         class="pl-10 w-full bg-slate-800 border-slate-700 rounded-lg text-xs font-bold text-white focus:ring-blue-500 py-2.5 shadow-inner placeholder-slate-500"
                         placeholder="Cari Nama / Email...">
                     <i class="fas fa-search absolute left-3 top-3 text-slate-500 text-xs"></i>
                 </div>
+
                 <button wire:click="create"
-                    class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-blue-500/30 transition-all flex items-center gap-2">
+                    class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-blue-500/30 transition-all flex items-center gap-2 whitespace-nowrap">
                     <i class="fas fa-user-plus"></i> <span class="hidden sm:inline">User Baru</span>
                 </button>
+
+                <div wire:loading
+                    class="p-2.5 bg-slate-800 border border-slate-700 text-blue-400 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead class="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200 text-xs">
-                    <tr>
-                        <th class="px-6 py-4">User Info</th>
-                        <th class="px-6 py-4">Username</th>
-                        <th class="px-6 py-4 text-center">Role (Hak Akses)</th>
-                        <th class="px-6 py-4 text-center">Bergabung</th>
-                        <th class="px-6 py-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($users as $user)
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300">
-                                    {{ substr($user->name, 0, 1) }}
+    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-200 text-xs">
+                        <tr>
+                            <th class="px-6 py-4">User Info</th>
+                            <th class="px-6 py-4">Username</th>
+                            <th class="px-6 py-4 text-center">Role (Hak Akses)</th>
+                            <th class="px-6 py-4 text-center">Bergabung</th>
+                            <th class="px-6 py-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($users as $user)
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold border border-slate-300 uppercase">
+                                        {{ substr($user->name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-800">{{ $user->name }}</div>
+                                        <div class="text-xs text-slate-500">{{ $user->email }}</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div class="font-bold text-slate-800">{{ $user->name }}</div>
-                                    <div class="text-xs text-slate-500">{{ $user->email }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 font-mono text-slate-600 text-xs">
-                            @ {{ $user->username }}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            @if($user->role == 'admin')
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-white border border-slate-700">
-                                <i class="fas fa-crown mr-1.5 text-yellow-400"></i> ADMIN
-                            </span>
-                            @elseif($user->role == 'pimpinan')
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
-                                <i class="fas fa-user-tie mr-1.5"></i> PIMPINAN
-                            </span>
-                            @else
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                <i class="fas fa-user mr-1.5"></i> PENGGUNA
-                            </span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 text-center text-xs text-slate-500">
-                            {{ $user->created_at->format('d M Y') }}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <button wire:click="edit({{ $user->id }})"
-                                    class="w-8 h-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-transparent hover:border-blue-100">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                @if($user->id !== auth()->id())
-                                <button wire:click="delete({{ $user->id }})"
-                                    onclick="return confirm('Hapus user ini?') || event.stopImmediatePropagation()"
-                                    class="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all border border-transparent hover:border-red-100">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                            </td>
+                            <td class="px-6 py-4 font-mono text-slate-600 text-xs">
+                                @ {{ $user->username }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @if($user->role == 'admin')
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-white border border-slate-700">
+                                    <i class="fas fa-crown mr-1.5 text-yellow-400"></i> ADMIN
+                                </span>
+                                @elseif($user->role == 'pimpinan')
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                                    <i class="fas fa-user-tie mr-1.5"></i> PIMPINAN
+                                </span>
+                                @else
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                    <i class="fas fa-user mr-1.5"></i> PENGGUNA
+                                </span>
                                 @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400">Tidak ada data user.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            </td>
+                            <td class="px-6 py-4 text-center text-xs text-slate-500">
+                                {{ $user->created_at->format('d M Y') }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <button wire:click="edit({{ $user->id }})"
+                                        class="w-8 h-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-transparent hover:border-blue-100">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    @if($user->id !== auth()->id())
+                                    <button wire:click="delete({{ $user->id }})"
+                                        onclick="return confirm('Hapus user ini?') || event.stopImmediatePropagation()"
+                                        class="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all border border-transparent hover:border-red-100">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">Tidak ada data user.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $users->links() }}</div>
         </div>
-        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $users->links() }}</div>
     </div>
 
     @if($isOpen)
@@ -118,8 +129,9 @@
                         <i class="fas {{ $isEdit ? 'fa-user-edit' : 'fa-user-plus' }} text-blue-400"></i>
                         {{ $isEdit ? 'Edit User' : 'Tambah User Baru' }}
                     </h3>
-                    <button wire:click="closeModal" class="text-slate-400 hover:text-white transition-colors"><i
-                            class="fas fa-times"></i></button>
+                    <button wire:click="closeModal" class="text-slate-400 hover:text-white transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
 
                 <div class="px-6 py-6 space-y-4">
