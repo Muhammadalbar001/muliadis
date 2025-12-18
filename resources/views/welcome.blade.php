@@ -4,214 +4,186 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Muliadis - Corporate Portal</title>
+    <title>PT MULIA ANUGERAH DISTRIBUSINDO</title>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
     body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #050505;
+        color: #e2e8f0;
+        scroll-behavior: smooth;
     }
 
-    /* Corporate Pattern Background */
-    .hero-pattern {
-        background-color: #0f172a;
-        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231e293b' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    /* Latar Belakang Utama */
+    .hero-bg {
+        background: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.85)),
+            url('/images/bg-welcome.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+
+    /* Efek Glassmorphism Navbar */
+    .glass-nav {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Efek Glassmorphism Card */
+    .glass-card {
+        background: rgba(30, 41, 59, 0.4);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 2.5rem;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .glass-card:hover {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .text-blue-glow {
+        color: #60a5fa;
+        text-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+    }
+
+    .btn-glass {
+        background: rgba(59, 130, 246, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass:hover {
+        background: rgba(59, 130, 246, 1);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        transform: scale(1.05);
     }
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="antialiased hero-bg">
 
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center gap-3">
-                    <div class="bg-blue-900 text-white p-1.5 rounded-lg">
-                        <i class="fas fa-building text-xl"></i>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="font-bold text-slate-800 text-lg leading-tight tracking-tight">PT. Mulia Anugerah
-                            Distribusindo</span>
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Distribution
-                            Management System</span>
-                    </div>
+    <nav class="fixed top-0 w-full z-[100] glass-nav h-20">
+        <div class="max-w-7xl mx-auto px-8 h-full flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-11 h-11 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-truck-fast text-white text-lg"></i>
                 </div>
+                <div>
+                    <h1 class="text-sm font-black text-white tracking-tighter uppercase leading-none">PT MULIA ANUGERAH
+                    </h1>
+                    <p class="text-[9px] font-bold text-blue-400 tracking-[0.3em] uppercase mt-1">Distribusindo</p>
+                </div>
+            </div>
 
-                <div class="flex items-center gap-3">
-                    @if (Route::has('login'))
-                    @auth
-                    <a href="{{ url('/dashboard') }}"
-                        class="inline-flex items-center gap-2 px-5 py-2 bg-blue-900 text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition-all shadow-md">
-                        <i class="fas fa-columns"></i> Dashboard
-                    </a>
-                    @else
-                    <a href="{{ route('login') }}"
-                        class="inline-flex items-center gap-2 px-5 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition-all shadow-sm">
-                        <i class="fas fa-sign-in-alt"></i> Login Portal
-                    </a>
-                    @endauth
-                    @endif
-                </div>
+            <div class="flex items-center gap-6">
+                @auth
+                <a href="{{ url('/dashboard') }}"
+                    class="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest transition-colors">Dashboard</a>
+                @else
+                <a href="{{ route('login') }}"
+                    class="btn-glass px-8 py-3 text-white rounded-2xl text-[10px] font-black tracking-widest uppercase">
+                    Login Portal
+                </a>
+                @endauth
             </div>
         </div>
     </nav>
 
-    <section class="hero-pattern relative text-white py-20 lg:py-28 overflow-hidden">
+    <main class="pt-32 pb-20 px-6 max-w-7xl mx-auto space-y-6">
 
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-blue-900/40 z-0"></div>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-auto">
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
+            <div
+                class="md:col-span-8 md:row-span-2 glass-card p-12 flex flex-col justify-center space-y-8 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-[0.05] pointer-events-none">
+                    <i class="fas fa-boxes-packing text-[20rem] -rotate-12"></i>
+                </div>
+
+                <div class="relative z-10 space-y-6">
                     <div
-                        class="inline-block px-3 py-1 bg-blue-500/20 border border-blue-400/30 rounded-full text-blue-200 text-xs font-bold uppercase tracking-wider mb-6">
-                        Internal System v2.0
+                        class="inline-flex items-center gap-2 px-4 py-1.5 bg-blue-500/10 text-blue-400 rounded-full text-[10px] font-black uppercase tracking-[0.3em] border border-blue-500/20 w-fit">
+                        Regional Distribution Expert
                     </div>
-                    <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight mb-6 leading-tight text-white">
-                        Sistem Informasi <br> <span class="text-blue-400">Manajemen Distribusi</span>
-                    </h1>
-                    <p class="text-lg text-slate-300 mb-8 leading-relaxed max-w-xl">
-                        Platform terintegrasi untuk pengelolaan stok, penjualan, piutang, dan pelaporan PT. Mulia
-                        Anugerah Distribusindo. Akses data <i>real-time</i> untuk pengambilan keputusan yang presisi.
+                    <h2 class="text-5xl md:text-7xl font-black text-white leading-[0.95] tracking-tighter uppercase">
+                        Reliable <br><span class="text-blue-glow">Logistic Hub.</span>
+                    </h2>
+                    <p class="text-slate-400 font-medium max-w-md text-lg leading-relaxed">
+                        Manajemen distribusi yang presisi dan transparan untuk produk Consumer Goods & Farmasi di
+                        seluruh wilayah Kalimantan.
                     </p>
-
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{{ route('login') }}"
-                            class="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-lg shadow-blue-900/50 transition-all flex items-center gap-2">
-                            Akses Sistem <i class="fas fa-arrow-right text-xs"></i>
-                        </a>
-                        <a href="#modul"
-                            class="px-7 py-3.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold rounded-lg transition-all">
-                            Lihat Modul
-                        </a>
-                    </div>
-
-                    <div class="mt-10 flex items-center gap-6 text-sm text-slate-400 border-t border-white/10 pt-6">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Server Online
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-shield-alt text-slate-500"></i> Secure Connection
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-database text-slate-500"></i> Last Backup: {{ date('d M Y') }}
-                        </div>
-                    </div>
                 </div>
+            </div>
 
-                <div class="hidden lg:block relative">
-                    <div
-                        class="relative bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                        <div class="flex items-center gap-4 border-b border-slate-700 pb-4 mb-4">
-                            <div class="flex gap-1.5">
-                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                            </div>
-                            <div class="h-2 w-32 bg-slate-700 rounded-full"></div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-slate-700/50 p-4 rounded-xl h-24 w-full animate-pulse"></div>
-                            <div class="bg-slate-700/50 p-4 rounded-xl h-24 w-full animate-pulse"></div>
-                            <div class="bg-slate-700/50 p-4 rounded-xl h-40 w-full col-span-2 mt-2"></div>
-                        </div>
+            <div class="md:col-span-4 glass-card p-8 flex flex-col justify-between border-blue-500/20">
+                <h3 class="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em]">Our Vision</h3>
+                <p class="text-xl font-bold text-white leading-tight uppercase italic mt-4">"Menjadi pilar distribusi
+                    yang kokoh melalui integritas teknologi."</p>
+                <div class="w-10 h-1 bg-blue-600 mt-6 rounded-full"></div>
+            </div>
+
+            <div class="md:col-span-4 glass-card p-2">
+                <a href="{{ route('login') }}"
+                    class="w-full h-full bg-white/5 rounded-[2rem] flex flex-col justify-between p-8 group transition-all hover:bg-white/10">
+                    <div class="flex justify-between items-start">
                         <div
-                            class="absolute -bottom-6 -left-6 bg-white text-slate-900 p-4 rounded-xl shadow-xl border border-slate-200 flex items-center gap-3">
-                            <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><i
-                                    class="fas fa-chart-line"></i></div>
-                            <div>
-                                <p class="text-xs text-slate-500 font-bold uppercase">Performance</p>
-                                <p class="text-lg font-bold">+24.5%</p>
-                            </div>
+                            class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-right-to-bracket text-white"></i>
                         </div>
+                        <i class="fas fa-chevron-right text-slate-500"></i>
                     </div>
+                    <div>
+                        <span class="text-xs font-black text-white uppercase tracking-widest block">Masuk Sistem</span>
+                        <p class="text-[9px] text-slate-500 uppercase font-bold mt-1">Akses Database Pegawai</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="md:col-span-3 glass-card p-8 text-center flex flex-col justify-center">
+                <span class="text-3xl font-black text-white italic">Live</span>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-2">Data Monitoring</p>
+            </div>
+
+            <div class="md:col-span-3 glass-card p-8 text-center flex flex-col justify-center">
+                <span class="text-3xl font-black text-blue-400">100%</span>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-2">Accurate Reports</p>
+            </div>
+
+            <div class="md:col-span-6 glass-card p-10 flex items-center gap-8 relative overflow-hidden bg-blue-600/5">
+                <div
+                    class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center text-blue-500 text-3xl">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-sm font-black text-white uppercase tracking-widest">Integrated Ecosystem</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Sistem terpusat yang menghubungkan
+                        armada, gudang, dan outlet secara langsung.</p>
                 </div>
             </div>
+
         </div>
-    </section>
+    </main>
 
-    <section id="modul" class="py-20 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <span class="text-blue-600 font-bold text-xs uppercase tracking-widest">Modul Operasional</span>
-                <h2 class="text-3xl font-bold text-slate-900 mt-2 mb-4">Fungsionalitas Utama Sistem</h2>
-                <p class="text-slate-600">Sistem dirancang untuk efisiensi tinggi dalam menangani alur distribusi
-                    barang, mulai dari pemesanan hingga pelaporan keuangan.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                <div
-                    class="group bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
-                    <div
-                        class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <i class="fas fa-boxes-stacked text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">Penjualan & Stok</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Pencatatan faktur penjualan real-time, manajemen
-                        stok gudang, dan analisis pergerakan barang.</p>
-                </div>
-
-                <div
-                    class="group bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
-                    <div
-                        class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <i class="fas fa-exchange-alt text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">Retur Barang</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Manajemen pengembalian barang (BS/Good), potong
-                        nota otomatis, dan validasi retur.</p>
-                </div>
-
-                <div
-                    class="group bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
-                    <div
-                        class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <i class="fas fa-file-invoice-dollar text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">Kontrol Piutang</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Monitoring umur piutang (Aging AR), limit kredit
-                        pelanggan, dan status penagihan.</p>
-                </div>
-
-                <div
-                    class="group bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
-                    <div
-                        class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <i class="fas fa-chart-pie text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-2">Laporan Eksekutif</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Rekapitulasi omzet, kinerja salesman,
-                        profitabilitas, dan laporan collection harian.</p>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <footer class="bg-white border-t border-slate-200 py-8">
-        <div
-            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-left">
-                <span class="font-bold text-slate-800">PT. Mulia Anugerah Distribusindo</span>
-                <p class="text-xs text-slate-500 mt-1">
-                    &copy; {{ date('Y') }} Internal System. All rights reserved. <br>
-                    Dikembangkan oleh Tim IT.
-                </p>
-            </div>
-            <div class="flex items-center gap-6">
-                <a href="#" class="text-sm text-slate-500 hover:text-blue-600 transition-colors">Support</a>
-                <a href="#" class="text-sm text-slate-500 hover:text-blue-600 transition-colors">Privacy Policy</a>
-                <a href="#" class="text-sm text-slate-500 hover:text-blue-600 transition-colors">Terms of Service</a>
-            </div>
-        </div>
+    <footer class="py-12 text-center">
+        <p class="text-[9px] font-bold text-slate-700 uppercase tracking-[0.5em]">© 2025 PT MULIA ANUGERAH DISTRIBUSINDO
+        </p>
     </footer>
 
 </body>

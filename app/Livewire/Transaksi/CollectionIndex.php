@@ -9,6 +9,7 @@ use App\Models\Keuangan\Collection;
 use App\Services\Import\CollectionImportService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class CollectionIndex extends Component
 {
@@ -17,19 +18,17 @@ class CollectionIndex extends Component
     public $search = '';
     public $startDate;
     public $endDate;
-    
-    // --- FILTER ARRAY (MULTI SELECT) ---
     public $filterCabang = []; 
-    // -----------------------------------
-    
-    // Filter Penagih (Opsional tapi Berguna)
     public $filterPenagih = '';
 
+    // Properti Import
     public $isImportOpen = false;
     public $file;
     public $resetData = false;
-    public $isDeleteDateOpen = false;
-    public $deleteDateInput;
+
+    // PROPERTI HAPUS PERIODE
+    public $deleteStartDate;
+    public $deleteEndDate;
 
     public function updatedSearch() { $this->resetPage(); }
     public function updatedFilterCabang() { $this->resetPage(); }
@@ -37,8 +36,34 @@ class CollectionIndex extends Component
     
     public function resetFilter() 
     { 
-        $this->reset(['search', 'startDate', 'endDate', 'filterCabang', 'filterPenagih']); 
+        $this->reset(['search', 'startDate', 'endDate', 'filterCabang', 'filterPenagih', 'deleteStartDate', 'deleteEndDate']); 
         $this->resetPage(); 
+    }
+
+    // FUNGSI HAPUS PERIODE (Berdasarkan Tgl Bayar)
+    public function deleteByPeriod()
+    {
+        $this->validate([
+            'deleteStartDate' => 'required|date',
+            'deleteEndDate' => 'required|date|after_or_equal:deleteStartDate',
+        ]);
+
+        try {
+            $query = Collection::whereBetween('tanggal', [$this->deleteStartDate, $this->deleteEndDate]);
+            $count = $query->count();
+
+            if ($count > 0) {
+                $query->delete();
+                $this->dispatch('show-toast', ['type' => 'success', 'message' => "$count data Pelunasan berhasil dihapus."]);
+                Cache::forget('opt_coll_cabang');
+                Cache::forget('opt_coll_penagih');
+            } else {
+                $this->dispatch('show-toast', ['type' => 'warning', 'message' => "Tidak ada data pada periode tersebut."]);
+            }
+            $this->reset(['deleteStartDate', 'deleteEndDate']);
+        } catch (\Exception $e) {
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Gagal menghapus: ' . $e->getMessage()]);
+        }
     }
 
     public function render()
@@ -58,11 +83,9 @@ class CollectionIndex extends Component
             $query->whereBetween('tanggal', [$this->startDate, $this->endDate]);
         }
         
-        // --- FILTER MULTI SELECT ---
         if (!empty($this->filterCabang)) {
             $query->whereIn('cabang', $this->filterCabang);
         }
-        // ---------------------------
         
         if ($this->filterPenagih) {
             $query->where('penagih', $this->filterPenagih);
@@ -80,7 +103,6 @@ class CollectionIndex extends Component
             Collection::select('cabang')->distinct()->pluck('cabang')
         );
         
-        // Opsi Penagih
         $optPenagih = Cache::remember('opt_coll_penagih', 3600, fn() => 
             Collection::select('penagih')->distinct()->whereNotNull('penagih')->where('penagih', '!=', '')->pluck('penagih')
         );
@@ -89,26 +111,16 @@ class CollectionIndex extends Component
             ->layout('layouts.app', ['header' => 'Collection']);
     }
 
-    // Import
+    // Import Handlers
     public function openImportModal() { $this->resetErrorBag(); $this->isImportOpen = true; }
     public function closeImportModal() { $this->isImportOpen = false; $this->file = null; }
     
     public function import() {
         $this->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:153600']);
         
-        $lock = Cache::lock('importing_coll', 600);
-        if (!$lock->get()) {
-            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Import sedang berjalan. Tunggu!']);
-            return;
-        }
-
-        ini_set('memory_limit', '-1');
-        set_time_limit(0);
-
-        $path = $this->file->store('temp-import', 'local');
+        $path = $this->file->getRealPath(); // Lebih stabil untuk Windows/Laragon
         try {
-            $stats = (new CollectionImportService)->handle(Storage::disk('local')->path($path), $this->resetData);
-            if(Storage::disk('local')->exists($path)) Storage::disk('local')->delete($path);
+            $stats = (new CollectionImportService)->handle($path, $this->resetData);
             
             Cache::forget('opt_coll_cabang');
             Cache::forget('opt_coll_penagih');
@@ -117,28 +129,7 @@ class CollectionIndex extends Component
             $this->dispatch('show-toast', ['type' => 'success', 'message' => "Sukses import " . number_format($stats['processed']) . " data."]);
         } catch (\Exception $e) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => $e->getMessage()]);
-        } finally {
-            $lock->release();
         }
-    }
-
-    // Delete Date
-    public function openDeleteDateModal() { $this->resetErrorBag(); $this->isDeleteDateOpen = true; }
-    public function closeDeleteDateModal() { $this->isDeleteDateOpen = false; $this->deleteDateInput = null; }
-    
-    public function deleteByDate() {
-        $this->validate(['deleteDateInput' => 'required|date']);
-        $count = Collection::whereDate('tanggal', $this->deleteDateInput)->count();
-        
-        if ($count == 0) { 
-            $this->addError('deleteDateInput', 'Tidak ada data pada tanggal ini.'); 
-            return; 
-        }
-        
-        Collection::whereDate('tanggal', $this->deleteDateInput)->delete();
-        $this->closeDeleteDateModal();
-        $this->dispatch('show-toast', ['type' => 'success', 'message' => "$count Data dihapus."]);
-        Cache::forget('opt_coll_cabang');
     }
 
     public function delete($id) { 

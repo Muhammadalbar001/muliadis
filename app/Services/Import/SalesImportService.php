@@ -11,82 +11,63 @@ class SalesImportService
 {
     public function handle(string $filePath)
     {
-        // 1. Setup Resource
         ini_set('memory_limit', '512M');
-        ini_set('max_execution_time', 0);
         DB::disableQueryLog();
 
         try {
-            // Baca file tanpa header
+            // Membaca file tanpa header row sesuai instruksi sebelumnya
             $reader = SimpleExcelReader::create($filePath)->noHeaderRow();
 
-            $stats = [
-                'total_rows' => 0,
-                'processed'  => 0,
-                'skipped_empty' => 0,
-            ];
-
-            $batchSize = 500;
+            $stats = ['total_rows' => 0, 'processed' => 0, 'skipped_empty' => 0];
             $batchData = [];
-            $now       = now();
+            $now = now();
 
             foreach ($reader->getRows() as $rawRow) {
                 $stats['total_rows']++;
                 $row = array_values($rawRow);
 
-                /**
-                 * SESUAIKAN INDEX BERDASARKAN FILE EXCEL ANDA:
-                 * Jika Excel Anda: Kode Sales | Nama Sales | Divisi | Status | City
-                 * Maka indexnya: 0: Kode, 1: Nama, 2: Divisi, 3: Status, 4: City
-                 */
+                // MAPPING BERDASARKAN sales.xlsx
+                // 0: Sales (Nama)
+                // 1: Divisi
+                // 2: Status
+                // 3: Target IMS (Akan diabaikan di tabel sales, masuk ke sales_targets jika perlu)
+                // 4: Target OA (Akan diabaikan)
+                // 5: City
+                
+                $salesName = isset($row[0]) ? trim((string)$row[0]) : '';
 
-                $salesCode = isset($row[0]) ? trim((string)$row[0]) : null;
-                $salesName = isset($row[1]) ? trim((string)$row[1]) : '';
-
-                // Skip jika Nama Sales kosong atau baris Header
-                if ($salesName === '' || strcasecmp($salesName, 'Sales') === 0 || strcasecmp($salesName, 'Nama Sales') === 0) {
+                // Skip header atau baris kosong
+                if ($salesName === '' || strcasecmp($salesName, 'Sales') === 0) {
                     $stats['skipped_empty']++;
                     continue;
                 }
 
                 $batchData[] = [
-                    'sales_code' => $salesCode, // Kolom baru
+                    'sales_code' => null, // Kode Sales dibiarkan kosong untuk di-sync nanti
                     'sales_name' => $salesName,
-                    'divisi'     => isset($row[2]) ? trim((string)$row[2]) : '',
-                    'status'     => isset($row[3]) ? trim((string)$row[3]) : 'Active',
-                    'city'       => isset($row[4]) ? trim((string)$row[4]) : '',
+                    'divisi'     => isset($row[1]) ? trim((string)$row[1]) : '',
+                    'status'     => isset($row[2]) ? trim((string)$row[2]) : 'Active',
+                    'city'       => isset($row[5]) ? trim((string)$row[5]) : '',
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
 
-                // Insert per 500 baris
-                if (count($batchData) >= $batchSize) {
-                    $this->processBatch($batchData);
+                if (count($batchData) >= 500) {
+                    DB::table('sales')->insertOrIgnore($batchData);
                     $stats['processed'] += count($batchData);
                     $batchData = [];
                 }
             }
 
-            // Insert sisa data
             if (count($batchData) > 0) {
-                $this->processBatch($batchData);
+                DB::table('sales')->insertOrIgnore($batchData);
                 $stats['processed'] += count($batchData);
             }
 
             return $stats;
-
         } catch (Throwable $e) {
             Log::error("Import Sales Error: " . $e->getMessage());
-            // Berikan info error yang lebih spesifik jika terjadi crash
-            throw new \Exception("Gagal Import: " . $e->getMessage());
+            throw $e;
         }
-    }
-
-    private function processBatch(array $data)
-    {
-        if (empty($data)) return;
-        
-        // Menggunakan insertOrIgnore agar jika ada Kode Sales yang duplikat tidak menyebabkan Error 500
-        DB::table('sales')->insertOrIgnore($data);
     }
 }

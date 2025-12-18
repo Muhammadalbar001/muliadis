@@ -5,8 +5,9 @@
         <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
 
             <div class="flex items-center gap-4 w-full xl:w-auto">
-                <div class="p-2 bg-orange-100 rounded-lg text-orange-600"><i
-                        class="fas fa-file-invoice-dollar text-xl"></i></div>
+                <div class="p-2 bg-orange-100 rounded-lg text-orange-600">
+                    <i class="fas fa-file-invoice-dollar text-xl"></i>
+                </div>
                 <div>
                     <h1 class="text-xl font-extrabold text-orange-900 tracking-tight">Monitoring Piutang</h1>
                     <p class="text-xs text-orange-600 font-medium mt-0.5">Daftar tagihan outstanding.</p>
@@ -55,7 +56,7 @@
                 <div class="w-full sm:w-32">
                     <select wire:model.live="filterUmur"
                         class="w-full border-white rounded-lg text-xs font-bold text-slate-700 focus:ring-orange-500 py-2 shadow-sm cursor-pointer bg-white hover:bg-orange-50">
-                        <option value="">Semua Status</option>
+                        <option value="">Semua Umur</option>
                         <option value="lancar">Lancar (<=30)< /option>
                         <option value="macet">Macet (>30)</option>
                     </select>
@@ -63,15 +64,20 @@
 
                 <div class="hidden sm:block h-6 w-px bg-orange-200 mx-1"></div>
 
-                <button wire:click="resetFilter"
-                    class="px-3 py-2 bg-white border border-orange-200 text-orange-600 rounded-lg text-xs font-bold hover:bg-orange-50 shadow-sm"
-                    title="Reset"><i class="fas fa-undo"></i></button>
-
-                <button wire:click="openDeleteDateModal"
-                    class="px-3 py-2 bg-white border border-rose-200 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 shadow-sm flex items-center gap-2"
-                    title="Hapus per Tanggal">
-                    <i class="fas fa-trash-alt"></i> <span class="hidden xl:inline">Hapus Tgl</span>
-                </button>
+                <div class="flex items-center gap-1.5 p-1.5 bg-rose-50 border border-rose-100 rounded-lg shadow-sm">
+                    <div class="hidden lg:block text-[9px] font-black text-rose-700 uppercase px-1">Hapus Faktur:</div>
+                    <input type="date" wire:model="deleteStartDate"
+                        class="text-[10px] rounded border-rose-200 py-1 px-1.5 focus:ring-rose-500 bg-white font-bold text-slate-700">
+                    <span class="text-rose-300 text-[10px] font-bold">s/d</span>
+                    <input type="date" wire:model="deleteEndDate"
+                        class="text-[10px] rounded border-rose-200 py-1 px-1.5 focus:ring-rose-500 bg-white font-bold text-slate-700">
+                    <button
+                        onclick="confirm('PERINGATAN: Menghapus piutang berdasarkan periode akan menghapus SEMUA data tagihan di rentang tanggal faktur tersebut. Lanjutkan?') || event.stopImmediatePropagation()"
+                        wire:click="deleteByPeriod"
+                        class="px-2.5 py-1 bg-rose-600 text-white text-[10px] font-black rounded hover:bg-rose-700 shadow-sm flex items-center gap-1">
+                        <i class="fas fa-trash-alt"></i> <span class="hidden sm:inline">HAPUS</span>
+                    </button>
+                </div>
 
                 <button wire:click="openImportModal"
                     class="px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-lg text-xs font-bold hover:from-orange-600 hover:to-amber-700 shadow-md shadow-orange-500/20 flex items-center gap-2">
@@ -89,7 +95,7 @@
 
     <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
         @if(isset($summary))
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             <div
                 class="bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl p-4 text-white shadow-sm shadow-orange-500/20 relative overflow-hidden group">
                 <div class="relative z-10">
@@ -101,7 +107,7 @@
                 <i class="fas fa-hand-holding-usd absolute right-3 top-3 text-white/20 text-5xl rotate-12"></i>
             </div>
             <div
-                class="bg-white rounded-2xl p-4 border border-red-100 shadow-sm flex items-center justify-between group hover:border-red-300">
+                class="bg-white rounded-2xl p-4 border border-red-100 shadow-sm flex items-center justify-between group hover:border-red-300 transition-colors">
                 <div>
                     <p class="text-red-500 text-[10px] font-bold uppercase tracking-wider mb-0.5">Macet (>30 Hari)</p>
                     <h3 class="text-xl font-extrabold text-red-600">Rp
@@ -114,7 +120,7 @@
                         class="fas fa-bell text-lg"></i></div>
             </div>
             <div
-                class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-orange-300">
+                class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-orange-300 transition-colors">
                 <div>
                     <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Outstanding Inv</p>
                     <h3 class="text-xl font-extrabold text-slate-800">
@@ -132,19 +138,16 @@
                     <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
                         <tr>
                             <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Tgl
-                                Faktur
-                            </th>
+                                Faktur</th>
                             <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">No
-                                Invoice
-                            </th>
+                                Invoice</th>
                             <th
                                 class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 min-w-[200px]">
                                 Pelanggan</th>
                             <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Salesman
                             </th>
                             <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Jatuh
-                                Tempo
-                            </th>
+                                Tempo</th>
                             <th
                                 class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 text-center">
                                 Umur</th>
@@ -170,14 +173,17 @@
                                 {{ $item->jatuh_tempo ? date('d/m/Y', strtotime($item->jatuh_tempo)) : '-' }}</td>
                             <td class="px-6 py-3 border-r border-slate-100 text-center">
                                 @php $umur = $item->umur_piutang; @endphp
-                                @if($umur > 30) <span
+                                @if($umur > 30)
+                                <span
                                     class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-600 border border-red-200 shadow-sm">{{ $umur }}
                                     Hari</span>
-                                @elseif($umur > 15) <span
+                                @elseif($umur > 15)
+                                <span
                                     class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-600 border border-amber-200">{{ $umur }}
                                     Hari</span>
-                                @else <span
-                                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-600 border border-emerald-200">{{ $umur }}
+                                @else
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">{{ $umur }}
                                     Hari</span>
                                 @endif
                             </td>
@@ -187,13 +193,15 @@
                             <td
                                 class="px-6 py-3 text-center sticky right-0 bg-white border-l border-slate-100 z-10 group-hover:bg-orange-50/40">
                                 <button wire:click="delete({{ $item->id }})"
-                                    onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
-                                    class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
+                                    onclick="return confirm('Hapus piutang ini?') || event.stopImmediatePropagation()"
+                                    class="text-slate-300 hover:text-red-500 transition-colors"><i
+                                        class="fas fa-trash-alt"></i></button>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-24 text-center text-slate-400">Tidak ada data.</td>
+                            <td colspan="8" class="px-6 py-24 text-center text-slate-400 italic">Data piutang tidak
+                                ditemukan.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -204,42 +212,5 @@
     </div>
 
     @if($isImportOpen) @include('livewire.partials.import-modal', ['title' => 'Import AR', 'color' => 'orange']) @endif
-
-    @if($isDeleteDateOpen)
-    <div class="fixed inset-0 z-[70] overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity"
-                wire:click="closeDeleteDateModal"></div>
-            <div
-                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full border border-white/20">
-                <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600"><i
-                            class="fas fa-exclamation-triangle text-lg"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-rose-700">Hapus Data Harian</h3>
-                        <p class="text-rose-500 text-xs">Piutang per tanggal faktur akan dihapus.</p>
-                    </div>
-                </div>
-                <div class="px-6 py-6 space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Pilih Tanggal
-                            Faktur</label>
-                        <input type="date" wire:model="deleteDateInput"
-                            class="w-full pl-4 pr-4 py-2.5 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:border-rose-500 font-bold text-slate-700">
-                        @error('deleteDateInput') <span
-                            class="text-rose-500 text-xs font-bold mt-1 block ml-1">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-                <div class="bg-slate-50 px-6 py-4 flex justify-end gap-3 border-t border-slate-200">
-                    <button wire:click="closeDeleteDateModal"
-                        class="px-4 py-2 bg-white border border-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50">Batal</button>
-                    <button wire:click="deleteByDate"
-                        class="px-4 py-2 bg-rose-600 text-white rounded-xl text-sm font-bold hover:bg-rose-700">Hapus
-                        Permanen</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 
 </div>

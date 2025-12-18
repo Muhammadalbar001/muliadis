@@ -139,4 +139,27 @@ class PenjualanIndex extends Component
         Penjualan::destroy($id);
         $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Data berhasil dihapus']);
     }
+    public $deleteStartDate, $deleteEndDate;
+    public function deleteByPeriod()
+{
+    $this->validate([
+        'deleteStartDate' => 'required|date',
+        'deleteEndDate' => 'required|date|after_or_equal:deleteStartDate',
+    ]);
+
+    try {
+        $query = \App\Models\Transaksi\Penjualan::whereBetween('tgl_penjualan', [$this->deleteStartDate, $this->deleteEndDate]);
+        $count = $query->count();
+
+        if ($count > 0) {
+            $query->delete();
+            $this->dispatch('show-toast', ['type' => 'success', 'message' => "$count data Penjualan berhasil dihapus."]);
+        } else {
+            $this->dispatch('show-toast', ['type' => 'warning', 'message' => "Data tidak ditemukan."]);
+        }
+        $this->reset(['deleteStartDate', 'deleteEndDate']);
+    } catch (\Exception $e) {
+        $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Gagal: ' . $e->getMessage()]);
+    }
+}
 }

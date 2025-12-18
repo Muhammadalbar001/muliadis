@@ -9,6 +9,7 @@ use App\Models\Transaksi\Retur;
 use App\Services\Import\ReturImportService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ReturIndex extends Component
 {
@@ -17,24 +18,49 @@ class ReturIndex extends Component
     public $search = '';
     public $startDate;
     public $endDate;
-    
-    // --- FILTER ARRAY (MULTI SELECT) ---
     public $filterCabang = []; 
-    // -----------------------------------
 
+    // Properti Import
     public $isImportOpen = false;
     public $file;
     public $resetData = false;
-    public $isDeleteDateOpen = false;
-    public $deleteDateInput;
+
+    // PROPERTI HAPUS PERIODE
+    public $deleteStartDate;
+    public $deleteEndDate;
 
     public function updatedSearch() { $this->resetPage(); }
     public function updatedFilterCabang() { $this->resetPage(); }
     
     public function resetFilter() 
     { 
-        $this->reset(['search', 'startDate', 'endDate', 'filterCabang']); 
+        $this->reset(['search', 'startDate', 'endDate', 'filterCabang', 'deleteStartDate', 'deleteEndDate']); 
         $this->resetPage(); 
+    }
+
+    // FUNGSI HAPUS PERIODE
+    public function deleteByPeriod()
+    {
+        $this->validate([
+            'deleteStartDate' => 'required|date',
+            'deleteEndDate' => 'required|date|after_or_equal:deleteStartDate',
+        ]);
+
+        try {
+            $query = Retur::whereBetween('tgl_retur', [$this->deleteStartDate, $this->deleteEndDate]);
+            $count = $query->count();
+
+            if ($count > 0) {
+                $query->delete();
+                $this->dispatch('show-toast', ['type' => 'success', 'message' => "$count data Retur berhasil dihapus."]);
+                Cache::forget('opt_cabang_retur');
+            } else {
+                $this->dispatch('show-toast', ['type' => 'warning', 'message' => "Tidak ada data pada periode tersebut."]);
+            }
+            $this->reset(['deleteStartDate', 'deleteEndDate']);
+        } catch (\Exception $e) {
+            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Gagal menghapus: ' . $e->getMessage()]);
+        }
     }
 
     public function render()
@@ -52,11 +78,9 @@ class ReturIndex extends Component
             $query->whereBetween('tgl_retur', [$this->startDate, $this->endDate]);
         }
         
-        // --- FILTER MULTI SELECT ---
         if (!empty($this->filterCabang)) {
             $query->whereIn('cabang', $this->filterCabang);
         }
-        // ---------------------------
 
         $summary = [
             'total_nilai'  => (clone $query)->sum('total_grand'),
@@ -74,53 +98,22 @@ class ReturIndex extends Component
             ->layout('layouts.app', ['header' => 'Retur Penjualan']);
     }
 
-    // Import
+    // Import Handlers
     public function openImportModal() { $this->resetErrorBag(); $this->isImportOpen = true; }
     public function closeImportModal() { $this->isImportOpen = false; $this->file = null; }
     
     public function import() {
         $this->validate(['file' => 'required|file|mimes:xlsx,xls,csv|max:153600']);
         
-        $lock = Cache::lock('importing_retur', 600);
-        if (!$lock->get()) {
-            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Import sedang berjalan. Tunggu!']);
-            return;
-        }
-
-        ini_set('memory_limit', '-1');
-        set_time_limit(0);
-
-        $path = $this->file->store('temp-import', 'local');
+        $path = $this->file->getRealPath(); // Lebih aman untuk Laragon
         try {
-            $stats = (new ReturImportService)->handle(Storage::disk('local')->path($path), $this->resetData);
-            if(Storage::disk('local')->exists($path)) Storage::disk('local')->delete($path);
+            $stats = (new ReturImportService)->handle($path, $this->resetData);
             Cache::forget('opt_cabang_retur');
             $this->closeImportModal();
             $this->dispatch('show-toast', ['type' => 'success', 'message' => "Sukses import " . number_format($stats['processed']) . " data."]);
         } catch (\Exception $e) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => $e->getMessage()]);
-        } finally {
-            $lock->release();
         }
-    }
-
-    // Delete Date
-    public function openDeleteDateModal() { $this->resetErrorBag(); $this->isDeleteDateOpen = true; }
-    public function closeDeleteDateModal() { $this->isDeleteDateOpen = false; $this->deleteDateInput = null; }
-    
-    public function deleteByDate() {
-        $this->validate(['deleteDateInput' => 'required|date']);
-        $count = Retur::whereDate('tgl_retur', $this->deleteDateInput)->count();
-        
-        if ($count == 0) { 
-            $this->addError('deleteDateInput', 'Tidak ada data pada tanggal ini.'); 
-            return; 
-        }
-        
-        Retur::whereDate('tgl_retur', $this->deleteDateInput)->delete();
-        $this->closeDeleteDateModal();
-        $this->dispatch('show-toast', ['type' => 'success', 'message' => "$count Data tanggal " . date('d/m/Y', strtotime($this->deleteDateInput)) . " dihapus."]);
-        Cache::forget('opt_cabang_retur');
     }
 
     public function delete($id) { 
