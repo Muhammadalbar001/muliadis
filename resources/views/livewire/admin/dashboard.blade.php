@@ -1,189 +1,184 @@
-<div class="min-h-screen space-y-6 font-jakarta pb-10" x-data="{ activeTab: 'overview' }">
+<div class="min-h-screen space-y-6 pb-10 transition-colors duration-300 font-jakarta" x-data="{ activeTab: 'overview' }"
+    x-init="$watch('activeTab', value => {
+         if (value === 'ranking' || value === 'salesman') {
+             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 200);
+         }
+     })">
 
-    <div
-        class="sticky top-0 z-40 backdrop-blur-md bg-slate-50/90 p-4 rounded-b-2xl shadow-sm border-b border-slate-200 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6">
-        <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
+    <div class="sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-6
+        dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/80 border-slate-200 shadow-sm">
 
-            <div class="flex flex-col md:flex-row items-center gap-6 w-full xl:w-auto">
-                <div class="flex items-center gap-4">
-                    <div class="p-2 bg-slate-200 rounded-lg text-slate-600 shadow-sm"><i
-                            class="fas fa-chart-pie text-xl"></i></div>
-                    <div>
-                        <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Executive Dashboard</h1>
-                        <p class="text-xs text-slate-500 font-medium mt-0.5">Monitoring kinerja bisnis real-time.</p>
-                    </div>
+        <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div class="flex flex-col md:flex-row items-center gap-8 w-full lg:w-auto">
+                <div>
+                    <h1
+                        class="text-xl font-black tracking-tighter uppercase leading-none dark:text-white text-slate-800">
+                        Executive <span class="text-blue-500">Dashboard</span>
+                    </h1>
+                    <p
+                        class="text-[9px] font-bold uppercase tracking-[0.3em] opacity-50 mt-1 dark:text-slate-400 text-slate-500">
+                        Mulia Distribution System</p>
                 </div>
 
-                <div class="flex p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+                <div
+                    class="flex p-1 rounded-2xl border transition-all dark:bg-neutral-900/50 dark:border-white/5 bg-slate-100 border-slate-200">
                     <button @click="activeTab = 'overview'"
-                        :class="activeTab === 'overview' ? 'bg-slate-100 text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'"
-                        class="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2"><i
-                            class="fas fa-home"></i> Overview</button>
+                        :class="activeTab === 'overview' ? 'dark:bg-blue-600 bg-white dark:text-white text-blue-600 shadow-lg' : 'text-slate-500 hover:text-blue-400'"
+                        class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                        <i class="fas fa-chart-pie text-xs"></i> Overview
+                    </button>
                     <button @click="activeTab = 'ranking'"
-                        :class="activeTab === 'ranking' ? 'bg-indigo-50 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'"
-                        class="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2"><i
-                            class="fas fa-trophy"></i> Ranking</button>
+                        :class="activeTab === 'ranking' ? 'dark:bg-blue-600 bg-white dark:text-white text-blue-600 shadow-lg' : 'text-slate-500 hover:text-blue-400'"
+                        class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                        <i class="fas fa-trophy text-xs"></i> Ranking
+                    </button>
                     <button @click="activeTab = 'salesman'"
-                        :class="activeTab === 'salesman' ? 'bg-purple-50 text-purple-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'"
-                        class="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2"><i
-                            class="fas fa-user-tie"></i> Sales</button>
+                        :class="activeTab === 'salesman' ? 'dark:bg-blue-600 bg-white dark:text-white text-blue-600 shadow-lg' : 'text-slate-500 hover:text-blue-400'"
+                        class="px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                        <i class="fas fa-user-tie text-xs"></i> Sales
+                    </button>
                 </div>
             </div>
 
-            <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center w-full xl:w-auto justify-end">
-
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 items-center w-full lg:w-auto justify-end font-jakarta">
                 <div
-                    class="flex items-center gap-1 bg-white border border-slate-200 rounded-lg px-2 py-1 shadow-sm h-[38px]">
-                    <input type="date" wire:model="startDate"
-                        class="border-none text-xs font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-24 cursor-pointer">
-                    <span class="text-slate-300 text-[10px]">-</span>
-                    <input type="date" wire:model="endDate"
-                        class="border-none text-xs font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-24 cursor-pointer">
+                    class="flex items-center gap-2 border rounded-xl px-3 py-1.5 transition-all dark:bg-neutral-900 dark:border-white/10 bg-white border-slate-200 shadow-sm">
+                    <input type="date" wire:model.live="startDate"
+                        class="bg-transparent border-none text-[11px] font-black uppercase tracking-widest focus:ring-0 p-0 text-blue-500 cursor-pointer">
+                    <span class="opacity-30">/</span>
+                    <input type="date" wire:model.live="endDate"
+                        class="bg-transparent border-none text-[11px] font-black uppercase tracking-widest focus:ring-0 p-0 text-blue-500 cursor-pointer">
                 </div>
 
                 <div class="relative w-full sm:w-40" x-data="{ open: false }">
                     <button @click="open = !open" @click.outside="open = false"
-                        class="w-full flex items-center justify-between bg-white border border-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm hover:border-slate-300 transition-all h-[38px]">
+                        class="w-full flex items-center justify-between border px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm h-[38px]
+                        dark:bg-neutral-900 dark:border-white/10 dark:text-slate-300 bg-white border-slate-200 text-slate-700">
                         <span
-                            class="truncate">{{ empty($filterCabang) ? 'Semua Cabang' : count($filterCabang).' Dipilih' }}</span>
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform"
-                            :class="{'rotate-180': open}"></i>
+                            class="truncate">{{ empty($filterCabang) ? 'Regional' : count($filterCabang).' Selected' }}</span>
+                        <i class="fas fa-chevron-down opacity-40 transition-transform"
+                            :class="open ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open"
-                        class="absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-xl p-2 max-h-48 overflow-y-auto right-0"
-                        style="display: none;">
+                    <div x-show="open" x-transition
+                        class="absolute z-50 mt-2 w-full border rounded-xl shadow-2xl p-2 max-h-48 overflow-y-auto right-0"
+                        :class="darkMode ? 'bg-slate-900 border-slate-800 shadow-black' : 'bg-white border-slate-200'">
                         @foreach($optCabang as $cab)
                         <label
-                            class="flex items-center px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer transition-colors">
-                            <input type="checkbox" value="{{ $cab }}" wire:model="filterCabang"
-                                class="rounded border-slate-300 text-slate-600 mr-2 h-3 w-3 focus:ring-slate-500">
-                            <span class="text-xs text-slate-600">{{ $cab }}</span>
+                            class="flex items-center px-2 py-2 hover:bg-blue-500/10 rounded-lg cursor-pointer transition-colors group">
+                            <input type="checkbox" value="{{ $cab }}" wire:model.live="filterCabang"
+                                class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-3 w-3">
+                            <span
+                                class="ml-3 text-[10px] font-bold uppercase tracking-tight group-hover:text-blue-400 dark:text-slate-400 text-slate-600">{{ $cab }}</span>
                         </label>
                         @endforeach
                     </div>
                 </div>
 
-                <button wire:click="applyFilter" wire:target="applyFilter"
-                    wire:loading.class="opacity-75 cursor-not-allowed pointer-events-none"
-                    class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md hover:bg-indigo-700 transition-all h-[38px] flex items-center gap-2">
-
-                    <div wire:loading.remove wire:target="applyFilter" class="flex items-center gap-2">
-                        <i class="fas fa-filter"></i>
-                        <span>Terapkan</span>
-                    </div>
-
-                    <div wire:loading wire:target="applyFilter" class="flex items-center gap-2 hidden">
-                        <i class="fas fa-circle-notch fa-spin"></i>
-                        <span>Memproses...</span>
-                    </div>
+                <button wire:click="applyFilter"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all h-[38px]">
+                    <i class="fas fa-sync-alt mr-1"></i> Terapkan
                 </button>
-
             </div>
         </div>
     </div>
 
-    <div wire:loading.class="opacity-50 pointer-events-none" wire:target="applyFilter"
-        class="transition-opacity duration-200">
+    <div wire:loading.class="opacity-50 pointer-events-none"
+        class="transition-opacity duration-300 px-4 sm:px-6 lg:px-8">
 
-        <div x-show="activeTab === 'overview'" x-transition.opacity.duration.300ms class="space-y-6">
+        <div x-show="activeTab === 'overview'" x-transition.opacity class="space-y-8">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 <div
-                    class="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-2xl shadow-lg shadow-emerald-500/20 text-white relative overflow-hidden group">
+                    class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden
+                     dark:bg-blue-600/5 dark:border-blue-500/10 dark:shadow-2xl dark:shadow-blue-900/10 bg-white border-blue-100 shadow-sm hover:border-blue-300">
                     <div class="relative z-10">
-                        <p class="text-emerald-100 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total
-                            Penjualan</p>
-                        <h3 class="text-xl font-extrabold tracking-tight">Rp {{ $this->formatCompact($salesSum) }}</h3>
-                        <p class="text-[10px] mt-0.5 text-emerald-100 opacity-80">Real:
+                        <p class="text-[10px] font-black uppercase tracking-widest dark:text-blue-400 text-slate-400">
+                            Gross Revenue</p>
+                        <h3 class="text-3xl font-black mt-2 tracking-tighter dark:text-white text-blue-600">Rp
+                            {{ $this->formatCompact($salesSum) }}</h3>
+                        <p class="text-[10px] mt-4 font-bold opacity-40 italic uppercase tracking-tighter">Real:
                             {{ number_format($salesSum, 0, ',', '.') }}</p>
                     </div>
                     <i
-                        class="fas fa-chart-line absolute right-3 top-3 text-white/20 text-5xl group-hover:scale-110 transition-transform"></i>
+                        class="fas fa-chart-line absolute -right-4 -bottom-4 text-7xl opacity-[0.03] dark:text-blue-500 text-blue-600 group-hover:scale-110 transition-transform"></i>
                 </div>
 
                 <div
-                    class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm relative overflow-hidden group hover:border-rose-300 transition-colors">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Retur</p>
-                    <h3 class="text-xl font-extrabold text-rose-500 tracking-tight">Rp
+                    class="p-6 rounded-[2.5rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-red-100 shadow-sm hover:border-red-300">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-red-500 opacity-80">Total Return</p>
+                    <h3 class="text-3xl font-black mt-2 tracking-tighter text-red-500">Rp
                         {{ $this->formatCompact($returSum) }}</h3>
-                    <div class="mt-1 inline-flex items-center px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100">
-                        <span class="text-[9px] font-bold text-rose-600">Rasio:
-                            {{ number_format($persenRetur, 2) }}%</span>
+                    <div
+                        class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest dark:bg-red-500/10 dark:text-red-400 bg-red-50 text-red-600">
+                        Ratio: {{ number_format($persenRetur, 2) }}%
                     </div>
-                    <i
-                        class="fas fa-undo absolute right-3 top-3 text-rose-100 text-5xl group-hover:rotate-[-12deg] transition-transform"></i>
                 </div>
 
                 <div
-                    class="bg-white p-4 rounded-2xl border border-orange-100 shadow-sm relative overflow-hidden hover:border-orange-300 transition-colors">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Piutang Baru</p>
-                    <h3 class="text-xl font-extrabold text-orange-500 tracking-tight">Rp
-                        {{ $this->formatCompact($arSum) }}</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">Tagihan Terbentuk</p>
-                    <i class="fas fa-file-invoice-dollar absolute right-3 top-3 text-orange-100 text-5xl"></i>
-                </div>
-
-                <div
-                    class="bg-white p-4 rounded-2xl border border-cyan-100 shadow-sm relative overflow-hidden hover:border-cyan-300 transition-colors">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Uang Masuk (Coll)
+                    class="p-6 rounded-[2.5rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-blue-100 shadow-sm hover:border-blue-300">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-blue-500 opacity-80">Outlet Active
                     </p>
-                    <h3 class="text-xl font-extrabold text-cyan-600 tracking-tight">Rp
-                        {{ $this->formatCompact($collSum) }}</h3>
-                    <p class="text-[10px] text-slate-400 mt-0.5">Pembayaran Diterima</p>
-                    <i class="fas fa-wallet absolute right-3 top-3 text-cyan-100 text-5xl"></i>
+                    <h3 class="text-3xl font-black mt-2 tracking-tighter dark:text-white text-blue-600">
+                        {{ number_format($totalOa) }} <span class="text-xs opacity-40">Toko</span></h3>
+                </div>
+
+                <div
+                    class="p-6 rounded-[2.5rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-emerald-100 shadow-sm hover:border-emerald-300">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-emerald-500 opacity-80">Effective
+                        Call</p>
+                    <h3 class="text-3xl font-black mt-2 tracking-tighter dark:text-white text-emerald-600">
+                        {{ number_format($totalEc) }} <span class="text-xs opacity-40">Nota</span></h3>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-6" wire:ignore>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
-                        <div
-                            class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                            <i class="fas fa-chart-area"></i>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-sm">Tren Penjualan vs Retur (Harian)</h4>
-                    </div>
+            <div class="grid grid-cols-1 gap-8" wire:ignore>
+                <div
+                    class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
+                    <h4
+                        class="font-black text-xs uppercase tracking-[0.2em] mb-8 flex items-center gap-3 dark:text-white text-slate-800">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Daily Sales Trend
+                    </h4>
                     <div id="chart-sales-retur" style="min-height: 350px;"></div>
                 </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
-                        <div
-                            class="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100">
-                            <i class="fas fa-balance-scale"></i>
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-sm">Tagihan vs Pembayaran (Harian)</h4>
-                    </div>
+                <div
+                    class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
+                    <h4
+                        class="font-black text-xs uppercase tracking-[0.2em] mb-8 flex items-center gap-3 dark:text-white text-slate-800">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Tagihan vs Pembayaran
+                    </h4>
                     <div id="chart-ar-coll" style="min-height: 350px;"></div>
                 </div>
             </div>
         </div>
 
-        <div x-show="activeTab === 'ranking'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
-            wire:ignore>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
-                        class="fas fa-box text-blue-500"></i> Top 10 Produk (Qty)</h4>
-                <div id="chart-top-produk" style="min-height: 400px;"></div>
+        <div x-show="activeTab === 'ranking'" x-transition.opacity class="grid grid-cols-1 gap-8" wire:ignore>
+            @foreach([
+            ['id' => 'chart-top-produk', 'label' => 'Top Products (Qty)', 'color' => 'blue', 'icon' => 'fa-box'],
+            ['id' => 'chart-top-customer', 'label' => 'Top Customers (Revenue)', 'color' => 'purple', 'icon' =>
+            'fa-users'],
+            ['id' => 'chart-top-supplier', 'label' => 'Top Suppliers (Revenue)', 'color' => 'pink', 'icon' =>
+            'fa-truck']
+            ] as $rank)
+            <div
+                class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
+                <h4
+                    class="font-black text-[10px] uppercase tracking-[0.2em] mb-8 flex items-center gap-3 dark:text-white text-slate-700">
+                    <span
+                        class="w-10 h-10 rounded-xl flex items-center justify-center bg-{{$rank['color']}}-500/10 text-{{$rank['color']}}-500">
+                        <i class="fas {{$rank['icon']}}"></i>
+                    </span> {{$rank['label']}}
+                </h4>
+                <div id="{{ $rank['id'] }}" style="min-height: 400px;"></div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
-                        class="fas fa-users text-purple-500"></i> Top 10 Pelanggan (Omzet)</h4>
-                <div id="chart-top-customer" style="min-height: 400px;"></div>
-            </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                <h4 class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2"><i
-                        class="fas fa-truck text-pink-500"></i> Top 10 Supplier (Omzet)</h4>
-                <div id="chart-top-supplier" style="min-height: 400px;"></div>
-            </div>
+            @endforeach
         </div>
 
-        <div x-show="activeTab === 'salesman'" x-transition.opacity.duration.300ms class="grid grid-cols-1 gap-6"
-            wire:ignore>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <div x-show="activeTab === 'salesman'" x-transition.opacity class="max-w-5xl mx-auto" wire:ignore>
+            <div
+                class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
                 <h4
-                    class="font-bold text-lg text-indigo-900 mb-4 pb-2 border-b border-slate-50 flex items-center gap-2">
-                    <i class="fas fa-bullseye text-indigo-500"></i> Top 10 Sales Performance (Target vs Realisasi)
+                    class="font-black text-xs uppercase tracking-[0.2em] mb-10 flex items-center gap-3 dark:text-blue-300 text-indigo-900">
+                    <i class="fas fa-bullseye text-lg"></i> Top 10 Sales Performance
                 </h4>
                 <div id="chart-sales-perf" style="min-height: 500px;"></div>
             </div>
@@ -198,14 +193,45 @@ document.addEventListener('livewire:init', () => {
     let charts = {};
     const initData = @json($chartData);
 
+    const getThemeConfig = () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        return {
+            text: isDark ? '#94a3b8' : '#64748b',
+            grid: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)',
+            tooltip: isDark ? 'dark' : 'light',
+            font: "'Plus Jakarta Sans', sans-serif"
+        };
+    };
+
     const renderCharts = (data) => {
-        const font = 'Plus Jakarta Sans, sans-serif';
+        const config = getThemeConfig();
         const fmtRp = (v) => "Rp " + new Intl.NumberFormat('id-ID').format(v);
         const fmtJt = (v) => (v / 1000000).toFixed(1) + " Jt";
+
+        const baseOptions = {
+            chart: {
+                fontFamily: config.font,
+                foreColor: config.text,
+                toolbar: {
+                    show: false
+                },
+                background: 'transparent'
+            },
+            grid: {
+                borderColor: config.grid
+            },
+            theme: {
+                mode: config.tooltip
+            },
+            dataLabels: {
+                enabled: false
+            }, // MEMATIKAN ANGKA LANGSUNG PADA GRAFIK
+        };
 
         // 1. Sales vs Retur (Area)
         if (charts.sr) charts.sr.destroy();
         charts.sr = new ApexCharts(document.querySelector("#chart-sales-retur"), {
+            ...baseOptions,
             series: [{
                 name: 'Penjualan',
                 data: data.trend_sales
@@ -214,49 +240,45 @@ document.addEventListener('livewire:init', () => {
                 data: data.trend_retur
             }],
             chart: {
+                ...baseOptions.chart,
                 type: 'area',
-                height: 350,
-                toolbar: {
-                    show: false
-                },
-                fontFamily: font
+                height: 350
             },
-            colors: ['#10b981', '#f43f5e'],
-            dataLabels: {
-                enabled: false
-            },
+            colors: ['#3b82f6', '#f43f5e'],
             stroke: {
                 curve: 'smooth',
-                width: 2
-            },
-            xaxis: {
-                categories: data.dates,
-                labels: {
-                    show: false
-                },
-                tooltip: {
-                    enabled: false
-                }
-            },
-            yaxis: {
-                labels: {
-                    formatter: fmtJt,
-                    style: {
-                        fontSize: '10px'
-                    }
-                }
+                width: 3
             },
             fill: {
                 type: 'gradient',
                 gradient: {
-                    opacityFrom: 0.4,
-                    opacityTo: 0.05
+                    opacityFrom: 0.3,
+                    opacityTo: 0.01
+                }
+            },
+            xaxis: {
+                categories: data.dates,
+                type: 'datetime', // MENGGUNAKAN TIPE DATETIME AGAR TANGGAL TAMPIL
+                labels: {
+                    style: {
+                        fontSize: '10px',
+                        fontWeight: 600
+                    },
+                    format: 'dd MMM' // FORMAT TANGGAL PADA SUMBU X
+                }
+            },
+            yaxis: {
+                labels: {
+                    formatter: fmtJt
                 }
             },
             tooltip: {
+                x: {
+                    format: 'dd MMMM yyyy'
+                }, // TANGGAL LENGKAP SAAT HOVER
                 y: {
                     formatter: fmtRp
-                }
+                } // NILAI ASLI SAAT HOVER
             }
         });
         charts.sr.render();
@@ -264,46 +286,46 @@ document.addEventListener('livewire:init', () => {
         // 2. AR vs Collection (Bar)
         if (charts.ac) charts.ac.destroy();
         charts.ac = new ApexCharts(document.querySelector("#chart-ar-coll"), {
+            ...baseOptions,
             series: [{
-                name: 'Piutang Baru',
+                name: 'Piutang',
                 data: data.trend_ar
             }, {
                 name: 'Pelunasan',
                 data: data.trend_coll
             }],
             chart: {
+                ...baseOptions.chart,
                 type: 'bar',
-                height: 350,
-                toolbar: {
-                    show: false
-                },
-                fontFamily: font
+                height: 350
             },
-            colors: ['#f97316', '#06b6d4'],
+            colors: ['#f97316', '#10b981'],
             plotOptions: {
                 bar: {
-                    borderRadius: 3,
-                    columnWidth: '60%'
+                    borderRadius: 6,
+                    columnWidth: '50%'
                 }
-            },
-            dataLabels: {
-                enabled: false
             },
             xaxis: {
                 categories: data.dates,
+                type: 'datetime',
                 labels: {
-                    show: false
+                    style: {
+                        fontSize: '10px',
+                        fontWeight: 600
+                    },
+                    format: 'dd/MM'
                 }
             },
             yaxis: {
                 labels: {
-                    formatter: fmtJt,
-                    style: {
-                        fontSize: '10px'
-                    }
+                    formatter: fmtJt
                 }
             },
             tooltip: {
+                x: {
+                    format: 'dd MMMM yyyy'
+                },
                 y: {
                     formatter: fmtRp
                 }
@@ -311,113 +333,59 @@ document.addEventListener('livewire:init', () => {
         });
         charts.ac.render();
 
-        // Config Ranking
-        const rankingOpts = {
+        // Ranking Helper
+        const rankingOpts = (id, seriesName, seriesData, categories, color) => ({
+            ...baseOptions,
+            series: [{
+                name: seriesName,
+                data: seriesData
+            }],
             chart: {
+                ...baseOptions.chart,
                 type: 'bar',
-                height: 400,
-                toolbar: {
-                    show: false
-                },
-                fontFamily: font
+                height: 400
             },
             plotOptions: {
                 bar: {
                     horizontal: true,
-                    barHeight: '65%',
-                    borderRadius: 2
+                    borderRadius: 6,
+                    barHeight: '60%'
                 }
+            },
+            colors: [color],
+            xaxis: {
+                categories: categories
             },
             dataLabels: {
                 enabled: true,
-                textAnchor: 'start',
-                offsetX: 0,
-                style: {
-                    fontSize: '10px',
-                    colors: ['#fff']
-                }
+                formatter: (v) => seriesName === 'Qty' ? v : fmtJt(v)
             },
-            grid: {
-                show: false
-            },
-            xaxis: {
-                labels: {
-                    show: false
-                }
-            }
-        };
-
-        // 3. Top Produk
-        if (charts.tp) charts.tp.destroy();
-        charts.tp = new ApexCharts(document.querySelector("#chart-top-produk"), {
-            ...rankingOpts,
-            series: [{
-                name: 'Qty',
-                data: data.top_produk_val
-            }],
-            xaxis: {
-                categories: data.top_produk_lbl
-            },
-            colors: ['#3b82f6'],
             tooltip: {
                 y: {
-                    formatter: (v) => new Intl.NumberFormat('id-ID').format(v) + " Unit"
+                    formatter: (v) => seriesName === 'Qty' ? v + ' Unit' : fmtRp(v)
                 }
             }
         });
+
+        if (charts.tp) charts.tp.destroy();
+        charts.tp = new ApexCharts(document.querySelector("#chart-top-produk"), rankingOpts(
+            "#chart-top-produk", 'Qty', data.top_produk_val, data.top_produk_lbl, '#3b82f6'));
         charts.tp.render();
 
-        // 4. Top Customer
         if (charts.tc) charts.tc.destroy();
-        charts.tc = new ApexCharts(document.querySelector("#chart-top-customer"), {
-            ...rankingOpts,
-            series: [{
-                name: 'Omzet',
-                data: data.top_cust_val
-            }],
-            xaxis: {
-                categories: data.top_cust_lbl
-            },
-            colors: ['#8b5cf6'],
-            tooltip: {
-                y: {
-                    formatter: fmtRp
-                }
-            },
-            dataLabels: {
-                ...rankingOpts.dataLabels,
-                formatter: fmtJt
-            }
-        });
+        charts.tc = new ApexCharts(document.querySelector("#chart-top-customer"), rankingOpts(
+            "#chart-top-customer", 'Omzet', data.top_cust_val, data.top_cust_lbl, '#8b5cf6'));
         charts.tc.render();
 
-        // 5. Top Supplier
         if (charts.ts) charts.ts.destroy();
-        charts.ts = new ApexCharts(document.querySelector("#chart-top-supplier"), {
-            ...rankingOpts,
-            series: [{
-                name: 'Omzet',
-                data: data.top_supp_val
-            }],
-            xaxis: {
-                categories: data.top_supp_lbl
-            },
-            colors: ['#ec4899'],
-            tooltip: {
-                y: {
-                    formatter: fmtRp
-                }
-            },
-            dataLabels: {
-                ...rankingOpts.dataLabels,
-                formatter: fmtJt
-            }
-        });
+        charts.ts = new ApexCharts(document.querySelector("#chart-top-supplier"), rankingOpts(
+            "#chart-top-supplier", 'Omzet', data.top_supp_val, data.top_supp_lbl, '#ec4899'));
         charts.ts.render();
 
-        // 6. Sales Perf
+        // 6. Sales Performance
         if (charts.sp) charts.sp.destroy();
         charts.sp = new ApexCharts(document.querySelector("#chart-sales-perf"), {
+            ...baseOptions,
             series: [{
                 name: 'Realisasi',
                 data: data.sales_real
@@ -426,23 +394,17 @@ document.addEventListener('livewire:init', () => {
                 data: data.sales_target
             }],
             chart: {
+                ...baseOptions.chart,
                 type: 'bar',
-                height: 500,
-                toolbar: {
-                    show: false
-                },
-                fontFamily: font
+                height: 500
             },
             plotOptions: {
                 bar: {
-                    horizontal: false,
-                    columnWidth: '55%',
-                    borderRadius: 3
+                    borderRadius: 8,
+                    columnWidth: '60%'
                 }
             },
-            dataLabels: {
-                enabled: false
-            },
+            colors: ['#3b82f6', config.grid],
             xaxis: {
                 categories: data.sales_names
             },
@@ -451,7 +413,6 @@ document.addEventListener('livewire:init', () => {
                     formatter: fmtJt
                 }
             },
-            colors: ['#4f46e5', '#cbd5e1'],
             tooltip: {
                 y: {
                     formatter: fmtRp
@@ -467,5 +428,40 @@ document.addEventListener('livewire:init', () => {
         const newData = event.data || (event[0] && event[0].data) || event;
         if (newData) renderCharts(newData);
     });
+
+    const observer = new MutationObserver(() => {
+        if (initData) renderCharts(initData);
+    });
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
 });
 </script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+.font-jakarta {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 10px;
+}
+</style>
