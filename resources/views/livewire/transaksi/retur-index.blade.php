@@ -1,198 +1,255 @@
-<div class="space-y-6 font-jakarta">
+<div class="min-h-screen space-y-6 pb-10 transition-colors duration-300 font-jakarta" x-data="{ filterOpen: false }">
 
-    <div
-        class="sticky top-0 z-40 backdrop-blur-md bg-rose-50/90 p-4 rounded-b-2xl shadow-sm border-b border-rose-200 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6">
+    <div class="sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-6
+        dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/80 border-slate-200 shadow-sm">
+
         <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
-
             <div class="flex items-center gap-4 w-full xl:w-auto">
-                <div class="p-2 bg-rose-100 rounded-lg text-rose-600"><i class="fas fa-undo text-xl"></i></div>
+                <div class="p-2.5 rounded-xl shadow-lg dark:bg-rose-500/20 bg-rose-600 text-white dark:text-rose-400">
+                    <i class="fas fa-undo text-xl"></i>
+                </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-rose-900 tracking-tight">Retur Penjualan</h1>
-                    <p class="text-xs text-rose-600 font-medium mt-0.5">Pengembalian barang pelanggan.</p>
+                    <h1
+                        class="text-xl font-black tracking-tighter uppercase leading-none dark:text-white text-slate-800">
+                        Retur <span class="text-rose-500">Penjualan</span>
+                    </h1>
+                    <p
+                        class="text-[9px] font-bold uppercase tracking-[0.3em] opacity-50 mt-1.5 dark:text-slate-400 text-slate-500">
+                        Return & Refund Management</p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center w-full xl:w-auto justify-end">
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 items-center w-full xl:w-auto justify-end">
 
-                <div class="relative w-full sm:w-48">
+                <div class="relative w-full sm:w-48 group">
+                    <i
+                        class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-rose-500 transition-colors text-xs"></i>
                     <input wire:model.live.debounce.300ms="search" type="text"
-                        class="pl-3 w-full border-white rounded-lg text-xs font-bold text-slate-700 focus:ring-rose-500 py-2 shadow-sm placeholder-slate-400"
-                        placeholder="No Retur / Pelanggan...">
+                        class="w-full pl-9 pr-4 py-2 rounded-xl border text-[11px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-rose-500/20 transition-all
+                        dark:bg-black/40 dark:border-white/10 dark:text-white bg-slate-100 border-slate-200 shadow-inner" placeholder="No Retur / Pelanggan...">
                 </div>
 
                 <div class="relative w-full sm:w-40" x-data="{ open: false, selected: @entangle('filterCabang').live }">
                     <button @click="open = !open" @click.outside="open = false"
-                        class="w-full flex items-center justify-between bg-white border-white text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-rose-50 transition-all">
+                        class="w-full flex items-center justify-between border px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm
+                        dark:bg-black/40 dark:border-white/5 dark:text-slate-300 bg-white border-slate-200 text-slate-700 hover:border-rose-400">
                         <span class="truncate"
-                            x-text="selected.length > 0 ? selected.length + ' Cabang' : 'Semua Cabang'"></span>
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform"
-                            :class="{'rotate-180': open}"></i>
+                            x-text="selected.length > 0 ? selected.length + ' Regional' : 'Regional Hub'"></span>
+                        <i class="fas fa-chevron-down opacity-40 text-[10px] transition-transform"
+                            :class="open ? 'rotate-180' : ''"></i>
                     </button>
-
-                    <div x-show="open" x-transition
-                        class="absolute z-50 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl p-2 max-h-60 overflow-y-auto custom-scrollbar"
-                        style="display: none;">
+                    <div x-show="open" x-transition class="absolute z-50 mt-2 w-full border rounded-2xl shadow-2xl p-2 max-h-60 overflow-y-auto custom-scrollbar
+                        dark:bg-slate-900 border-slate-800 bg-white border-slate-200" style="display: none;">
                         <div @click="selected = []"
-                            class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
+                            class="px-3 py-2 text-[10px] text-rose-500 font-black uppercase tracking-widest cursor-pointer hover:bg-rose-500/10 rounded-xl mb-1 flex items-center gap-2">
                             <i class="fas fa-times-circle"></i> Reset Filter
                         </div>
                         @foreach($optCabang as $c)
-                        <div @click="selected.includes('{{ $c }}') ? selected = selected.filter(i => i !== '{{ $c }}') : selected.push('{{ $c }}')"
-                            class="flex items-center px-2 py-1.5 hover:bg-rose-50 rounded cursor-pointer transition-colors group">
-                            <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors mr-2"
-                                :class="selected.includes('{{ $c }}') ? 'bg-rose-500 border-rose-500' : 'border-slate-300 bg-white group-hover:border-rose-400'">
-                                <i x-show="selected.includes('{{ $c }}')"
-                                    class="fas fa-check text-white text-[9px]"></i>
-                            </div>
-                            <span class="text-xs text-slate-600 truncate"
-                                :class="selected.includes('{{ $c }}') ? 'font-bold text-rose-700' : ''">{{ $c }}</span>
-                        </div>
+                        <label
+                            class="flex items-center px-3 py-2.5 hover:bg-rose-500/10 rounded-xl cursor-pointer transition-colors group">
+                            <input type="checkbox" value="{{ $c }}" x-model="selected"
+                                class="rounded-full border-slate-500 text-rose-600 focus:ring-rose-500 h-3.5 w-3.5">
+                            <span
+                                class="ml-3 text-[10px] font-bold uppercase tracking-tight group-hover:text-rose-400 dark:text-slate-400 text-slate-600">{{ $c }}</span>
+                        </label>
                         @endforeach
                     </div>
                 </div>
 
-                <div class="hidden sm:block h-6 w-px bg-rose-200 mx-1"></div>
-
-                <button wire:click="resetFilter"
-                    class="px-3 py-2 bg-white border border-rose-200 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 shadow-sm"
-                    title="Reset Filter"><i class="fas fa-undo"></i></button>
-
-                <div class="flex items-center gap-1.5 p-1.5 bg-rose-50 border border-rose-100 rounded-lg shadow-sm">
-                    <div class="hidden lg:block text-[9px] font-black text-rose-700 uppercase px-1">Hapus Periode:</div>
+                <div
+                    class="flex items-center gap-1.5 p-1.5 dark:bg-rose-500/10 bg-rose-50 border dark:border-rose-500/20 border-rose-100 rounded-2xl shadow-sm">
                     <input type="date" wire:model="deleteStartDate"
-                        class="text-[10px] rounded border-rose-200 py-1 px-1.5 focus:ring-rose-500 bg-white font-bold text-slate-700">
-                    <span class="text-rose-300 text-[10px] font-bold">s/d</span>
+                        class="text-[9px] rounded-lg border-none py-1.5 px-2 bg-white dark:bg-black/40 font-black uppercase text-slate-700 dark:text-slate-200 focus:ring-rose-500">
+                    <span class="text-rose-300 text-[9px] font-black uppercase">To</span>
                     <input type="date" wire:model="deleteEndDate"
-                        class="text-[10px] rounded border-rose-200 py-1 px-1.5 focus:ring-rose-500 bg-white font-bold text-slate-700">
-                    <button
-                        onclick="confirm('PERINGATAN: Semua data Retur di periode ini akan dihapus permanen. Lanjutkan?') || event.stopImmediatePropagation()"
+                        class="text-[9px] rounded-lg border-none py-1.5 px-2 bg-white dark:bg-black/40 font-black uppercase text-slate-700 dark:text-slate-200 focus:ring-rose-500">
+                    <button onclick="confirm('Hapus PERIODE retur ini?') || event.stopImmediatePropagation()"
                         wire:click="deleteByPeriod"
-                        class="px-2.5 py-1 bg-rose-600 text-white text-[10px] font-black rounded hover:bg-rose-700 shadow-sm flex items-center gap-1">
-                        <i class="fas fa-trash-alt"></i> <span class="hidden sm:inline">HAPUS</span>
+                        class="p-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20">
+                        <i class="fas fa-trash-alt text-[10px]"></i>
                     </button>
                 </div>
 
                 <button wire:click="openImportModal"
-                    class="px-3 py-2 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-lg text-xs font-bold hover:from-rose-700 hover:to-pink-700 shadow-md shadow-rose-500/20 flex items-center gap-2">
-                    <i class="fas fa-file-import"></i> <span class="hidden sm:inline">Import</span>
+                    class="flex items-center gap-2 px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-600/20 transition-all transform active:scale-95">
+                    <i class="fas fa-file-import"></i>
+                    <span class="hidden sm:inline">Import</span>
                 </button>
 
                 <div wire:loading
-                    class="px-3 py-2 bg-white border border-rose-200 text-rose-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
-                    <i class="fas fa-circle-notch fa-spin"></i>
+                    class="w-10 h-10 rounded-xl flex items-center justify-center dark:bg-slate-800 bg-white border dark:border-white/5 border-slate-200 shadow-sm animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin text-rose-500"></i>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
+    <div wire:loading.class="opacity-50 pointer-events-none"
+        class="transition-opacity duration-300 px-4 sm:px-6 lg:px-8">
+
         @if(isset($summary))
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div
-                class="bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl p-4 text-white shadow-sm shadow-rose-500/20 relative overflow-hidden group">
-                <div class="relative z-10">
-                    <p class="text-rose-100 text-[10px] font-bold uppercase tracking-wider mb-0.5">Nilai Retur</p>
-                    <h3 class="text-xl font-extrabold tracking-tight">Rp
-                        {{ number_format($summary['total_nilai'], 0, ',', '.') }}</h3>
-                </div>
-                <i class="fas fa-undo-alt absolute right-3 top-3 text-white/20 text-5xl rotate-12"></i>
+                class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden dark:bg-rose-500/10 dark:border-rose-500/20 bg-rose-600 text-white shadow-xl shadow-rose-600/20">
+                <p class="text-[10px] font-black uppercase tracking-widest opacity-70">Loss of Revenue (Returns)</p>
+                <h3 class="text-3xl font-black mt-2 tracking-tighter">Rp
+                    {{ number_format($summary['total_nilai'], 0, ',', '.') }}</h3>
+                <i
+                    class="fas fa-undo-alt absolute -right-4 -bottom-4 text-7xl opacity-10 rotate-12 transition-transform group-hover:scale-110"></i>
             </div>
+
             <div
-                class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-rose-300 transition-colors">
+                class="p-6 rounded-[2.5rem] border transition-all dark:bg-slate-900/40 dark:border-white/5 bg-white border-slate-200 shadow-xl flex items-center justify-between">
                 <div>
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Faktur Retur</p>
-                    <h3 class="text-xl font-extrabold text-slate-800">
+                    <p class="text-[10px] font-black uppercase tracking-widest dark:text-slate-400 text-slate-400">
+                        Return Slips</p>
+                    <h3 class="text-2xl font-black mt-1 tracking-tighter dark:text-white text-slate-800">
                         {{ number_format($summary['total_faktur'], 0, ',', '.') }}</h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><i
-                        class="fas fa-file-invoice text-lg"></i></div>
+                <div
+                    class="w-14 h-14 rounded-2xl dark:bg-indigo-500/10 bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+                    <i class="fas fa-file-invoice text-xl"></i>
+                </div>
             </div>
+
             <div
-                class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between group hover:border-orange-300 transition-colors">
+                class="p-6 rounded-[2.5rem] border transition-all dark:bg-slate-900/40 dark:border-white/5 bg-white border-slate-200 shadow-xl flex items-center justify-between">
                 <div>
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Item Diretur</p>
-                    <h3 class="text-xl font-extrabold text-slate-800">
+                    <p class="text-[10px] font-black uppercase tracking-widest dark:text-slate-400 text-slate-400">Total
+                        Items Returned</p>
+                    <h3 class="text-2xl font-black mt-1 tracking-tighter dark:text-white text-slate-800">
                         {{ number_format($summary['total_items'], 0, ',', '.') }}</h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600"><i
-                        class="fas fa-boxes text-lg"></i></div>
+                <div
+                    class="w-14 h-14 rounded-2xl dark:bg-orange-500/10 bg-orange-50 flex items-center justify-center text-orange-600 shadow-inner">
+                    <i class="fas fa-boxes text-xl"></i>
+                </div>
             </div>
         </div>
         @endif
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
+        <div class="rounded-[2.5rem] border overflow-hidden transition-all duration-300 flex flex-col h-[70vh]
+            dark:bg-slate-900/40 dark:border-white/5 bg-white border-slate-200 shadow-2xl dark:shadow-black/60">
+
             <div class="overflow-auto flex-1 w-full custom-scrollbar">
-                <table class="text-xs text-left border-collapse whitespace-nowrap w-full">
-                    <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-                        <tr>
-                            <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Tanggal
+                <table class="w-full text-xs text-left border-collapse uppercase">
+                    <thead>
+                        <tr
+                            class="dark:bg-white/5 bg-slate-50 text-slate-500 dark:text-slate-400 font-black text-[10px] tracking-[0.15em] border-b dark:border-white/5 border-slate-100">
+                            <th class="px-6 py-5 border-r dark:border-white/5 border-slate-100">Date Log</th>
+                            <th class="px-6 py-5 border-r dark:border-white/5 border-slate-100">Return ID</th>
+                            <th class="px-6 py-5 border-r dark:border-white/5 border-slate-100 min-w-[150px]">Customer
                             </th>
-                            <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">No Retur
-                            </th>
+                            <th class="px-6 py-5 border-r dark:border-white/5 border-slate-100 min-w-[200px]">Product
+                                Details</th>
+                            <th class="px-6 py-5 border-r dark:border-white/5 border-slate-100 text-right">Qty</th>
+                            <th class="px-6 py-5 border-r dark:border-white/5 border-slate-100 text-center">Hub</th>
                             <th
-                                class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 min-w-[150px]">
-                                Pelanggan</th>
+                                class="px-6 py-5 border-r dark:border-white/5 border-slate-100 text-right dark:bg-rose-600/10 bg-rose-50/50 text-rose-600">
+                                Grand Total</th>
                             <th
-                                class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 min-w-[200px]">
-                                Barang</th>
-                            <th
-                                class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200 text-right">
-                                Qty</th>
-                            <th class="px-6 py-4 font-bold text-slate-500 uppercase border-r border-slate-200">Cabang
-                            </th>
-                            <th
-                                class="px-6 py-4 font-bold text-rose-700 uppercase border-r border-slate-200 text-right bg-rose-50/50">
-                                Nilai (Rp)</th>
-                            <th
-                                class="px-6 py-4 font-bold text-slate-500 uppercase text-center bg-slate-50 sticky right-0 z-20 border-l border-slate-200">
+                                class="px-6 py-5 text-center bg-slate-50/50 dark:bg-white/5 border-l dark:border-white/5 border-slate-100 sticky right-0 z-20">
                                 Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y dark:divide-white/5 divide-slate-100">
                         @forelse($returs as $item)
-                        <tr class="hover:bg-rose-50/20 transition-colors group">
-                            <td class="px-6 py-3 border-r border-slate-100 text-slate-600 font-medium">
-                                {{ date('d/m/Y', strtotime($item->tgl_retur)) }}</td>
-                            <td class="px-6 py-3 border-r border-slate-100 font-mono text-rose-600 font-bold">
-                                {{ $item->no_retur }}</td>
-                            <td class="px-6 py-3 border-r border-slate-100 font-bold text-slate-700 truncate max-w-[150px]"
-                                title="{{ $item->nama_pelanggan }}">{{ $item->nama_pelanggan }}</td>
-                            <td class="px-6 py-3 border-r border-slate-100 truncate max-w-[200px]"
-                                title="{{ $item->nama_item }}">
-                                <span class="block font-medium text-slate-700">{{ $item->nama_item }}</span>
-                                <span class="text-[10px] text-slate-400 font-mono">{{ $item->kode_item }}</span>
+                        <tr class="hover:bg-rose-500/[0.02] transition-colors group">
+                            <td
+                                class="px-6 py-4 dark:text-slate-400 text-slate-500 font-bold border-r dark:border-white/5 border-slate-50 italic">
+                                {{ date('d/m/Y', strtotime($item->tgl_retur)) }}
                             </td>
-                            <td class="px-6 py-3 border-r border-slate-100 text-right font-bold text-slate-600">
-                                {{ number_format($item->qty, 0, ',', '.') }} {{ $item->satuan }}</td>
-                            <td class="px-6 py-3 border-r border-slate-100 text-center">
+                            <td
+                                class="px-6 py-4 font-mono font-black text-rose-600 dark:text-rose-400 border-r dark:border-white/5 border-slate-50">
+                                {{ $item->no_retur }}
+                            </td>
+                            <td class="px-6 py-4 font-black dark:text-white text-slate-800 border-r dark:border-white/5 border-slate-50 truncate max-w-[150px]"
+                                title="{{ $item->nama_pelanggan }}">
+                                {{ $item->nama_pelanggan }}
+                            </td>
+                            <td class="px-6 py-4 border-r dark:border-white/5 border-slate-50">
+                                <div class="flex flex-col">
+                                    <span
+                                        class="font-black dark:text-white text-slate-800 text-[10px] tracking-tight truncate max-w-[200px]">{{ $item->nama_item }}</span>
+                                    <span class="font-mono text-[9px] opacity-40">{{ $item->kode_item }}</span>
+                                </div>
+                            </td>
+                            <td
+                                class="px-6 py-4 text-right font-black dark:text-slate-300 text-slate-600 border-r dark:border-white/5 border-slate-50">
+                                {{ number_format($item->qty, 0, ',', '.') }} <span
+                                    class="text-[9px] opacity-40">{{ $item->satuan }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-center border-r dark:border-white/5 border-slate-50">
                                 <span
-                                    class="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600">{{ $item->cabang }}</span>
+                                    class="px-2.5 py-1 rounded-lg text-[9px] font-black tracking-widest border dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20 bg-indigo-50 text-indigo-600 border-indigo-100">
+                                    {{ $item->cabang }}
+                                </span>
                             </td>
                             <td
-                                class="px-6 py-3 border-r border-slate-100 text-right font-extrabold text-slate-800 bg-rose-50/10">
-                                {{ number_format($item->total_grand, 0, ',', '.') }}</td>
+                                class="px-6 py-4 text-right font-black dark:text-white text-slate-900 border-r dark:border-white/5 border-slate-50 bg-rose-500/[0.01]">
+                                {{ number_format($item->total_grand, 0, ',', '.') }}
+                            </td>
                             <td
-                                class="px-6 py-3 text-center sticky right-0 bg-white border-l border-slate-100 z-10 group-hover:bg-rose-50/40">
+                                class="px-6 py-4 text-center bg-slate-50/30 dark:bg-[#0a0a0a] border-l dark:border-white/5 border-slate-50 sticky right-0 z-10 shadow-xl shadow-black/5">
                                 <button wire:click="delete({{ $item->id }})"
-                                    onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
-                                    class="text-slate-300 hover:text-rose-500 transition-colors"><i
-                                        class="fas fa-trash-alt"></i></button>
+                                    onclick="return confirm('Hapus record retur ini?') || event.stopImmediatePropagation()"
+                                    class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-300 hover:text-white hover:bg-rose-500 transition-all shadow-sm">
+                                    <i class="fas fa-trash-alt text-[10px]"></i>
+                                </button>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-24 text-center text-slate-400 italic">Data tidak ditemukan.
+                            <td colspan="8" class="px-6 py-24 text-center opacity-20">
+                                <i class="fas fa-undo-alt text-6xl mb-4"></i>
+                                <p class="text-xs font-black tracking-[0.4em]">No Return Records Found</p>
                             </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $returs->links() }}</div>
+
+            <div
+                class="px-6 py-5 border-t dark:border-white/5 border-slate-100 dark:bg-white/[0.02] bg-slate-50/50 uppercase font-black text-[10px]">
+                {{ $returs->links() }}
+            </div>
         </div>
     </div>
 
-    @if($isImportOpen) @include('livewire.partials.import-modal', ['title' => 'Import Retur', 'color' => 'rose']) @endif
-
+    @if($isImportOpen)
+    @include('livewire.partials.import-modal', ['title' => 'Sync Return Ledger', 'color' => 'rose'])
+    @endif
 </div>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(244, 63, 94, 0.2);
+    border-radius: 10px;
+}
+
+tbody tr {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
