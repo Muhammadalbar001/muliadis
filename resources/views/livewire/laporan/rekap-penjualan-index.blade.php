@@ -1,245 +1,319 @@
-<div class="space-y-6 font-jakarta">
+<div class="min-h-screen space-y-6 pb-20 transition-colors duration-300 font-jakarta">
 
-    <div
-        class="sticky top-0 z-40 backdrop-blur-md bg-emerald-50/90 p-4 rounded-b-2xl shadow-sm border-b border-emerald-200 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6">
+    <div class="sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-6
+        dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/80 border-slate-200 shadow-sm">
+
         <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
-
             <div class="flex items-center gap-4 w-full xl:w-auto">
-                <div class="p-2 bg-emerald-100 rounded-lg text-emerald-600 shadow-sm">
+                <div
+                    class="p-2.5 rounded-xl shadow-lg dark:bg-emerald-500/20 bg-emerald-600 text-white dark:text-emerald-400">
                     <i class="fas fa-chart-line text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-emerald-900 tracking-tight">Rekap Penjualan</h1>
-                    <p class="text-xs text-emerald-600 font-medium mt-0.5">Lengkap Sesuai Excel
-                        ({{ $penjualans->total() }} Baris)</p>
+                    <h1
+                        class="text-xl font-black tracking-tighter uppercase leading-none dark:text-white text-slate-800">
+                        Rekap <span class="text-emerald-500">Penjualan</span>
+                    </h1>
+                    <p
+                        class="text-[9px] font-bold uppercase tracking-[0.3em] opacity-50 mt-1.5 dark:text-slate-400 text-slate-500">
+                        Comprehensive Sales Audit ({{ number_format($penjualans->total(), 0, ',', '.') }} Rows)</p>
                 </div>
             </div>
 
             <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center w-full xl:w-auto justify-end">
 
-                <div class="relative w-full sm:w-48">
+                <div class="relative w-full sm:w-48 group">
+                    <i
+                        class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-500 transition-colors text-xs"></i>
                     <input wire:model.live.debounce.300ms="search" type="text"
-                        class="pl-3 w-full border-white rounded-lg text-xs font-bold text-slate-700 focus:ring-emerald-500 py-2 shadow-sm placeholder-slate-400"
-                        placeholder="Cari Faktur / SKU...">
+                        class="w-full pl-9 pr-4 py-2 rounded-xl border text-[11px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-emerald-500/20 transition-all
+                        dark:bg-black/40 dark:border-white/10 dark:text-white bg-slate-100 border-slate-200 shadow-inner" placeholder="Faktur / SKU / Item...">
                 </div>
 
                 <div
-                    class="flex items-center gap-1 bg-white border border-white rounded-lg px-2 py-1 shadow-sm h-[34px]">
+                    class="flex items-center gap-1.5 p-1.5 dark:bg-white/5 bg-white border dark:border-white/10 border-slate-200 rounded-xl shadow-sm h-[38px]">
                     <input type="date" wire:model.live="startDate"
-                        class="border-none text-[10px] font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-20 cursor-pointer">
-                    <span class="text-slate-300 text-[10px]">-</span>
+                        class="border-none text-[10px] font-black uppercase dark:bg-transparent bg-transparent text-slate-700 dark:text-slate-300 focus:ring-0 p-0 w-24 cursor-pointer">
+                    <span class="text-slate-300 dark:text-slate-600 text-[10px] font-black">-</span>
                     <input type="date" wire:model.live="endDate"
-                        class="border-none text-[10px] font-bold text-slate-700 focus:ring-0 p-0 bg-transparent w-20 cursor-pointer">
+                        class="border-none text-[10px] font-black uppercase dark:bg-transparent bg-transparent text-slate-700 dark:text-slate-300 focus:ring-0 p-0 w-24 cursor-pointer">
                 </div>
 
                 <div class="relative w-full sm:w-32" x-data="{ open: false, selected: @entangle('filterCabang').live }">
                     <button @click="open = !open" @click.outside="open = false"
-                        class="w-full flex items-center justify-between bg-white border-white text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-50 transition-all">
+                        class="w-full flex items-center justify-between border px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm
+                        dark:bg-black/40 dark:border-white/5 dark:text-slate-300 bg-white border-slate-200 text-slate-700 hover:border-emerald-400">
                         <span class="truncate"
-                            x-text="selected.length > 0 ? selected.length + ' Cabang' : 'Semua Cabang'"></span>
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform"
-                            :class="{'rotate-180': open}"></i>
+                            x-text="selected.length > 0 ? selected.length + ' Regional' : 'CABANG'"></span>
+                        <i class="fas fa-chevron-down opacity-40 text-[10px] transition-transform"
+                            :class="open ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open" x-transition
-                        class="absolute z-50 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl p-2 max-h-60 overflow-y-auto custom-scrollbar"
-                        style="display: none;">
+                    <div x-show="open" x-transition class="absolute z-50 mt-2 w-48 border rounded-2xl shadow-2xl p-2 max-h-60 overflow-y-auto custom-scrollbar
+                        dark:bg-slate-900 border-slate-800 bg-white border-slate-200" style="display: none;">
                         <div @click="selected = []"
-                            class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset
+                            class="px-3 py-2 text-[10px] text-rose-500 font-black uppercase tracking-widest cursor-pointer hover:bg-rose-500/10 rounded-xl mb-1 flex items-center gap-2">
+                            <i class="fas fa-times-circle"></i> Reset Hub
                         </div>
                         @foreach($optCabang as $c)
-                        <div @click="selected.includes('{{ $c }}') ? selected = selected.filter(i => i !== '{{ $c }}') : selected.push('{{ $c }}')"
-                            class="flex items-center px-2 py-1.5 hover:bg-emerald-50 rounded cursor-pointer transition-colors group">
-                            <div class="w-4 h-4 rounded border flex items-center justify-center mr-2"
-                                :class="selected.includes('{{ $c }}') ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300'">
-                                <i x-show="selected.includes('{{ $c }}')"
-                                    class="fas fa-check text-white text-[9px]"></i>
-                            </div>
-                            <span class="text-xs text-slate-600 truncate">{{ $c }}</span>
-                        </div>
+                        <label
+                            class="flex items-center px-3 py-2.5 hover:bg-emerald-500/10 rounded-xl cursor-pointer transition-colors group">
+                            <input type="checkbox" value="{{ $c }}" x-model="selected"
+                                class="rounded-full border-slate-500 text-emerald-600 focus:ring-emerald-500 h-3.5 w-3.5">
+                            <span
+                                class="ml-3 text-[10px] font-bold uppercase tracking-tight dark:text-slate-400 text-slate-600">{{ $c }}</span>
+                        </label>
                         @endforeach
                     </div>
                 </div>
 
                 <div class="relative w-full sm:w-32" x-data="{ open: false, selected: @entangle('filterSales').live }">
                     <button @click="open = !open" @click.outside="open = false"
-                        class="w-full flex items-center justify-between bg-white border-white text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-50 transition-all">
+                        class="w-full flex items-center justify-between border px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm
+                        dark:bg-black/40 dark:border-white/5 dark:text-slate-300 bg-white border-slate-200 text-slate-700 hover:border-emerald-400">
                         <span class="truncate"
-                            x-text="selected.length > 0 ? selected.length + ' Sales' : 'Semua Sales'"></span>
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform"
-                            :class="{'rotate-180': open}"></i>
+                            x-text="selected.length > 0 ? selected.length + ' Sales' : 'SALES'"></span>
+                        <i class="fas fa-chevron-down opacity-40 text-[10px] transition-transform"
+                            :class="open ? 'rotate-180' : ''"></i>
                     </button>
-                    <div x-show="open" x-transition
-                        class="absolute z-50 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl p-2 max-h-60 overflow-y-auto custom-scrollbar"
-                        style="display: none;">
+                    <div x-show="open" x-transition class="absolute z-50 mt-2 w-48 border rounded-2xl shadow-2xl p-2 max-h-60 overflow-y-auto custom-scrollbar
+                        dark:bg-slate-900 border-slate-800 bg-white border-slate-200" style="display: none;">
                         <div @click="selected = []"
-                            class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset
+                            class="px-3 py-2 text-[10px] text-rose-500 font-black uppercase tracking-widest cursor-pointer hover:bg-rose-500/10 rounded-xl mb-1 flex items-center gap-2">
+                            <i class="fas fa-times-circle"></i> Reset Sales
                         </div>
                         @foreach($optSales as $s)
-                        <div @click="selected.includes('{{ $s }}') ? selected = selected.filter(i => i !== '{{ $s }}') : selected.push('{{ $s }}')"
-                            class="flex items-center px-2 py-1.5 hover:bg-emerald-50 rounded cursor-pointer transition-colors group">
-                            <div class="w-4 h-4 rounded border flex items-center justify-center mr-2"
-                                :class="selected.includes('{{ $s }}') ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300'">
-                                <i x-show="selected.includes('{{ $s }}')"
-                                    class="fas fa-check text-white text-[9px]"></i>
-                            </div>
-                            <span class="text-xs text-slate-600 truncate">{{ $s }}</span>
-                        </div>
+                        <label
+                            class="flex items-center px-3 py-2.5 hover:bg-emerald-500/10 rounded-xl cursor-pointer transition-colors group">
+                            <input type="checkbox" value="{{ $s }}" x-model="selected"
+                                class="rounded-full border-slate-500 text-emerald-600 focus:ring-emerald-500 h-3.5 w-3.5">
+                            <span
+                                class="ml-3 text-[10px] font-bold uppercase tracking-tight dark:text-slate-400 text-slate-600">{{ $s }}</span>
+                        </label>
                         @endforeach
                     </div>
                 </div>
 
-                <div class="hidden sm:block h-6 w-px bg-emerald-200 mx-1"></div>
-
-                <button wire:click="resetFilter"
-                    class="px-3 py-2 bg-white border border-emerald-200 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-50 shadow-sm"
-                    title="Reset Filter">
-                    <i class="fas fa-undo"></i>
-                </button>
-
-                <button wire:click="export" wire:loading.attr="disabled" wire:target="export"
-                    class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                    <span wire:loading.remove wire:target="export"><i class="fas fa-file-excel"></i> Export</span>
-                    <span wire:loading wire:target="export"><i class="fas fa-spinner fa-spin"></i> Proses...</span>
-                </button>
-
-                <div wire:loading
-                    class="px-3 py-2 bg-white border border-emerald-200 text-emerald-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
-                    <i class="fas fa-circle-notch fa-spin"></i>
+                <div class="flex items-center gap-2">
+                    <button wire:click="resetFilter"
+                        class="px-4 py-2.5 dark:bg-white/5 bg-white border dark:border-white/10 border-slate-200 dark:text-slate-300 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button wire:click="export" wire:loading.attr="disabled" wire:target="export"
+                        class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all transform active:scale-95">
+                        <span wire:loading.remove wire:target="export"><i class="fas fa-file-excel"></i> Export</span>
+                        <span wire:loading wire:target="export"><i class="fas fa-spinner fa-spin"></i> Process</span>
+                    </button>
                 </div>
 
+                <div wire:loading
+                    class="w-10 h-10 rounded-xl flex items-center justify-center dark:bg-slate-800 bg-white border dark:border-white/5 border-slate-200 shadow-sm animate-pulse">
+                    <i class="fas fa-circle-notch fa-spin text-emerald-500"></i>
+                </div>
             </div>
         </div>
     </div>
 
-    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
+    <div wire:loading.class="opacity-50 pointer-events-none"
+        class="transition-opacity duration-300 px-4 sm:px-6 lg:px-8">
+        <div class="rounded-[2.5rem] border overflow-hidden transition-all duration-300 flex flex-col min-h-[80vh] mb-10
+            dark:bg-slate-900/40 dark:border-white/5 bg-white border-slate-200 shadow-2xl dark:shadow-black/60">
+
             <div class="overflow-auto flex-1 w-full custom-scrollbar">
-                <table class="text-[10px] text-left border-collapse whitespace-nowrap min-w-max w-full">
-                    <thead
-                        class="bg-slate-50 font-bold text-slate-500 uppercase border-b border-slate-200 sticky top-0 z-20">
-                        <tr>
-                            <th class="px-3 py-3 border-r border-slate-200 bg-slate-50 sticky left-0 z-30 shadow-sm">
+                <table class="text-[10px] text-left border-collapse whitespace-nowrap min-w-max w-full uppercase">
+                    <thead>
+                        <tr
+                            class="dark:bg-white/5 bg-slate-50 text-slate-500 dark:text-slate-400 font-black tracking-[0.15em] border-b dark:border-white/5 border-slate-100">
+                            <th
+                                class="px-4 py-6 border-r dark:border-white/5 border-slate-100 bg-inherit sticky left-0 z-30 shadow-xl shadow-black/5">
                                 Cabang</th>
                             <th
-                                class="px-3 py-3 border-r border-slate-200 bg-slate-50 sticky left-[60px] z-30 shadow-sm">
+                                class="px-4 py-6 border-r dark:border-white/5 border-slate-100 bg-inherit sticky left-[60px] z-30 shadow-xl shadow-black/5 text-emerald-500">
                                 No Faktur</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Status</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Tanggal</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Period</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Jatuh Tempo</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Kode Pelanggan</th>
-                            <th class="px-3 py-3 border-r border-slate-200 min-w-[200px]">Nama Pelanggan</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Kode Item</th>
-                            <th class="px-3 py-3 border-r border-slate-200">SKU</th>
-                            <th class="px-3 py-3 border-r border-slate-200">No Batch</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Expired Date</th>
-                            <th class="px-3 py-3 border-r border-slate-200 min-w-[250px]">Nama Item</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right bg-emerald-50 text-emerald-700">
-                                Qty</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Satuan Jual</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Nilai</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Rata2</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">D1</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">D2</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Diskon 1</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Diskon 2</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Disc Bawah</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right text-rose-600">Total Diskon</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Nilai Jual Net</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">Total Harga Jual</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right">PPN Head</th>
+
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Status</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Tanggal</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Period</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Jatuh Tempo</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-center">Cust Code
+                            </th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 min-w-[200px]">Pelanggan
+                            </th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Kode Item</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">SKU</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">No Batch</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Expired</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 min-w-[250px]">Nama Item
+                            </th>
                             <th
-                                class="px-3 py-3 border-r border-slate-200 text-right font-bold bg-yellow-50 text-yellow-700">
+                                class="px-4 py-6 border-r border-emerald-500/20 dark:bg-emerald-600/10 bg-emerald-50 text-emerald-600 text-right">
+                                Qty</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Satuan</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">Nilai</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right italic">Rata2
+                            </th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">D1</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">D2</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">Disc 1</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">Disc 2</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">Disc Bawah
+                            </th>
+                            <th
+                                class="px-4 py-6 border-r border-rose-500/20 dark:bg-rose-600/10 bg-rose-50 text-rose-600 text-right">
+                                Total Diskon</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">Net Sales
+                            </th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">Gross Total
+                            </th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-right">PPN</th>
+                            <th
+                                class="px-4 py-6 border-r border-yellow-500/20 dark:bg-yellow-600/10 bg-yellow-50 text-yellow-700 text-right font-black">
                                 Total Grand</th>
-                            <th class="px-3 py-3 border-r border-slate-200 text-right text-blue-600">Margin</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Pembayaran</th>
-
-                            <th class="px-3 py-3 border-r border-slate-200 bg-slate-100 font-bold text-indigo-700">Kode
-                                Sales</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Salesman</th>
-
-                            <th class="px-3 py-3 border-r border-slate-200">Supplier</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Divisi</th>
-                            <th class="px-3 py-3 border-r border-slate-200">Mother SKU</th>
-                            <th class="px-3 py-3 border-r border-slate-200">City Code</th>
+                            <th
+                                class="px-4 py-6 border-r border-blue-500/20 dark:bg-blue-600/10 bg-blue-50 text-blue-600 text-right font-black">
+                                Margin</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Term</th>
+                            <th
+                                class="px-4 py-6 border-r border-indigo-500/20 dark:bg-indigo-600/10 bg-indigo-50 text-indigo-700 font-black">
+                                Kode Sales</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Salesman</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Supplier</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100 text-center">Divisi</th>
+                            <th class="px-4 py-6 border-r dark:border-white/5 border-slate-100">Mother SKU</th>
+                            <th class="px-4 py-6">City Code</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y dark:divide-white/5 divide-slate-100">
                         @forelse($penjualans as $item)
-                        <tr class="hover:bg-emerald-50/20 transition-colors odd:bg-white even:bg-slate-50/30">
-                            <td class="px-3 py-2 border-r border-slate-100 font-bold sticky left-0 bg-inherit z-10">
+                        <tr class="hover:bg-emerald-500/[0.02] transition-colors group dark:bg-[#0a0a0a] bg-white">
+                            <td
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-black sticky left-0 bg-inherit z-10 text-slate-400">
                                 {{ $item->cabang }}</td>
                             <td
-                                class="px-3 py-2 border-r border-slate-100 font-mono text-emerald-600 sticky left-[60px] bg-inherit z-10">
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-mono font-black text-emerald-600 dark:text-emerald-400 sticky left-[60px] bg-inherit z-10 shadow-xl shadow-black/5">
                                 {{ $item->trans_no }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->status }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">
+
+                            <td
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-[9px] font-bold opacity-60">
+                                {{ $item->status }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 opacity-80">
                                 {{ date('d/m/Y', strtotime($item->tgl_penjualan)) }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->period }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->jatuh_tempo }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->kode_pelanggan }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 font-bold truncate max-w-[200px]"
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 opacity-60">
+                                {{ $item->period }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 opacity-60">
+                                {{ $item->jatuh_tempo }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-mono text-center">
+                                {{ $item->kode_pelanggan }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-black dark:text-white text-slate-800 truncate max-w-[200px]"
                                 title="{{ $item->nama_pelanggan }}">{{ $item->nama_pelanggan }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 font-mono">{{ $item->kode_item }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 font-mono">{{ $item->sku }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->no_batch }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->ed }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 truncate max-w-[250px]"
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-mono opacity-50">
+                                {{ $item->kode_item }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-mono opacity-80">
+                                {{ $item->sku }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 opacity-50">
+                                {{ $item->no_batch }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 opacity-50">
+                                {{ $item->ed }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-bold dark:text-white text-slate-700 truncate max-w-[250px]"
                                 title="{{ $item->nama_item }}">{{ $item->nama_item }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right font-bold text-emerald-700">
+                            <td
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right font-black text-emerald-500 bg-emerald-500/[0.02]">
                                 {{ number_format($item->qty, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->satuan_jual }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-center opacity-40 italic">
+                                {{ $item->satuan_jual }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->nilai, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right opacity-50">
                                 {{ number_format($item->rata2, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->d1, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->d2, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->diskon_1, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->diskon_2, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->diskon_bawah, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right text-rose-600">
+                            <td
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right font-bold text-rose-500 bg-rose-500/[0.02]">
                                 {{ number_format($item->total_diskon, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right opacity-80">
                                 {{ number_format($item->nilai_jual_net, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right">
                                 {{ number_format($item->total_harga_jual, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right">
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right opacity-40">
                                 {{ number_format($item->ppn_head, 0, ',', '.') }}</td>
                             <td
-                                class="px-3 py-2 border-r border-slate-100 text-right font-bold bg-yellow-50/50 text-yellow-700">
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right font-black dark:text-yellow-400 text-yellow-700 bg-yellow-500/[0.02]">
                                 {{ number_format($item->total_grand, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100 text-right text-blue-600">
-                                {{ number_format($item->margin, 0, ',', '.') }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->pembayaran }}</td>
-
                             <td
-                                class="px-3 py-2 border-r border-slate-100 font-mono font-bold text-indigo-600 bg-slate-50/50">
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-right font-black text-blue-500 bg-blue-500/[0.02]">
+                                {{ number_format($item->margin, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 opacity-60">
+                                {{ $item->pembayaran }}</td>
+                            <td
+                                class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-mono font-black text-indigo-500 bg-indigo-500/[0.02]">
                                 {{ $item->kode_sales }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->sales_name }}</td>
-
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->supplier }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->divisi }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->mother_sku }}</td>
-                            <td class="px-3 py-2 border-r border-slate-100">{{ $item->city_code_outlet_program }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-bold opacity-80">
+                                {{ $item->sales_name }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-purple-500 italic">
+                                {{ $item->supplier }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 text-center opacity-40">
+                                {{ $item->divisi }}</td>
+                            <td class="px-4 py-3 border-r dark:border-white/5 border-slate-50 font-mono opacity-30">
+                                {{ $item->mother_sku }}</td>
+                            <td class="px-4 py-3 opacity-30">{{ $item->city_code_outlet_program }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="37" class="px-6 py-12 text-center text-slate-400">Data tidak ditemukan</td>
+                            <td colspan="37" class="px-6 py-32 text-center opacity-20">
+                                <i class="fas fa-file-invoice text-8xl mb-4"></i>
+                                <p class="text-sm font-black tracking-[0.4em]">Audit Trail Empty</p>
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="px-4 py-3 border-t border-slate-200 bg-slate-50/50">{{ $penjualans->links() }}</div>
+
+            <div
+                class="px-6 py-6 border-t dark:border-white/5 border-slate-100 dark:bg-white/[0.02] bg-slate-50/50 uppercase font-black text-[10px]">
+                {{ $penjualans->links() }}
+            </div>
         </div>
     </div>
 
 </div>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.3);
+    border-radius: 10px;
+}
+
+tbody tr {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
