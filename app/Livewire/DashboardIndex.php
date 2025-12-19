@@ -163,4 +163,5 @@ class DashboardIndex extends Component
             return number_format($val, 0, ',', '.');
         }
     }
+    
 }
