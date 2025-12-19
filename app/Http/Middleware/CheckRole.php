@@ -4,21 +4,29 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CheckRole
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    public function handle(Request $request, Closure $next, ...$roles): Response
-{
-    if (! in_array($request->user()->role, $roles)) {
-        abort(403, 'Akses Ditolak: Anda tidak memiliki izin.');
-    }
+    public function handle(Request $request, Closure $next, ...$roles)
+    {
+        if (!Auth::check()) {
+            return redirect('login');
+        }
 
-    return $next($request);
+        $user = Auth::user();
+
+        // 1. Cek apakah role user ada di dalam daftar parameter middleware
+        if (in_array($user->role, $roles)) {
+            return $next($request);
+        }
+
+        // 2. Logic Tambahan: Jika rute membutuhkan 'admin' tapi user adalah 'pimpinan', 
+        // berikan akses otomatis (Full Control).
+        if (in_array('admin', $roles) && $user->role === 'pimpinan') {
+            return $next($request);
+        }
+
+        abort(403, 'Akses Ditolak: Anda tidak memiliki otoritas untuk halaman ini.');
+    }
 }
-}   

@@ -16,8 +16,8 @@ class Sales extends Model
         'sales_name',
         'divisi',
         'status',
-        'target_ims',
-        'target_oa',
         'city',
+        'target_ims', 
+        'target_oa',  
     ];
 }

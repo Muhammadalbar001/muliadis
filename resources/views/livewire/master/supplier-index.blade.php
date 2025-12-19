@@ -1,236 +1,256 @@
-<div class="space-y-6 font-jakarta">
+<div class="min-h-screen space-y-6 pb-10 transition-colors duration-300 font-jakarta" x-data="{ filterOpen: false }">
 
-    <div
-        class="sticky top-0 z-40 backdrop-blur-md bg-pink-50/90 p-4 rounded-b-2xl shadow-sm border-b border-pink-200 transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 mb-6">
+    <div class="sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-6
+        dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/80 border-slate-200 shadow-sm">
+
         <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
-
             <div class="flex items-center gap-4 w-full xl:w-auto">
-                <div class="p-2 bg-pink-100 rounded-lg text-pink-600 shadow-sm"><i class="fas fa-truck text-xl"></i>
+                <div class="p-2.5 rounded-xl shadow-lg dark:bg-pink-500/20 bg-pink-600 text-white dark:text-pink-400">
+                    <i class="fas fa-truck text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-pink-900 tracking-tight">Master Supplier</h1>
-                    <p class="text-xs text-pink-600 font-medium mt-0.5">Database pemasok & kontak.</p>
+                    <h1
+                        class="text-xl font-black tracking-tighter uppercase leading-none dark:text-white text-slate-800">
+                        Master <span class="text-pink-500">Supplier</span>
+                    </h1>
+                    <p
+                        class="text-[9px] font-bold uppercase tracking-[0.3em] opacity-50 mt-1.5 dark:text-slate-400 text-slate-500">
+                        Vendor & PIC Database</p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center w-full xl:w-auto justify-end">
+            <div class="flex flex-wrap sm:flex-nowrap gap-3 items-center w-full xl:w-auto justify-end">
 
-                <div class="relative w-full sm:w-48">
-                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-slate-400 text-xs"></i>
-                    </div>
+                <div class="relative w-full sm:w-48 group">
+                    <i
+                        class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pink-500 transition-colors text-xs"></i>
                     <input wire:model.live.debounce.300ms="search" type="text"
-                        class="pl-8 w-full border-white rounded-lg text-xs font-bold text-slate-700 focus:ring-pink-500 py-2 shadow-sm placeholder-slate-400 transition-all"
-                        placeholder="Cari Supplier / PIC...">
+                        class="w-full pl-9 pr-4 py-2 rounded-xl border text-[11px] font-bold uppercase tracking-widest focus:ring-2 focus:ring-pink-500/20 transition-all
+                        dark:bg-black/40 dark:border-white/10 dark:text-white bg-slate-100 border-slate-200 shadow-inner" placeholder="Cari Supplier / PIC...">
                 </div>
 
                 <div class="relative w-full sm:w-40" x-data="{ open: false, selected: @entangle('filterCabang').live }">
                     <button @click="open = !open" @click.outside="open = false"
-                        class="w-full flex items-center justify-between bg-white border-white text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-50 transition-all">
+                        class="w-full flex items-center justify-between border px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm
+                        dark:bg-black/40 dark:border-white/5 dark:text-slate-300 bg-white border-slate-200 text-slate-700 hover:border-pink-400">
                         <span class="truncate"
-                            x-text="selected.length > 0 ? selected.length + ' Cabang' : 'Semua Cabang'"></span>
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 transition-transform"
-                            :class="{'rotate-180': open}"></i>
+                            x-text="selected.length > 0 ? selected.length + ' Regional' : 'Regional Hub'"></span>
+                        <i class="fas fa-chevron-down opacity-40 text-[10px] transition-transform"
+                            :class="open ? 'rotate-180' : ''"></i>
                     </button>
-
-                    <div x-show="open" x-transition
-                        class="absolute z-50 mt-1 w-48 bg-white border border-slate-200 rounded-lg shadow-xl p-2 max-h-60 overflow-y-auto custom-scrollbar"
-                        style="display: none;">
+                    <div x-show="open" x-transition class="absolute z-50 mt-2 w-full border rounded-2xl shadow-2xl p-2 max-h-60 overflow-y-auto custom-scrollbar
+                        dark:bg-slate-900 border-slate-800 bg-white border-slate-200" style="display: none;">
                         <div @click="selected = []"
-                            class="px-2 py-1.5 text-xs text-rose-500 font-bold cursor-pointer hover:bg-rose-50 rounded mb-1 flex items-center gap-1">
-                            <i class="fas fa-times-circle"></i> Reset Filter
+                            class="px-3 py-2 text-[10px] text-rose-500 font-black uppercase tracking-widest cursor-pointer hover:bg-rose-500/10 rounded-xl mb-1 flex items-center gap-2">
+                            <i class="fas fa-times-circle"></i> Reset Regional
                         </div>
                         @foreach($optCabang as $c)
-                        <div @click="selected.includes('{{ $c }}') ? selected = selected.filter(i => i !== '{{ $c }}') : selected.push('{{ $c }}')"
-                            class="flex items-center px-2 py-1.5 hover:bg-pink-50 rounded cursor-pointer transition-colors group">
-                            <div class="w-4 h-4 rounded border flex items-center justify-center transition-colors mr-2"
-                                :class="selected.includes('{{ $c }}') ? 'bg-pink-500 border-pink-500' : 'border-slate-300 bg-white group-hover:border-pink-400'">
-                                <i x-show="selected.includes('{{ $c }}')"
-                                    class="fas fa-check text-white text-[9px]"></i>
-                            </div>
-                            <span class="text-xs text-slate-600 truncate"
-                                :class="selected.includes('{{ $c }}') ? 'font-bold text-pink-700' : ''">{{ $c }}</span>
-                        </div>
+                        <label
+                            class="flex items-center px-3 py-2.5 hover:bg-pink-500/10 rounded-xl cursor-pointer transition-colors group">
+                            <input type="checkbox" value="{{ $c }}" x-model="selected"
+                                class="rounded-full border-slate-500 text-pink-600 focus:ring-pink-500 h-3.5 w-3.5">
+                            <span
+                                class="ml-3 text-[10px] font-bold uppercase tracking-tight group-hover:text-pink-400 dark:text-slate-400 text-slate-600">{{ $c }}</span>
+                        </label>
                         @endforeach
                     </div>
                 </div>
 
-                <div class="hidden sm:block h-6 w-px bg-pink-200 mx-1"></div>
-
                 <button wire:click="syncFromProducts" wire:loading.attr="disabled"
-                    class="px-3 py-2 bg-white border border-pink-200 text-pink-600 rounded-lg text-xs font-bold hover:bg-pink-50 shadow-sm transition-all flex items-center gap-2 disabled:opacity-50"
-                    title="Sync dari Produk">
-                    <span wire:loading.remove wire:target="syncFromProducts"><i class="fas fa-sync-alt"></i> Sync</span>
+                    class="px-4 py-2 dark:bg-white/5 bg-white border dark:border-white/10 border-slate-200 dark:text-slate-300 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all shadow-sm">
+                    <span wire:loading.remove wire:target="syncFromProducts"><i class="fas fa-sync-alt mr-1"></i>
+                        Sync</span>
                     <span wire:loading wire:target="syncFromProducts"><i class="fas fa-spinner fa-spin"></i></span>
                 </button>
 
                 <button wire:click="create"
-                    class="px-3 py-2 bg-pink-600 text-white rounded-lg text-xs font-bold hover:bg-pink-700 shadow-md shadow-pink-500/20 transition-all flex items-center gap-2 transform hover:-translate-y-0.5">
-                    <i class="fas fa-plus"></i> <span class="hidden sm:inline">Baru</span>
+                    class="px-5 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-pink-600/20 transition-all transform active:scale-95">
+                    <i class="fas fa-plus mr-1"></i> Baru
                 </button>
-
-                <div wire:loading wire:target="search, filterCabang, create, edit, delete"
-                    class="px-3 py-2 bg-white border border-pink-200 text-pink-600 rounded-lg shadow-sm flex items-center justify-center animate-pulse">
-                    <i class="fas fa-circle-notch fa-spin"></i>
-                </div>
-
             </div>
         </div>
     </div>
 
-    <div wire:loading.class="opacity-50 pointer-events-none" class="transition-opacity duration-200">
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col h-[85vh] overflow-hidden">
-            <div class="overflow-auto flex-1 w-full custom-scrollbar">
-                <table class="w-full text-sm text-left border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-                        <tr>
+    <div wire:loading.class="opacity-50 pointer-events-none"
+        class="transition-opacity duration-300 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+            class="rounded-[2.5rem] border overflow-hidden transition-all duration-300
+            dark:bg-slate-900/40 dark:border-white/5 bg-white border-slate-200 shadow-2xl shadow-slate-200/40 dark:shadow-black/40">
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-sm text-left border-collapse uppercase">
+                    <thead>
+                        <tr
+                            class="dark:bg-white/5 bg-slate-50 text-slate-500 dark:text-slate-400 font-black text-[10px] tracking-[0.15em] border-b dark:border-white/5 border-slate-100">
+                            <th class="px-6 py-5 w-16 text-center">No</th>
+                            <th class="px-6 py-5">Regional</th>
+                            <th class="px-6 py-5">Nama Supplier</th>
+                            <th class="px-6 py-5">PIC / Kontak</th>
+                            <th class="px-6 py-5">Informasi Telepon</th>
                             <th
-                                class="px-6 py-4 w-16 text-center font-bold text-slate-600 text-xs uppercase tracking-wider">
-                                No</th>
-                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Cabang</th>
-                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Nama
-                                Supplier
-                            </th>
-                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Kontak
-                                (PIC)
-                            </th>
-                            <th class="px-6 py-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Telepon
-                            </th>
-                            <th class="px-6 py-4 text-center font-bold text-slate-600 text-xs uppercase tracking-wider">
-                                Aksi
-                            </th>
+                                class="px-6 py-5 text-center bg-slate-100/50 dark:bg-white/5 border-l dark:border-white/5 border-slate-100">
+                                Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
+                    <tbody class="divide-y dark:divide-white/5 divide-slate-100">
                         @forelse($suppliers as $index => $item)
-                        <tr class="hover:bg-pink-50/20 transition-colors group">
-                            <td class="px-6 py-4 text-center text-slate-500 text-xs font-mono">
-                                {{ $suppliers->firstItem() + $index }}</td>
+                        <tr class="hover:bg-pink-500/[0.02] transition-colors group">
+                            <td class="px-6 py-4 text-center text-slate-400 font-mono text-[10px]">
+                                {{ $suppliers->firstItem() + $index }}
+                            </td>
                             <td class="px-6 py-4">
                                 <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">{{ $item->cabang }}</span>
+                                    class="px-2.5 py-1 rounded-lg text-[9px] font-black tracking-widest border dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20 bg-indigo-50 text-indigo-600 border-indigo-100 uppercase">
+                                    {{ $item->cabang }}
+                                </span>
                             </td>
-                            <td class="px-6 py-4 font-bold text-slate-700 group-hover:text-pink-600 transition-colors">
-                                {{ $item->supplier_name }}</td>
-                            <td class="px-6 py-4 text-slate-600">
-                                <div class="flex items-center gap-2">
+                            <td
+                                class="px-6 py-4 font-black dark:text-white text-slate-800 text-xs tracking-tight group-hover:text-pink-500 transition-colors">
+                                {{ $item->supplier_name }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
                                     <div
-                                        class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-xs group-hover:bg-white group-hover:text-pink-400 transition-colors">
-                                        <i class="fas fa-user"></i>
+                                        class="w-8 h-8 rounded-full dark:bg-slate-800 bg-slate-100 flex items-center justify-center text-slate-400 group-hover:text-pink-500 transition-all shadow-inner">
+                                        <i class="fas fa-user-circle text-sm"></i>
                                     </div>
-                                    <span class="font-medium">{{ $item->contact_person ?? '-' }}</span>
+                                    <span
+                                        class="text-[10px] font-bold dark:text-slate-300 text-slate-600">{{ $item->contact_person ?? 'N/A' }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-slate-600">
                                 @if($item->phone)
                                 <a href="tel:{{ $item->phone }}"
-                                    class="inline-flex items-center gap-1.5 text-slate-600 hover:text-emerald-600 font-medium transition-colors bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 group-hover:border-emerald-200">
-                                    <i class="fas fa-phone text-xs text-slate-400"></i> {{ $item->phone }}
+                                    class="inline-flex items-center gap-2 text-[10px] font-black text-slate-500 dark:text-slate-400 hover:text-emerald-500 transition-colors dark:bg-black/20 bg-slate-50 px-3 py-1.5 rounded-xl border dark:border-white/5 border-slate-100 group-hover:border-emerald-500/30 shadow-sm">
+                                    <i class="fas fa-phone-alt opacity-40 text-[8px]"></i> {{ $item->phone }}
                                 </a>
                                 @else
-                                <span class="text-slate-400 text-xs italic">Tidak ada no.</span>
+                                <span class="text-[10px] font-bold opacity-30 italic">No Contact</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-center">
+                            <td
+                                class="px-6 py-4 text-center bg-slate-50/30 dark:bg-white/[0.01] border-l dark:border-white/5 border-slate-50">
                                 <div
-                                    class="flex justify-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                    class="flex justify-center gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
                                     <button wire:click="edit({{ $item->id }})"
-                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><i
-                                            class="fas fa-edit"></i></button>
+                                        class="w-8 h-8 rounded-lg dark:bg-white/5 bg-white border dark:border-white/5 border-slate-200 text-blue-500 hover:bg-blue-500 hover:text-white transition-all shadow-sm">
+                                        <i class="fas fa-edit text-[10px]"></i>
+                                    </button>
                                     <button wire:click="delete({{ $item->id }})"
                                         onclick="return confirm('Hapus?') || event.stopImmediatePropagation()"
-                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"><i
-                                            class="fas fa-trash-alt"></i></button>
+                                        class="w-8 h-8 rounded-lg dark:bg-white/5 bg-white border dark:border-white/5 border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                        <i class="fas fa-trash-alt text-[10px]"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-20 text-center text-slate-400">Tidak ada data supplier.</td>
+                            <td colspan="6" class="px-6 py-24 text-center">
+                                <div class="flex flex-col items-center gap-4 opacity-20">
+                                    <i class="fas fa-truck-loading text-6xl"></i>
+                                    <p class="text-xs font-black tracking-[0.4em]">Supplier Database Empty</p>
+                                </div>
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50/50">{{ $suppliers->links() }}</div>
+
+            <div
+                class="px-6 py-5 border-t dark:border-white/5 border-slate-100 dark:bg-white/[0.02] bg-slate-50/50 uppercase font-black text-[10px]">
+                {{ $suppliers->links() }}
+            </div>
         </div>
     </div>
 
     @if($isOpen)
-    <div class="fixed inset-0 z-[60] overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity" wire:click="closeModal">
+    <div class="fixed inset-0 z-[110] overflow-y-auto" role="dialog">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" wire:click="closeModal">
             </div>
+
             <div
-                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border border-white/20">
+                class="relative dark:bg-[#0a0a0a] bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border dark:border-white/10 border-slate-200 transition-all">
                 <div
-                    class="bg-gradient-to-r from-pink-600 to-rose-600 px-6 py-4 border-b border-white/10 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i class="fas {{ $supplierId ? 'fa-edit' : 'fa-plus-circle' }}"></i>
-                        {{ $supplierId ? 'Edit Supplier' : 'Supplier Baru' }}
-                    </h3>
-                    <button wire:click="closeModal" class="text-white/70 hover:text-white transition-colors"><i
-                            class="fas fa-times"></i></button>
-                </div>
-                <div class="px-6 py-6 space-y-5">
+                    class="bg-gradient-to-r from-pink-600 to-rose-600 px-8 py-6 text-white flex justify-between items-center shadow-lg">
                     <div>
-                        <label
-                            class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Cabang</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i
-                                    class="fas fa-map-marker-alt"></i></span>
-                            <input type="text" wire:model="cabang"
-                                class="w-full pl-10 pr-4 py-2.5 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 placeholder-slate-400 font-medium transition-all"
-                                placeholder="Nama Cabang">
-                        </div>
-                        @error('cabang') <span class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span>
-                        @enderror
+                        <h3 class="font-black uppercase tracking-widest text-sm">
+                            <i class="fas {{ $supplierId ? 'fa-edit' : 'fa-plus-circle' }} mr-2"></i>
+                            {{ $supplierId ? 'Update Supplier' : 'Register Vendor' }}
+                        </h3>
+                        <p class="text-[9px] font-bold opacity-60 uppercase tracking-[0.2em] mt-1">Vendor Master
+                            Database</p>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Nama
-                            Supplier</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i
-                                    class="fas fa-truck"></i></span>
-                            <input type="text" wire:model="supplier_name"
-                                class="w-full pl-10 pr-4 py-2.5 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 placeholder-slate-400 font-bold text-slate-700 transition-all"
-                                placeholder="PT. Nama Supplier">
-                        </div>
-                        @error('supplier_name') <span
-                            class="text-rose-500 text-xs font-bold mt-1 ml-1">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">PIC
-                                / Kontak</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i
-                                        class="fas fa-user"></i></span>
-                                <input type="text" wire:model="contact_person"
-                                    class="w-full pl-10 pr-4 py-2.5 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 placeholder-slate-400 transition-all"
-                                    placeholder="Nama PIC">
-                            </div>
-                        </div>
-                        <div>
-                            <label
-                                class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">No
-                                HP / Telp</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i
-                                        class="fas fa-phone"></i></span>
-                                <input type="text" wire:model="phone"
-                                    class="w-full pl-10 pr-4 py-2.5 border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 placeholder-slate-400 transition-all"
-                                    placeholder="08...">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-slate-50 px-6 py-4 flex flex-row-reverse gap-3 border-t border-slate-200">
-                    <button wire:click="store"
-                        class="px-5 py-2.5 bg-pink-600 text-white rounded-xl text-sm font-bold hover:bg-pink-700 focus:outline-none shadow-lg shadow-pink-500/30 transition-all transform hover:-translate-y-0.5">{{ $supplierId ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
                     <button wire:click="closeModal"
-                        class="px-5 py-2.5 bg-white text-slate-700 border border-slate-300 rounded-xl text-sm font-bold hover:bg-slate-50 focus:outline-none transition-all">Batal</button>
+                        class="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center hover:bg-black/20 transition-all">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="p-8 space-y-6 font-jakarta">
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label
+                                class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Regional
+                                Cabang</label>
+                            <div class="relative group">
+                                <span
+                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pink-500 transition-colors"><i
+                                        class="fas fa-map-marker-alt text-xs"></i></span>
+                                <input type="text" wire:model="cabang"
+                                    class="w-full pl-10 pr-5 py-3 rounded-2xl border dark:bg-black/40 bg-slate-50 dark:border-white/10 border-slate-200 text-sm font-bold focus:ring-2 focus:ring-pink-500/20 transition-all dark:text-white text-slate-800"
+                                    placeholder="Contoh: Banjarmasin">
+                            </div>
+                            @error('cabang') <span
+                                class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Nama
+                                Perusahaan / Supplier</label>
+                            <div class="relative group">
+                                <span
+                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-pink-500 transition-colors"><i
+                                        class="fas fa-building text-xs"></i></span>
+                                <input type="text" wire:model="supplier_name"
+                                    class="w-full pl-10 pr-5 py-3 rounded-2xl border dark:bg-black/40 bg-slate-50 dark:border-white/10 border-slate-200 text-sm font-black focus:ring-2 focus:ring-pink-500/20 transition-all dark:text-white text-slate-800"
+                                    placeholder="PT. Nama Supplier Terdaftar">
+                            </div>
+                            @error('supplier_name') <span
+                                class="text-rose-500 text-[10px] font-bold mt-1 ml-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">PIC
+                                    / Kontak Utama</label>
+                                <input type="text" wire:model="contact_person"
+                                    class="w-full px-5 py-3 rounded-2xl border dark:bg-black/40 bg-slate-50 dark:border-white/10 border-slate-200 text-sm font-bold focus:ring-2 focus:ring-pink-500/20 transition-all dark:text-white text-slate-800"
+                                    placeholder="Nama Personil">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">No.
+                                    WhatsApp / HP</label>
+                                <input type="text" wire:model="phone"
+                                    class="w-full px-5 py-3 rounded-2xl border dark:bg-black/40 bg-slate-50 dark:border-white/10 border-slate-200 text-sm font-mono font-bold focus:ring-2 focus:ring-pink-500/20 transition-all dark:text-white text-slate-800"
+                                    placeholder="0812...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="dark:bg-white/[0.02] bg-slate-50 px-8 py-6 flex justify-end gap-3 border-t dark:border-white/5 border-slate-100">
+                    <button wire:click="closeModal"
+                        class="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest dark:text-slate-400 text-slate-500 hover:text-rose-500 transition-colors">Batal</button>
+                    <button wire:click="store"
+                        class="px-8 py-2.5 bg-pink-600 hover:bg-pink-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-pink-600/20 transform active:scale-95 transition-all">Simpan
+                        Database</button>
                 </div>
             </div>
         </div>
@@ -238,3 +258,19 @@
     @endif
 
 </div>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(236, 72, 153, 0.2);
+    border-radius: 10px;
+}
+</style>
