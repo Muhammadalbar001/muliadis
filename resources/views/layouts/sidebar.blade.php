@@ -56,10 +56,10 @@
         <div x-show="!isSidebarExpanded" class="h-px w-8 mx-auto bg-neutral-800 mb-4 mt-4"></div>
 
         @foreach([
-        ['route' => 'master.sales', 'icon' => 'fa-user-tie', 'label' => 'Salesman', 'color' => 'blue'],
-        ['route' => 'master.produk', 'icon' => 'fa-box', 'label' => 'Produk', 'color' => 'blue'],
-        ['route' => 'master.supplier', 'icon' => 'fa-truck', 'label' => 'Supplier', 'color' => 'blue'],
-        ['route' => 'master.user', 'icon' => 'fa-users-cog', 'label' => 'User', 'color' => 'blue'],
+        ['route' => 'master.sales', 'icon' => 'fa-user-tie', 'label' => 'Salesman'],
+        ['route' => 'master.produk', 'icon' => 'fa-box', 'label' => 'Produk'],
+        ['route' => 'master.supplier', 'icon' => 'fa-truck', 'label' => 'Supplier'],
+        ['route' => 'master.user', 'icon' => 'fa-users-cog', 'label' => 'User'],
         ] as $menu)
         <a href="{{ route($menu['route']) }}"
             class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-bold mb-1 relative uppercase tracking-wider
@@ -82,11 +82,10 @@
         <div x-show="!isSidebarExpanded" class="h-px w-8 mx-auto bg-neutral-800 mb-4 mt-4"></div>
 
         @foreach([
-        ['route' => 'transaksi.penjualan', 'icon' => 'fa-shopping-cart', 'label' => 'Penjualan', 'color' => 'emerald'],
-        ['route' => 'transaksi.retur', 'icon' => 'fa-undo', 'label' => 'Retur', 'color' => 'rose'],
-        ['route' => 'transaksi.ar', 'icon' => 'fa-file-invoice-dollar', 'label' => 'Piutang (AR)', 'color' => 'orange'],
-        ['route' => 'transaksi.collection', 'icon' => 'fa-hand-holding-dollar', 'label' => 'Collection', 'color' =>
-        'cyan'],
+        ['route' => 'transaksi.penjualan', 'icon' => 'fa-shopping-cart', 'label' => 'Penjualan'],
+        ['route' => 'transaksi.retur', 'icon' => 'fa-undo', 'label' => 'Retur'],
+        ['route' => 'transaksi.ar', 'icon' => 'fa-file-invoice-dollar', 'label' => 'Piutang (AR)'],
+        ['route' => 'transaksi.collection', 'icon' => 'fa-hand-holding-dollar', 'label' => 'Collection'],
         ] as $menu)
         <a href="{{ route($menu['route']) }}"
             class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-bold mb-1 relative uppercase tracking-wider
@@ -148,50 +147,15 @@
                 @endforeach
             </div>
         </div>
-
     </div>
 
     <div class="p-4 border-t border-neutral-800 bg-[#070707] flex-none">
-
         <button @click="toggleSidebar()"
-            class="hidden lg:flex w-full items-center justify-center p-2 mb-4 rounded-xl bg-neutral-900 text-neutral-500 hover:text-blue-400 hover:bg-neutral-800 transition-all border border-neutral-800">
+            class="flex w-full items-center justify-center p-2 rounded-xl bg-neutral-900 text-neutral-500 hover:text-blue-400 hover:bg-neutral-800 transition-all border border-neutral-800">
             <i class="fas fa-chevron-left transition-transform duration-300"
                 :class="!isSidebarExpanded ? 'rotate-180' : ''"></i>
-            <span x-show="isSidebarExpanded"
-                class="ml-2 text-[9px] font-black uppercase tracking-[0.2em]">Minimize</span>
+            <span x-show="isSidebarExpanded" class="ml-2 text-[9px] font-black uppercase tracking-[0.2em]">Minimize
+                Sidebar</span>
         </button>
-
-        <div class="flex items-center gap-3 transition-all duration-300"
-            :class="isSidebarExpanded ? 'justify-between' : 'justify-center flex-col gap-4'">
-            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 min-w-0 group cursor-pointer">
-                <div class="relative flex-none">
-                    <div
-                        class="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center text-xs font-black text-white border border-neutral-700 group-hover:border-blue-600 transition-colors">
-                        {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
-                    </div>
-                    <div
-                        class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-[#070707] rounded-full animate-pulse">
-                    </div>
-                </div>
-                <div x-show="isSidebarExpanded" class="min-w-0">
-                    <p
-                        class="text-xs font-black text-white truncate w-24 group-hover:text-blue-400 transition-colors uppercase tracking-tighter">
-                        {{ Auth::user()->name ?? 'User' }}
-                    </p>
-                    <p
-                        class="text-[9px] font-bold text-neutral-600 truncate group-hover:text-neutral-500 uppercase tracking-widest">
-                        {{ Auth::user()->role ?? 'Staff' }}</p>
-                </div>
-            </a>
-
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit"
-                    class="w-10 h-10 flex items-center justify-center text-neutral-600 hover:text-white hover:bg-rose-600 border border-neutral-800 rounded-xl transition-all"
-                    title="Logout">
-                    <i class="fas fa-power-off text-sm"></i>
-                </button>
-            </form>
-        </div>
     </div>
 </aside>
