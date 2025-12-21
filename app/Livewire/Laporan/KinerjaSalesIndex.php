@@ -19,11 +19,10 @@ class KinerjaSalesIndex extends Component
     use WithPagination;
 
     public $bulan;
-    public $search = ''; // Fitur Pencarian
+    public $search = '';
     public $minNominal = 50000; 
-    public $filterCabang = []; 
-    public $filterDivisi = []; 
-    public $activeTab = 'penjualan'; 
+    public $filterCabang = [];
+    public $activeTab = 'penjualan';
 
     public function mount() { 
         $this->bulan = date('Y-m'); 
@@ -31,13 +30,11 @@ class KinerjaSalesIndex extends Component
     
     public function updatedSearch() { $this->resetPage(); }
     public function updatedFilterCabang() { $this->resetPage(); }
-    public function updatedFilterDivisi() { $this->resetPage(); } 
     public function updatedBulan() { $this->resetPage(); }
-    public function updatedMinNominal() { $this->resetPage(); }
 
     public function resetFilter()
     {
-        $this->reset(['filterCabang', 'filterDivisi', 'minNominal', 'search']);
+        $this->reset(['filterCabang', 'minNominal', 'search']);
         $this->bulan = date('Y-m');
         $this->resetPage();
     }
@@ -52,11 +49,11 @@ class KinerjaSalesIndex extends Component
         $writer = SimpleExcelWriter::streamDownload('Rapor_Kinerja_Sales_' . $this->bulan . '.xlsx');
 
         $header = [
-            'Nama Sales', 'Cabang', 'Divisi',
-            'Target (Rp)', 'Pencapaian (Rp)', 'Ach (%)',
-            'AR Reguler', 'AR > 30 Hari', '% Macet',
-            'Outlet Aktif', 'Efektif Call (>' . number_format((float)($this->minNominal ?: 0), 0, ',', '.') . ')',
-            'Jml Supplier Terjual', 'Total Omzet Supplier'
+            'Kode Sales', 'Nama Sales', 'Area',
+            'Target (Rp)', 'Realisasi (Rp)', 'Ach (%)', 'Gap (Rp)',
+            'Total Piutang (AR)', 'AR > 30 Hari', '% Macet',
+            'Outlet Aktif (OA)', 'Effective Call (EC)',
+            'Jml Brand Terjual', 'Omzet Brand Utama'
         ];
 
         foreach($suppliers as $supp) { $header[] = $supp; }
@@ -64,9 +61,9 @@ class KinerjaSalesIndex extends Component
 
         foreach ($laporan as $row) {
             $rowData = [
-                $row['nama'], $row['cabang'], $row['divisi'],
-                $row['target_ims'], $row['real_ims'], $row['persen_ims'],
-                $row['ar_lancar'], $row['ar_macet'], $row['ar_persen_macet'],
+                $row['kode'], $row['nama'], $row['cabang'],
+                $row['target_ims'], $row['real_ims'], $row['persen_ims'], $row['gap'],
+                $row['ar_total'], $row['ar_macet'], $row['ar_persen_macet'],
                 $row['real_oa'], $row['ec'],
                 $row['jml_supplier'], $row['total_supplier_val']
             ];
@@ -85,20 +82,29 @@ class KinerjaSalesIndex extends Component
         $dateObj = Carbon::parse($bulanPilih . '-01');
         $start   = $dateObj->startOfMonth()->format('Y-m-d');
         $end     = $dateObj->endOfMonth()->format('Y-m-d');
-        $currentMin = (float) ($this->minNominal ?: 0);
+        
+        $currentMin = (float) str_replace(['.', ','], '', $this->minNominal ?: 0);
 
+        // 1. Query Master Sales
         $salesQuery = Sales::query();
         if ($this->search) {
-            $salesQuery->where('sales_name', 'like', '%' . $this->search . '%');
+            $salesQuery->where(function($q) {
+                $q->where('sales_name', 'like', '%' . $this->search . '%')
+                  ->orWhere('sales_code', 'like', '%' . $this->search . '%');
+            });
         }
         if (!empty($this->filterCabang)) $salesQuery->whereIn('city', $this->filterCabang);
-        if (!empty($this->filterDivisi)) $salesQuery->whereIn('divisi', $this->filterDivisi);
+        
         $salesQuery->whereIn('status', ['Active', 'aktif', 'Aktif']);
         $allSales = $salesQuery->orderBy('sales_name')->get();
 
-        $targets = SalesTarget::where('year', $dateObj->year)->where('month', $dateObj->month)->get()->keyBy('sales_id');
+        // 2. Ambil Target
+        $targets = SalesTarget::where('year', $dateObj->year)
+            ->where('month', $dateObj->month)
+            ->get()
+            ->keyBy('sales_id');
 
-        // Logic Subquery per nota untuk EC
+        // 3. Logic EC & OA (Fixed Logic)
         $subQuery = DB::table('penjualans')
             ->select('sales_name', 'trans_no', 'kode_pelanggan', DB::raw("SUM(total_grand) as total_per_nota"))
             ->whereBetween('tgl_penjualan', [$start, $end])
@@ -110,49 +116,63 @@ class KinerjaSalesIndex extends Component
                 sales_name, 
                 SUM(total_per_nota) as total_ims, 
                 COUNT(DISTINCT kode_pelanggan) as total_oa, 
-                COUNT(DISTINCT CASE WHEN total_per_nota >= ? THEN trans_no END) as total_ec", [$currentMin])
-            ->groupBy('sales_name')->get()->keyBy('sales_name');
+                COUNT(DISTINCT CASE WHEN total_per_nota >= {$currentMin} THEN trans_no END) as total_ec
+            ")
+            ->groupBy('sales_name')
+            ->get()
+            ->keyBy('sales_name');
 
+        // 4. Statistik AR
         $arStats = AccountReceivable::selectRaw("sales_name, 
             SUM(nilai) as total_ar, 
             SUM(CASE WHEN umur_piutang <= 30 THEN nilai ELSE 0 END) as ar_lancar, 
             SUM(CASE WHEN umur_piutang > 30 THEN nilai ELSE 0 END) as ar_macet")
             ->groupBy('sales_name')->get()->keyBy('sales_name');
 
+        // 5. Statistik Supplier (REVISI: TAMPIL SEMUA / TANPA LIMIT)
         $topSuppliers = Penjualan::select('supplier', DB::raw("SUM(total_grand) as val"))
             ->whereBetween('tgl_penjualan', [$start, $end])
-            ->whereNotNull('supplier')->groupBy('supplier')->orderByDesc('val')->limit(10)->pluck('supplier');
+            ->whereNotNull('supplier')
+            ->groupBy('supplier')
+            ->orderByDesc('val')
+            // ->limit(10) // Limit dihapus agar tampil semua
+            ->pluck('supplier');
 
         $rawPivot = Penjualan::selectRaw("sales_name, supplier, SUM(total_grand) as total")
             ->whereBetween('tgl_penjualan', [$start, $end])
-            ->whereIn('supplier', $topSuppliers)->groupBy('sales_name', 'supplier')->get();
+            ->whereIn('supplier', $topSuppliers)
+            ->groupBy('sales_name', 'supplier')
+            ->get();
 
         $matrixSupplier = [];
         foreach ($rawPivot as $p) { $matrixSupplier[$p->sales_name][$p->supplier] = $p->total; }
 
+        // 6. Mapping Data
         $laporan = [];
         foreach ($allSales as $sales) {
             $name = $sales->sales_name;
+            
             $t = $targets->get($sales->id);
-            $stat = $salesStats->get($name) ?? $salesStats->first(fn($i) => strtoupper($i->sales_name) === strtoupper($name));
-            $ar = $arStats->get($name) ?? $arStats->first(fn($i) => strtoupper($i->sales_name) === strtoupper($name));
+            $stat = $salesStats->first(fn($i) => strtoupper($i->sales_name) === strtoupper($name));
+            $ar = $arStats->first(fn($i) => strtoupper($i->sales_name) === strtoupper($name));
             
             $targetIMS = $t ? (float)$t->target_ims : 0;
             $realIMS = $stat ? (float)$stat->total_ims : 0;
             $arTotal = $ar ? (float)$ar->total_ar : 0;
             $arMacet = $ar ? (float)$ar->ar_macet : 0;
 
-            // Hitung metrik supplier baru
             $countSupplied = isset($matrixSupplier[$name]) ? count($matrixSupplier[$name]) : 0;
             $sumSupplied = isset($matrixSupplier[$name]) ? array_sum($matrixSupplier[$name]) : 0;
 
             $laporan[] = [
+                'kode' => $sales->sales_code ?? '-',
                 'nama' => $name,
                 'cabang' => $sales->city,
                 'divisi' => $sales->divisi,
                 'target_ims' => $targetIMS,
                 'real_ims' => $realIMS,
                 'persen_ims' => $targetIMS > 0 ? ($realIMS / $targetIMS) * 100 : 0,
+                'gap' => $realIMS - $targetIMS,
                 'ar_total' => $arTotal,
                 'ar_lancar' => $ar ? (float)$ar->ar_lancar : 0,
                 'ar_macet' => $arMacet,
@@ -166,7 +186,7 @@ class KinerjaSalesIndex extends Component
 
         return [
             'laporan' => collect($laporan)->sortByDesc('persen_ims')->values(),
-            'topSuppliers' => $topSuppliers,
+            'topSuppliers' => $topSuppliers, // Sekarang berisi semua supplier
             'matrixSupplier' => $matrixSupplier
         ];
     }
@@ -200,7 +220,6 @@ class KinerjaSalesIndex extends Component
                 'total_macet' => $laporanCollection->sum('ar_macet'),
             ],
             'optCabang' => Cache::remember('opt_sales_city', 3600, fn() => Sales::select('city')->distinct()->whereNotNull('city')->pluck('city')),
-            'optDivisi' => Cache::remember('opt_sales_divisi', 3600, fn() => Sales::select('divisi')->distinct()->whereNotNull('divisi')->orderBy('divisi')->pluck('divisi')),
             'topSuppliers' => $data['topSuppliers'],
             'matrixSupplier' => $data['matrixSupplier']
         ])->layout('layouts.app', ['header' => 'Rapor Kinerja Sales']);
