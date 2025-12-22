@@ -50,6 +50,7 @@
             </div>
         </a>
 
+        @if(in_array(auth()->user()->role, ['admin', 'pimpinan']))
         <div x-show="isSidebarExpanded"
             class="px-4 text-[9px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-3 mt-8 transition-opacity">
             Master Data</div>
@@ -75,6 +76,7 @@
             </div>
         </a>
         @endforeach
+        @endif
 
         <div x-show="isSidebarExpanded"
             class="px-4 text-[9px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-3 mt-8 transition-opacity">
@@ -102,20 +104,43 @@
         </a>
         @endforeach
 
+        @if(in_array(auth()->user()->role, ['admin', 'pimpinan']))
         <div x-show="isSidebarExpanded"
             class="px-4 text-[9px] font-black text-neutral-600 uppercase tracking-[0.3em] mb-3 mt-8 transition-opacity">
-            Laporan Kinerja</div>
+            Executive Report</div>
         <div x-show="!isSidebarExpanded" class="h-px w-8 mx-auto bg-neutral-800 mb-4 mt-4"></div>
 
+        {{-- 1. KINERJA SALES (Kuning) --}}
         <a href="{{ route('laporan.kinerja-sales') }}"
-            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-yellow-500/10 mb-1 relative uppercase tracking-wider
+            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-yellow-500/10 mb-2 relative uppercase tracking-wider
             {{ request()->routeIs('laporan.kinerja-sales') ? 'bg-yellow-500/10 text-yellow-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
             :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
             <span class="w-5 flex justify-center"><i
                     class="fas fa-trophy {{ request()->routeIs('laporan.kinerja-sales') ? 'text-yellow-500' : 'text-yellow-700' }}"></i></span>
             <span x-show="isSidebarExpanded" class="ml-3 truncate">Kinerja Sales</span>
+
+            <div x-show="!isSidebarExpanded"
+                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
+                Kinerja Sales
+            </div>
         </a>
 
+        {{-- 2. STOCK ANALYSIS (Hijau / Emerald) - BARU --}}
+        <a href="{{ route('pimpinan.stock-analysis') }}"
+            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-emerald-500/10 mb-2 relative uppercase tracking-wider
+            {{ request()->routeIs('pimpinan.stock-analysis') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
+            :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
+            <span class="w-5 flex justify-center"><i
+                    class="fas fa-boxes-stacked {{ request()->routeIs('pimpinan.stock-analysis') ? 'text-emerald-500' : 'text-emerald-700' }}"></i></span>
+            <span x-show="isSidebarExpanded" class="ml-3 truncate">Analisa Stok</span>
+
+            <div x-show="!isSidebarExpanded"
+                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
+                Analisa Stok
+            </div>
+        </a>
+
+        {{-- 3. DATA REKAP (Dropdown) --}}
         <div x-data="{ open: {{ request()->routeIs('laporan.rekap*') ? 'true' : 'false' }} }">
             <button @click="isSidebarExpanded ? open = !open : toggleSidebar()"
                 class="flex items-center w-full py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-bold text-neutral-500 hover:bg-neutral-800 hover:text-white relative uppercase tracking-wider"
@@ -147,6 +172,8 @@
                 @endforeach
             </div>
         </div>
+        @endif
+
     </div>
 
     <div class="p-4 border-t border-neutral-800 bg-[#070707] flex-none">
