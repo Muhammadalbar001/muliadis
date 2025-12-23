@@ -26,7 +26,8 @@ use App\Livewire\Laporan\RekapCollectionIndex;
 
 // --- 5. LAPORAN (ANALISA KINERJA & PIMPINAN) ---
 use App\Livewire\Laporan\KinerjaSalesIndex;
-use App\Livewire\Pimpinan\StockAnalysis; // <-- TAMBAHAN BARU
+use App\Livewire\Pimpinan\StockAnalysis;
+use App\Livewire\Pimpinan\ProfitAnalysis; // <-- TAMBAHAN BARU
 
 // --- PROFILE (Bawaan Laravel) ---
 use App\Http\Controllers\ProfileController;
@@ -88,8 +89,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/rekap-collection', RekapCollectionIndex::class)->name('rekap-collection');
         });
 
-        // --- ROUTE BARU KHUSUS PIMPINAN (ANALISA STOK) ---
+        // --- KHUSUS PIMPINAN (EXECUTIVE REPORT) ---
         Route::get('/stock-analysis', StockAnalysis::class)->name('pimpinan.stock-analysis');
+        Route::get('/profit-analysis', ProfitAnalysis::class)->name('pimpinan.profit-analysis'); // <-- ROUTE BARU
     });
 
 

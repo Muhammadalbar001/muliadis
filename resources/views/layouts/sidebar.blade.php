@@ -125,7 +125,7 @@
             </div>
         </a>
 
-        {{-- 2. STOCK ANALYSIS (Hijau / Emerald) - BARU --}}
+        {{-- 2. STOCK ANALYSIS (Hijau / Emerald) --}}
         <a href="{{ route('pimpinan.stock-analysis') }}"
             class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-emerald-500/10 mb-2 relative uppercase tracking-wider
             {{ request()->routeIs('pimpinan.stock-analysis') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
@@ -140,7 +140,22 @@
             </div>
         </a>
 
-        {{-- 3. DATA REKAP (Dropdown) --}}
+        {{-- 3. PROFIT ANALYSIS (Biru / Blue) - BARU --}}
+        <a href="{{ route('pimpinan.profit-analysis') }}"
+            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-blue-500/10 mb-2 relative uppercase tracking-wider
+            {{ request()->routeIs('pimpinan.profit-analysis') ? 'bg-blue-500/10 text-blue-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
+            :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
+            <span class="w-5 flex justify-center"><i
+                    class="fas fa-chart-line {{ request()->routeIs('pimpinan.profit-analysis') ? 'text-blue-500' : 'text-blue-700' }}"></i></span>
+            <span x-show="isSidebarExpanded" class="ml-3 truncate">Laba Rugi Produk</span>
+
+            <div x-show="!isSidebarExpanded"
+                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
+                Laba Rugi Produk
+            </div>
+        </a>
+
+        {{-- 4. DATA REKAP (Dropdown) --}}
         <div x-data="{ open: {{ request()->routeIs('laporan.rekap*') ? 'true' : 'false' }} }">
             <button @click="isSidebarExpanded ? open = !open : toggleSidebar()"
                 class="flex items-center w-full py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-bold text-neutral-500 hover:bg-neutral-800 hover:text-white relative uppercase tracking-wider"
