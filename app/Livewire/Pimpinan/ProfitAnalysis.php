@@ -4,18 +4,19 @@ namespace App\Livewire\Pimpinan;
 
 use Livewire\Component;
 use App\Models\Master\Produk;
+use Illuminate\Support\Facades\Response;
 
 class ProfitAnalysis extends Component
 {
     // State per cabang
     public $search = []; 
     public $selectedSuppliers = []; 
-    
-    // BARU: Mode Filter ('all' atau 'selected') per cabang
     public $filterMode = []; 
-    
-    // BARU: ID Produk yang dipilih (jika mode 'selected') per cabang
     public $selectedProductIds = [];
+
+    // FITUR BARU: Sorting
+    // desc = Tertinggi ke Terendah (Default), asc = Terendah ke Tertinggi
+    public $sortDirection = 'desc'; 
 
     public function mount()
     {
@@ -28,23 +29,125 @@ class ProfitAnalysis extends Component
         foreach ($branches as $b) {
             $this->search[$b] = '';
             $this->selectedSuppliers[$b] = [];
-            
-            // Default: Tampilkan Semua
             $this->filterMode[$b] = 'all'; 
             $this->selectedProductIds[$b] = [];
         }
     }
 
-    // Reset produk terpilih jika supplier berubah
     public function updatedSelectedSuppliers($value, $key)
     {
-        // $key formatnya: selectedSuppliers.Banjarmasin
         $parts = explode('.', $key);
         if(isset($parts[1])) {
             $branch = $parts[1];
             $this->selectedProductIds[$branch] = [];
             $this->filterMode[$branch] = 'all';
         }
+    }
+
+    // --- 1. FUNCTION SORTING ---
+    public function toggleSort()
+    {
+        $this->sortDirection = $this->sortDirection === 'desc' ? 'asc' : 'desc';
+    }
+
+    // --- 2. FUNCTION EXPORT CSV ---
+    public function export($branch)
+    {
+        // Ambil Data Sesuai Filter
+        $suppliersSelected = $this->selectedSuppliers[$branch] ?? [];
+        
+        if (empty($suppliersSelected)) {
+            return; 
+        }
+
+        $baseQuery = Produk::query()
+            ->where('cabang', $branch)
+            ->whereIn('supplier', $suppliersSelected);
+
+        // Filter Mode
+        $mode = $this->filterMode[$branch] ?? 'all';
+        $productIdsSelected = $this->selectedProductIds[$branch] ?? [];
+
+        if ($mode === 'selected' && !empty($productIdsSelected)) {
+            $baseQuery->whereIn('id', $productIdsSelected);
+        } elseif ($mode === 'selected' && empty($productIdsSelected)) {
+            $baseQuery->whereRaw('1 = 0');
+        }
+
+        // Search Logic
+        $searchQuery = $this->search[$branch] ?? '';
+        if (!empty($searchQuery)) {
+            $baseQuery->where(function($q) use ($searchQuery) {
+                $q->where('name_item', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('sku', 'like', '%' . $searchQuery . '%');
+            });
+        }
+
+        $products = $baseQuery->get();
+
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8", // Pastikan charset UTF-8
+            "Content-Disposition" => "attachment; filename=Laba_Rugi_" . str_replace(' ', '_', $branch) . "_" . date('d-m-Y_H-i') . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use ($products) {
+            $file = fopen('php://output', 'w');
+            
+            // 1. TAMBAHKAN BOM (Byte Order Mark) AGAR EXCEL BACA UTF-8 DENGAN BENAR
+            fputs($file, "\xEF\xBB\xBF");
+
+            // 2. GUNAKAN TITIK KOMA (;) SEBAGAI PEMISAH
+            $delimiter = ';';
+
+            // Header Kolom
+            fputcsv($file, [
+                'LAST SUPPLIER', 
+                'NAMA ITEM', 
+                'STOK', 
+                'MODAL DASAR (AVG)', 
+                'PPN (%)', 
+                'HPP FINAL (+PPN)', 
+                'HARGA JUAL', 
+                'MARGIN (RP)', 
+                'MARGIN (%)'
+            ], $delimiter);
+
+            foreach ($products as $item) {
+                // Logic Hitung
+                $modalDasar = (float) $item->avg > 0 ? (float) $item->avg : (float) $item->buy;
+                $rawPpn = $item->ppn; 
+                $persenPpn = 0;
+                if (is_numeric($rawPpn) && $rawPpn > 0) { $persenPpn = (float) $rawPpn; } 
+                elseif (strtoupper(trim($rawPpn)) === 'Y') { $persenPpn = 11; }
+
+                $nominalPpn = $modalDasar * ($persenPpn / 100);
+                $hppFinal = $modalDasar + $nominalPpn;
+                $hargaJual = (float) $item->fix; 
+                $marginRp = $hargaJual - $hppFinal;
+                $marginPersen = ($hppFinal > 0) ? ($marginRp / $hppFinal) * 100 : 0;
+
+                // Tulis Baris (Gunakan $delimiter ;)
+                fputcsv($file, [
+                    $item->supplier,
+                    $item->name_item,
+                    $item->stok,
+                    // Kita kirim angka murni agar bisa dihitung di Excel (tanpa Rp/Titik)
+                    // Atau jika ingin format teks Indonesia, gunakan number_format dengan koma desimal
+                    number_format($modalDasar, 2, ',', ''),
+                    $persenPpn . '%',
+                    number_format($hppFinal, 2, ',', ''),
+                    number_format($hargaJual, 2, ',', ''),
+                    number_format($marginRp, 2, ',', ''),
+                    number_format($marginPersen, 2, ',', '') . '%'
+                ], $delimiter);
+            }
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 
     public function render()
@@ -60,7 +163,7 @@ class ProfitAnalysis extends Component
 
         foreach ($branches as $branch) {
             
-            // 1. List Supplier (Untuk Dropdown Supplier)
+            // List Supplier
             $suppliersList = Produk::select('supplier')
                 ->where('cabang', $branch)
                 ->whereNotNull('supplier')
@@ -70,9 +173,9 @@ class ProfitAnalysis extends Component
                 ->pluck('supplier')
                 ->toArray();
 
-            // 2. Logic Data
+            // Logic Data
             $products = collect();
-            $productsListForDropdown = []; // Untuk Dropdown Pilihan Produk
+            $productsListForDropdown = [];
 
             $suppliersSelected = $this->selectedSuppliers[$branch] ?? [];
             $searchQuery = $this->search[$branch] ?? '';
@@ -81,29 +184,24 @@ class ProfitAnalysis extends Component
 
             if (!empty($suppliersSelected)) {
                 
-                // Query Dasar (Berdasarkan Supplier)
                 $baseQuery = Produk::query()
                     ->where('cabang', $branch)
                     ->whereIn('supplier', $suppliersSelected);
 
-                // A. Siapkan List Produk untuk Dropdown (Hanya ambil ID dan Nama)
-                // Ini dipakai jika user memilih opsi "Filter Produk"
+                // List untuk dropdown filter produk
                 $productsListForDropdown = (clone $baseQuery)
                     ->orderBy('name_item', 'asc')
-                    ->get(['id', 'name_item']) // Ambil ID dan Nama saja biar ringan
+                    ->get(['id', 'name_item'])
                     ->toArray();
 
-                // B. Filter Utama untuk Tabel
-                // Jika Mode = Selected DAN ada produk dipilih -> Filter by ID
+                // Filter Mode
                 if ($mode === 'selected' && !empty($productIdsSelected)) {
                     $baseQuery->whereIn('id', $productIdsSelected);
-                }
-                // Jika Mode = Selected TAPI belum pilih produk -> Jangan tampilkan apa-apa (biar user pilih dulu)
-                elseif ($mode === 'selected' && empty($productIdsSelected)) {
-                    $baseQuery->whereRaw('1 = 0'); // Force empty result
+                } elseif ($mode === 'selected' && empty($productIdsSelected)) {
+                    $baseQuery->whereRaw('1 = 0');
                 }
 
-                // C. Filter Search Text (Tetap jalan di kedua mode)
+                // Search
                 if (!empty($searchQuery)) {
                     $baseQuery->where(function($q) use ($searchQuery) {
                         $q->where('name_item', 'like', '%' . $searchQuery . '%')
@@ -114,18 +212,13 @@ class ProfitAnalysis extends Component
                 $baseQuery->orderBy('supplier', 'asc')
                           ->orderBy('name_item', 'asc');
 
-                // Ambil Data & Hitung Margin
+                // Transformasi Data
                 $products = $baseQuery->get()->map(function ($item) {
                     $modalDasar = (float) $item->avg > 0 ? (float) $item->avg : (float) $item->buy;
-                    
-                    // Logic PPN
                     $rawPpn = $item->ppn; 
                     $persenPpn = 0;
-                    if (is_numeric($rawPpn) && $rawPpn > 0) {
-                        $persenPpn = (float) $rawPpn;
-                    } elseif (strtoupper(trim($rawPpn)) === 'Y') {
-                        $persenPpn = 11; 
-                    }
+                    if (is_numeric($rawPpn) && $rawPpn > 0) { $persenPpn = (float) $rawPpn; } 
+                    elseif (strtoupper(trim($rawPpn)) === 'Y') { $persenPpn = 11; }
 
                     $nominalPpn = $modalDasar * ($persenPpn / 100);
                     $hppFinal = $modalDasar + $nominalPpn;
@@ -144,11 +237,19 @@ class ProfitAnalysis extends Component
                         'margin_persen' => $marginPersen,
                     ];
                 });
+
+                // --- 3. SORTING LOGIC ---
+                // Kita sort Collection hasil map (karena margin_persen adalah calculated field)
+                if ($this->sortDirection === 'desc') {
+                    $products = $products->sortByDesc('margin_persen')->values();
+                } else {
+                    $products = $products->sortBy('margin_persen')->values();
+                }
             }
 
             $output[$branch] = [
                 'suppliers_list' => $suppliersList,
-                'products_list_dropdown' => $productsListForDropdown, // Data dropdown produk
+                'products_list_dropdown' => $productsListForDropdown,
                 'products' => $products
             ];
         }

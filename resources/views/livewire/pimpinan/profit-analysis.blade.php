@@ -2,13 +2,22 @@
 
     <div
         class="sticky top-0 z-40 pt-6 pb-4 px-6 border-b shadow-sm transition-colors duration-300 bg-white/95 backdrop-blur-md border-slate-200 dark:bg-[#121212]/95 dark:border-white/5">
-        <div class="max-w-8xl mx-auto">
-            <h1 class="text-2xl font-black tracking-tighter uppercase leading-none text-slate-800 dark:text-white">
-                Profit & Loss Analysis
-            </h1>
-            <p class="text-[10px] font-bold tracking-[0.3em] uppercase mt-1 text-slate-400 dark:text-slate-500">
-                Multi-Branch Independent Control
-            </p>
+        <div class="max-w-8xl mx-auto flex justify-between items-end">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter uppercase leading-none text-slate-800 dark:text-white">
+                    Profit & Loss Analysis
+                </h1>
+                <p class="text-[10px] font-bold tracking-[0.3em] uppercase mt-1 text-slate-400 dark:text-slate-500">
+                    Multi-Branch Independent Control
+                </p>
+            </div>
+
+            <div class="hidden md:block">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Mode Urutan:</span>
+                <span class="text-xs font-black text-emerald-500 uppercase">
+                    {{ $sortDirection === 'desc' ? 'Margin Tertinggi' : 'Margin Terendah' }}
+                </span>
+            </div>
         </div>
     </div>
 
@@ -17,10 +26,21 @@
         @foreach($dataPerCabang as $cabang => $data)
         <div class="animate-fade-in-up" wire:key="cabang-{{ $cabang }}">
 
-            <div class="flex items-center gap-4 mb-6 pl-4 border-l-4 border-emerald-500">
+            <div class="flex items-center justify-between mb-6 pl-4 border-l-4 border-emerald-500">
                 <h2 class="text-3xl font-black uppercase text-slate-800 dark:text-white tracking-tight">
                     {{ $cabang }}
                 </h2>
+
+                @if(count($data['products']) > 0)
+                <button wire:click="export('{{ $cabang }}')" wire:loading.attr="disabled"
+                    class="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-lg hover:shadow-emerald-500/30 transition-all text-xs font-bold uppercase tracking-wider group">
+                    <i class="fas fa-file-excel group-hover:scale-110 transition-transform"></i>
+                    <span>Export Excel</span>
+                    <span wire:loading wire:target="export('{{ $cabang }}')" class="ml-2">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+                @endif
             </div>
 
             <div
@@ -114,7 +134,6 @@
                             open: false, 
                             search: '', 
                             selected: @entangle('selectedProductIds.' . $cabang).live,
-                            // Data Produk: Array of Objects {id, name_item}
                             items: {{ json_encode($data['products_list_dropdown']) }}
                          }">
                         <label
@@ -126,12 +145,10 @@
                             <button @click="open = !open" type="button"
                                 class="w-full pl-4 pr-10 py-2.5 rounded-xl text-xs font-bold border transition-all h-[42px] text-left flex items-center overflow-hidden
                                 border-blue-500 ring-1 ring-blue-500 bg-blue-50/50 dark:bg-blue-900/20 text-slate-700 dark:text-white">
-
                                 <span x-show="selected.length === 0" class="text-slate-400">-- Klik untuk Pilih Item
                                     --</span>
                                 <span x-show="selected.length > 0" x-text="selected.length + ' Item Dipilih'"
                                     class="text-blue-600 dark:text-blue-400"></span>
-
                                 <div
                                     class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
                                     <i class="fas fa-chevron-down text-xs transition-transform duration-200"
@@ -214,13 +231,22 @@
                                     STOCK</th>
                                 <th
                                     class="px-4 py-4 text-right w-32 text-amber-600 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-500/10 border-r border-amber-100 dark:border-white/5">
-                                    Harga Beli + PPN</th>
+                                    AVG (HPP+PPN)</th>
                                 <th
                                     class="px-4 py-4 text-right w-32 text-blue-600 dark:text-blue-400 bg-blue-50/30 dark:bg-blue-500/10 border-r border-blue-100 dark:border-white/5">
-                                    Harga Jual Sistem</th>
-                                <th
-                                    class="px-4 py-4 text-right w-24 text-emerald-600 dark:text-emerald-400 bg-emerald-50/30 dark:bg-emerald-500/10">
-                                    MARGIN (%)</th>
+                                    Harga Jual</th>
+
+                                <th wire:click="toggleSort"
+                                    class="px-4 py-4 text-right w-28 text-emerald-600 dark:text-emerald-400 bg-emerald-50/30 dark:bg-emerald-500/10 cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors group select-none">
+                                    <div class="flex items-center justify-end gap-2">
+                                        MARGIN (%)
+                                        @if($sortDirection === 'desc')
+                                        <i class="fas fa-sort-amount-down text-[10px]"></i>
+                                        @else
+                                        <i class="fas fa-sort-amount-up text-[10px]"></i>
+                                        @endif
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-white/5">
