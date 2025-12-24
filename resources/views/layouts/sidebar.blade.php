@@ -10,7 +10,6 @@
 
     <div class="h-20 flex-none flex items-center px-6 border-b border-neutral-800 bg-[#121212]"
         :class="isSidebarExpanded ? 'justify-between' : 'justify-center'">
-
         <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
             <div
                 class="w-10 h-10 rounded-xl flex-none flex items-center justify-center text-white shadow-lg shadow-blue-600/20 bg-blue-600">
@@ -21,7 +20,6 @@
                 <p class="text-[8px] font-bold text-blue-500 tracking-[0.2em] uppercase mt-1">Distribusindo</p>
             </div>
         </div>
-
         <button @click="sidebarOpen = false"
             class="lg:hidden text-neutral-500 hover:text-white transition-colors p-1 focus:outline-none absolute right-4">
             <i class="fas fa-times text-xl"></i>
@@ -43,11 +41,9 @@
             <i
                 class="fas fa-chart-pie w-5 text-center text-base {{ request()->routeIs('dashboard') ? 'text-white' : 'text-neutral-500 group-hover:text-blue-400' }}"></i>
             <span x-show="isSidebarExpanded" class="ml-3 truncate uppercase tracking-widest">Dashboard</span>
-
             <div x-show="!isSidebarExpanded"
                 class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
-                Dashboard
-            </div>
+                Dashboard</div>
         </a>
 
         @if(in_array(auth()->user()->role, ['admin', 'pimpinan']))
@@ -57,10 +53,10 @@
         <div x-show="!isSidebarExpanded" class="h-px w-8 mx-auto bg-neutral-800 mb-4 mt-4"></div>
 
         @foreach([
-        ['route' => 'master.sales', 'icon' => 'fa-user-tie', 'label' => 'Salesman'],
         ['route' => 'master.produk', 'icon' => 'fa-box', 'label' => 'Produk'],
         ['route' => 'master.supplier', 'icon' => 'fa-truck', 'label' => 'Supplier'],
-        ['route' => 'master.user', 'icon' => 'fa-users-cog', 'label' => 'User'],
+        ['route' => 'master.sales', 'icon' => 'fa-user-tie', 'label' => 'Salesman'],
+        ['route' => 'master.user', 'icon' => 'fa-users-cog', 'label' => 'User (Config)'],
         ] as $menu)
         <a href="{{ route($menu['route']) }}"
             class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-bold mb-1 relative uppercase tracking-wider
@@ -69,11 +65,9 @@
             <span class="w-5 flex justify-center"><i
                     class="fas {{ $menu['icon'] }} {{ request()->routeIs($menu['route']) ? 'text-blue-400' : 'text-neutral-600 group-hover:text-blue-400' }}"></i></span>
             <span x-show="isSidebarExpanded" class="ml-3 truncate">{{ $menu['label'] }}</span>
-
             <div x-show="!isSidebarExpanded"
                 class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
-                {{ $menu['label'] }}
-            </div>
+                {{ $menu['label'] }}</div>
         </a>
         @endforeach
         @endif
@@ -96,11 +90,9 @@
             <span class="w-5 flex justify-center"><i
                     class="fas {{ $menu['icon'] }} {{ request()->routeIs($menu['route']) ? 'text-blue-400' : 'text-neutral-600 group-hover:text-blue-400' }}"></i></span>
             <span x-show="isSidebarExpanded" class="ml-3 truncate">{{ $menu['label'] }}</span>
-
             <div x-show="!isSidebarExpanded"
                 class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
-                {{ $menu['label'] }}
-            </div>
+                {{ $menu['label'] }}</div>
         </a>
         @endforeach
 
@@ -110,37 +102,7 @@
             Executive Report</div>
         <div x-show="!isSidebarExpanded" class="h-px w-8 mx-auto bg-neutral-800 mb-4 mt-4"></div>
 
-        {{-- 1. KINERJA SALES (Kuning) --}}
-        <a href="{{ route('laporan.kinerja-sales') }}"
-            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-yellow-500/10 mb-2 relative uppercase tracking-wider
-            {{ request()->routeIs('laporan.kinerja-sales') ? 'bg-yellow-500/10 text-yellow-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
-            :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
-            <span class="w-5 flex justify-center"><i
-                    class="fas fa-trophy {{ request()->routeIs('laporan.kinerja-sales') ? 'text-yellow-500' : 'text-yellow-700' }}"></i></span>
-            <span x-show="isSidebarExpanded" class="ml-3 truncate">Kinerja Sales</span>
-
-            <div x-show="!isSidebarExpanded"
-                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
-                Kinerja Sales
-            </div>
-        </a>
-
-        {{-- 2. STOCK ANALYSIS (Hijau / Emerald) --}}
-        <a href="{{ route('pimpinan.stock-analysis') }}"
-            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-emerald-500/10 mb-2 relative uppercase tracking-wider
-            {{ request()->routeIs('pimpinan.stock-analysis') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
-            :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
-            <span class="w-5 flex justify-center"><i
-                    class="fas fa-boxes-stacked {{ request()->routeIs('pimpinan.stock-analysis') ? 'text-emerald-500' : 'text-emerald-700' }}"></i></span>
-            <span x-show="isSidebarExpanded" class="ml-3 truncate">Analisa Stok</span>
-
-            <div x-show="!isSidebarExpanded"
-                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
-                Analisa Stok
-            </div>
-        </a>
-
-        {{-- 3. PROFIT ANALYSIS (Biru / Blue) - BARU --}}
+        {{-- 1. PROFIT ANALYSIS (Naik ke Peringkat 1) --}}
         <a href="{{ route('pimpinan.profit-analysis') }}"
             class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-blue-500/10 mb-2 relative uppercase tracking-wider
             {{ request()->routeIs('pimpinan.profit-analysis') ? 'bg-blue-500/10 text-blue-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
@@ -148,14 +110,38 @@
             <span class="w-5 flex justify-center"><i
                     class="fas fa-chart-line {{ request()->routeIs('pimpinan.profit-analysis') ? 'text-blue-500' : 'text-blue-700' }}"></i></span>
             <span x-show="isSidebarExpanded" class="ml-3 truncate">Laba Rugi Produk</span>
-
             <div x-show="!isSidebarExpanded"
                 class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
-                Laba Rugi Produk
-            </div>
+                Laba Rugi</div>
         </a>
 
-        {{-- 4. DATA REKAP (Dropdown) --}}
+        {{-- 2. KINERJA SALES --}}
+        <a href="{{ route('laporan.kinerja-sales') }}"
+            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-yellow-500/10 mb-2 relative uppercase tracking-wider
+            {{ request()->routeIs('laporan.kinerja-sales') ? 'bg-yellow-500/10 text-yellow-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
+            :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
+            <span class="w-5 flex justify-center"><i
+                    class="fas fa-trophy {{ request()->routeIs('laporan.kinerja-sales') ? 'text-yellow-500' : 'text-yellow-700' }}"></i></span>
+            <span x-show="isSidebarExpanded" class="ml-3 truncate">Kinerja Sales</span>
+            <div x-show="!isSidebarExpanded"
+                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
+                Kinerja Sales</div>
+        </a>
+
+        {{-- 3. STOCK ANALYSIS --}}
+        <a href="{{ route('pimpinan.stock-analysis') }}"
+            class="flex items-center py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-black border border-emerald-500/10 mb-2 relative uppercase tracking-wider
+            {{ request()->routeIs('pimpinan.stock-analysis') ? 'bg-emerald-500/10 text-emerald-500' : 'bg-[#121212] text-neutral-400 hover:bg-neutral-800 hover:text-white' }}"
+            :class="isSidebarExpanded ? 'px-4' : 'justify-center'">
+            <span class="w-5 flex justify-center"><i
+                    class="fas fa-boxes-stacked {{ request()->routeIs('pimpinan.stock-analysis') ? 'text-emerald-500' : 'text-emerald-700' }}"></i></span>
+            <span x-show="isSidebarExpanded" class="ml-3 truncate">Analisa Stok</span>
+            <div x-show="!isSidebarExpanded"
+                class="absolute left-14 bg-neutral-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap border border-neutral-700 shadow-xl ml-2 uppercase font-black">
+                Analisa Stok</div>
+        </a>
+
+        {{-- 4. DATA REKAP (Paling Bawah) --}}
         <div x-data="{ open: {{ request()->routeIs('laporan.rekap*') ? 'true' : 'false' }} }">
             <button @click="isSidebarExpanded ? open = !open : toggleSidebar()"
                 class="flex items-center w-full py-2.5 rounded-xl transition-all duration-200 group text-[11px] font-bold text-neutral-500 hover:bg-neutral-800 hover:text-white relative uppercase tracking-wider"
@@ -168,7 +154,6 @@
                 <i x-show="isSidebarExpanded" class="fas fa-chevron-down text-[8px] transition-transform duration-200"
                     :class="{'rotate-180': open}"></i>
             </button>
-
             <div x-show="open && isSidebarExpanded" x-transition x-cloak
                 class="space-y-1 mt-1 px-2 border-l border-neutral-800 ml-6">
                 @foreach([
