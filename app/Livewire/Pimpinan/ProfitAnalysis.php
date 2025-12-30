@@ -14,9 +14,12 @@ class ProfitAnalysis extends Component
     public $filterMode = []; 
     public $selectedProductIds = [];
 
-    // FITUR BARU: Sorting
-    // desc = Tertinggi ke Terendah (Default), asc = Terendah ke Tertinggi
+    // Sorting
     public $sortDirection = 'desc'; 
+
+    // --- TAMBAHAN BARU: STATE UNTUK MODAL DETAIL ---
+    public $detailProduct = null;
+    public $isDetailOpen = false;
 
     public function mount()
     {
@@ -50,10 +53,23 @@ class ProfitAnalysis extends Component
         $this->sortDirection = $this->sortDirection === 'desc' ? 'asc' : 'desc';
     }
 
-    // --- 2. FUNCTION EXPORT CSV ---
+    // --- 2. FUNCTION MODAL DETAIL (DRILL DOWN) ---
+    public function openDetail($id)
+    {
+        // Ambil data produk berdasarkan ID saat diklik
+        $this->detailProduct = Produk::find($id);
+        $this->isDetailOpen = true;
+    }
+
+    public function closeDetail()
+    {
+        $this->isDetailOpen = false;
+        $this->detailProduct = null;
+    }
+
+    // --- 3. FUNCTION EXPORT CSV ---
     public function export($branch)
     {
-        // Ambil Data Sesuai Filter
         $suppliersSelected = $this->selectedSuppliers[$branch] ?? [];
         
         if (empty($suppliersSelected)) {
@@ -64,7 +80,6 @@ class ProfitAnalysis extends Component
             ->where('cabang', $branch)
             ->whereIn('supplier', $suppliersSelected);
 
-        // Filter Mode
         $mode = $this->filterMode[$branch] ?? 'all';
         $productIdsSelected = $this->selectedProductIds[$branch] ?? [];
 
@@ -74,7 +89,6 @@ class ProfitAnalysis extends Component
             $baseQuery->whereRaw('1 = 0');
         }
 
-        // Search Logic
         $searchQuery = $this->search[$branch] ?? '';
         if (!empty($searchQuery)) {
             $baseQuery->where(function($q) use ($searchQuery) {
@@ -86,7 +100,7 @@ class ProfitAnalysis extends Component
         $products = $baseQuery->get();
 
         $headers = [
-            "Content-type"        => "text/csv; charset=UTF-8", // Pastikan charset UTF-8
+            "Content-type"        => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=Laba_Rugi_" . str_replace(' ', '_', $branch) . "_" . date('d-m-Y_H-i') . ".csv",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
@@ -95,28 +109,14 @@ class ProfitAnalysis extends Component
 
         $callback = function() use ($products) {
             $file = fopen('php://output', 'w');
-            
-            // 1. TAMBAHKAN BOM (Byte Order Mark) AGAR EXCEL BACA UTF-8 DENGAN BENAR
             fputs($file, "\xEF\xBB\xBF");
-
-            // 2. GUNAKAN TITIK KOMA (;) SEBAGAI PEMISAH
             $delimiter = ';';
 
-            // Header Kolom
             fputcsv($file, [
-                'LAST SUPPLIER', 
-                'NAMA ITEM', 
-                'STOK', 
-                'MODAL DASAR (AVG)', 
-                'PPN (%)', 
-                'HPP FINAL (+PPN)', 
-                'HARGA JUAL', 
-                'MARGIN (RP)', 
-                'MARGIN (%)'
+                'LAST SUPPLIER', 'NAMA ITEM', 'STOK', 'MODAL DASAR (AVG)', 'PPN (%)', 'HPP FINAL (+PPN)', 'HARGA JUAL', 'MARGIN (RP)', 'MARGIN (%)'
             ], $delimiter);
 
             foreach ($products as $item) {
-                // Logic Hitung
                 $modalDasar = (float) $item->avg > 0 ? (float) $item->avg : (float) $item->buy;
                 $rawPpn = $item->ppn; 
                 $persenPpn = 0;
@@ -129,13 +129,10 @@ class ProfitAnalysis extends Component
                 $marginRp = $hargaJual - $hppFinal;
                 $marginPersen = ($hppFinal > 0) ? ($marginRp / $hppFinal) * 100 : 0;
 
-                // Tulis Baris (Gunakan $delimiter ;)
                 fputcsv($file, [
                     $item->supplier,
                     $item->name_item,
                     $item->stok,
-                    // Kita kirim angka murni agar bisa dihitung di Excel (tanpa Rp/Titik)
-                    // Atau jika ingin format teks Indonesia, gunakan number_format dengan koma desimal
                     number_format($modalDasar, 2, ',', ''),
                     $persenPpn . '%',
                     number_format($hppFinal, 2, ',', ''),
@@ -188,20 +185,17 @@ class ProfitAnalysis extends Component
                     ->where('cabang', $branch)
                     ->whereIn('supplier', $suppliersSelected);
 
-                // List untuk dropdown filter produk
                 $productsListForDropdown = (clone $baseQuery)
                     ->orderBy('name_item', 'asc')
                     ->get(['id', 'name_item'])
                     ->toArray();
 
-                // Filter Mode
                 if ($mode === 'selected' && !empty($productIdsSelected)) {
                     $baseQuery->whereIn('id', $productIdsSelected);
                 } elseif ($mode === 'selected' && empty($productIdsSelected)) {
                     $baseQuery->whereRaw('1 = 0');
                 }
 
-                // Search
                 if (!empty($searchQuery)) {
                     $baseQuery->where(function($q) use ($searchQuery) {
                         $q->where('name_item', 'like', '%' . $searchQuery . '%')
@@ -209,10 +203,8 @@ class ProfitAnalysis extends Component
                     });
                 }
 
-                $baseQuery->orderBy('supplier', 'asc')
-                          ->orderBy('name_item', 'asc');
+                $baseQuery->orderBy('supplier', 'asc')->orderBy('name_item', 'asc');
 
-                // Transformasi Data
                 $products = $baseQuery->get()->map(function ($item) {
                     $modalDasar = (float) $item->avg > 0 ? (float) $item->avg : (float) $item->buy;
                     $rawPpn = $item->ppn; 
@@ -238,8 +230,6 @@ class ProfitAnalysis extends Component
                     ];
                 });
 
-                // --- 3. SORTING LOGIC ---
-                // Kita sort Collection hasil map (karena margin_persen adalah calculated field)
                 if ($this->sortDirection === 'desc') {
                     $products = $products->sortByDesc('margin_persen')->values();
                 } else {
