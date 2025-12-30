@@ -85,166 +85,119 @@
     <div wire:loading.class="opacity-50 pointer-events-none"
         class="transition-opacity duration-300 px-4 sm:px-6 lg:px-8">
 
-        {{-- 1. OVERVIEW TAB (REDESIGNED & VERTICAL STACK) --}}
+        {{-- 1. OVERVIEW TAB --}}
         <div x-show="activeTab === 'overview'" x-transition.opacity class="space-y-8">
-
-            {{-- KPI CARDS (COLORFUL GRADIENTS) --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-
-                {{-- A. Gross Revenue (BLUE THEME) --}}
                 <div
                     class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl shadow-blue-500/20 border-white/10">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <i class="fas fa-chart-line text-8xl text-white transform rotate-12"></i>
-                    </div>
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none"><i
+                            class="fas fa-chart-line text-8xl text-white transform rotate-12"></i></div>
                     <div class="relative z-10 text-white">
                         <div class="flex items-center gap-3 mb-2">
                             <div
                                 class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                                <i class="fas fa-wallet text-xs"></i>
-                            </div>
+                                <i class="fas fa-wallet text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Gross Revenue</p>
                         </div>
                         <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">Rp
                             {{ $this->formatCompact($salesSum) }}</h3>
                         <div class="mt-4 flex items-center gap-2">
                             <span
-                                class="px-2 py-1 rounded-md bg-white/20 text-[9px] font-bold backdrop-blur-sm border border-white/10">
-                                <i class="fas fa-check-circle mr-1"></i> Real
-                            </span>
+                                class="px-2 py-1 rounded-md bg-white/20 text-[9px] font-bold backdrop-blur-sm border border-white/10"><i
+                                    class="fas fa-check-circle mr-1"></i> Real</span>
                             <p class="text-[10px] font-mono opacity-60">{{ number_format($salesSum, 0, ',', '.') }}</p>
                         </div>
                     </div>
                 </div>
-
-                {{-- B. Total Return (ROSE/RED THEME) --}}
                 <div
                     class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-rose-500 to-pink-600 shadow-xl shadow-rose-500/20 border-white/10">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <i class="fas fa-undo-alt text-8xl text-white transform -rotate-12"></i>
-                    </div>
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none"><i
+                            class="fas fa-undo-alt text-8xl text-white transform -rotate-12"></i></div>
                     <div class="relative z-10 text-white">
                         <div class="flex items-center gap-3 mb-2">
                             <div
                                 class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                                <i class="fas fa-exchange-alt text-xs"></i>
-                            </div>
+                                <i class="fas fa-exchange-alt text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Total Return</p>
                         </div>
                         <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">Rp
                             {{ $this->formatCompact($returSum) }}</h3>
                         <div class="mt-4 flex items-center gap-2">
                             <span
-                                class="px-2 py-1 rounded-md bg-white/20 text-[9px] font-bold backdrop-blur-sm border border-white/10">
-                                Ratio: {{ number_format($persenRetur, 2) }}%
-                            </span>
+                                class="px-2 py-1 rounded-md bg-white/20 text-[9px] font-bold backdrop-blur-sm border border-white/10">Ratio:
+                                {{ number_format($persenRetur, 2) }}%</span>
                         </div>
                     </div>
                 </div>
-
-                {{-- C. Outlet Active (PURPLE/VIOLET THEME) --}}
                 <div
                     class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-purple-500 to-violet-600 shadow-xl shadow-purple-500/20 border-white/10">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <i class="fas fa-store text-8xl text-white"></i>
-                    </div>
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none"><i
+                            class="fas fa-store text-8xl text-white"></i></div>
                     <div class="relative z-10 text-white">
                         <div class="flex items-center gap-3 mb-2">
                             <div
                                 class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                                <i class="fas fa-shop text-xs"></i>
-                            </div>
+                                <i class="fas fa-shop text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Outlet Active</p>
                         </div>
-                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">
-                            {{ number_format($totalOa) }} <span class="text-sm font-bold opacity-60">Toko</span>
-                        </h3>
-                        <div class="mt-4 w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-white/50 w-3/4 rounded-full"></div>
-                        </div>
+                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">{{ number_format($totalOa) }}
+                            <span class="text-sm font-bold opacity-60">Toko</span></h3>
                     </div>
                 </div>
-
-                {{-- D. Effective Call (EMERALD/TEAL THEME) --}}
                 <div
                     class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl shadow-emerald-500/20 border-white/10">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <i class="fas fa-file-invoice-dollar text-8xl text-white transform rotate-6"></i>
-                    </div>
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none"><i
+                            class="fas fa-file-invoice-dollar text-8xl text-white transform rotate-6"></i></div>
                     <div class="relative z-10 text-white">
                         <div class="flex items-center gap-3 mb-2">
                             <div
                                 class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                                <i class="fas fa-check-double text-xs"></i>
-                            </div>
+                                <i class="fas fa-check-double text-xs"></i></div>
                             <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Effective Call</p>
                         </div>
-                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">
-                            {{ number_format($totalEc) }} <span class="text-sm font-bold opacity-60">Nota</span>
-                        </h3>
-                        <div class="mt-4 w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-white/50 w-2/3 rounded-full"></div>
-                        </div>
+                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">{{ number_format($totalEc) }}
+                            <span class="text-sm font-bold opacity-60">Nota</span></h3>
                     </div>
                 </div>
             </div>
 
-            {{-- DAILY TREND CHARTS (MODIFIKASI: GRID-COLS-1 AGAR KE BAWAH) --}}
             <div class="grid grid-cols-1 gap-8" wire:ignore>
-
-                {{-- Chart 1: Sales Trend (BLUE THEME HEADER) --}}
                 <div
                     class="rounded-[3rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-blue-100 shadow-sm">
                     <div
                         class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 border-b border-blue-100 dark:border-white/5 flex justify-between items-center">
                         <h4
                             class="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 dark:text-blue-300 text-blue-900">
-                            <span
-                                class="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                                <i class="fas fa-chart-area"></i>
-                            </span>
-                            Daily Sales Trend
-                        </h4>
+                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Daily Sales Trend</h4>
                         <div
                             class="px-4 py-2 rounded-xl bg-white dark:bg-white/10 border border-blue-100 dark:border-white/5 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider shadow-sm">
-                            Last 30 Days
-                        </div>
+                            Last 30 Days</div>
                     </div>
                     <div class="p-6">
                         <div id="chart-sales-retur" style="min-height: 350px;"></div>
                     </div>
                 </div>
-
-                {{-- Chart 2: AR vs Collection (ORANGE THEME HEADER) --}}
                 <div
                     class="rounded-[3rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-orange-100 shadow-sm">
                     <div
                         class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 border-b border-orange-100 dark:border-white/5 flex justify-between items-center">
                         <h4
                             class="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 dark:text-orange-300 text-orange-900">
-                            <span
-                                class="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                            </span>
-                            Tagihan vs Pembayaran
+                            <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span> Tagihan vs Pembayaran
                         </h4>
                         <div
                             class="px-4 py-2 rounded-xl bg-white dark:bg-white/10 border border-orange-100 dark:border-white/5 text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-wider shadow-sm">
-                            Finance Flow
-                        </div>
+                            Finance Flow</div>
                     </div>
                     <div class="p-6">
                         <div id="chart-ar-coll" style="min-height: 350px;"></div>
                     </div>
                 </div>
-
             </div>
         </div>
 
-        {{-- 2. RANKING TAB (GRID 1 COLUMN AGAR TERSUSUN KE BAWAH) --}}
+        {{-- 2. RANKING TAB --}}
         <div x-show="activeTab === 'ranking'" x-transition.opacity class="grid grid-cols-1 gap-8" wire:ignore>
-
-            {{-- A. TOP PRODUK (BLUE) --}}
             <div
                 class="rounded-[2.5rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-blue-100 shadow-sm">
                 <div
@@ -252,49 +205,37 @@
                     <div class="flex items-center gap-4">
                         <div
                             class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
-                            <i class="fas fa-box text-xl"></i>
-                        </div>
+                            <i class="fas fa-box text-xl"></i></div>
                         <div>
                             <h4 class="font-black text-sm uppercase tracking-wider text-white">Top Products (Qty)</h4>
                             <p class="text-[10px] text-blue-100 font-bold uppercase tracking-widest">Ranking by Quantity
                             </p>
                         </div>
                     </div>
-
-                    {{-- Multi Select: Supplier --}}
-                    <div class="relative w-full md:w-72" x-data="{ 
-                            open: false, 
-                            search: '', 
-                            selected: @entangle('filterSupplierTopProduk').live,
-                            items: {{ json_encode($optSupplierList) }}
-                         }">
+                    <div class="relative w-full md:w-72"
+                        x-data="{ open: false, search: '', selected: @entangle('filterSupplierTopProduk').live, items: {{ json_encode($optSupplierList) }} }">
                         <button @click="open = !open" @click.outside="open = false" type="button"
                             class="w-full pl-4 pr-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-none bg-white text-blue-600 shadow-lg flex items-center justify-between transition-transform active:scale-95">
                             <span
-                                x-text="selected.length > 0 ? selected.length + ' Supplier Dipilih' : 'Filter Supplier...'"></span>
-                            <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                                x-text="selected.length > 0 ? selected.length + ' Supplier Dipilih' : 'Filter Supplier...'"></span><i
+                                class="fas fa-chevron-down text-xs opacity-50"></i>
                         </button>
-
                         <div x-show="open" x-transition
                             class="absolute z-50 mt-2 w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-2 border border-slate-100 dark:border-white/10 text-slate-800 dark:text-slate-200">
-                            <div class="p-2 border-b border-slate-100 dark:border-white/5">
-                                <input x-model="search" type="text" placeholder="Cari..."
+                            <div class="p-2 border-b border-slate-100 dark:border-white/5"><input x-model="search"
+                                    type="text" placeholder="Cari..."
                                     class="w-full px-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-blue-500 uppercase font-bold">
                             </div>
-                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar">
-                                <template
+                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar"><template
                                     x-for="item in items.filter(i => i.toLowerCase().includes(search.toLowerCase()))"
-                                    :key="item">
-                                    <label
-                                        class="flex items-center gap-3 px-2 py-2 hover:bg-blue-50 dark:hover:bg-white/10 rounded-lg cursor-pointer">
-                                        <input type="checkbox" :value="item" x-model="selected"
-                                            class="rounded border-slate-300 text-blue-500 focus:ring-blue-500 w-3.5 h-3.5">
-                                        <span class="text-[10px] font-bold uppercase" x-text="item"></span>
-                                    </label>
-                                </template>
-                            </div>
-                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center">
-                                <button @click="selected = []"
+                                    :key="item"><label
+                                        class="flex items-center gap-3 px-2 py-2 hover:bg-blue-50 dark:hover:bg-white/10 rounded-lg cursor-pointer"><input
+                                            type="checkbox" :value="item" x-model="selected"
+                                            class="rounded border-slate-300 text-blue-500 focus:ring-blue-500 w-3.5 h-3.5"><span
+                                            class="text-[10px] font-bold uppercase"
+                                            x-text="item"></span></label></template></div>
+                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center"><button
+                                    @click="selected = []"
                                     class="text-[9px] text-red-500 font-bold hover:underline">Reset Filter</button>
                             </div>
                         </div>
@@ -305,7 +246,6 @@
                 </div>
             </div>
 
-            {{-- B. TOP CUSTOMER (PURPLE) --}}
             <div
                 class="rounded-[2.5rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-purple-100 shadow-sm">
                 <div
@@ -313,48 +253,36 @@
                     <div class="flex items-center gap-4">
                         <div
                             class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
-                            <i class="fas fa-users text-xl"></i>
-                        </div>
+                            <i class="fas fa-users text-xl"></i></div>
                         <div>
                             <h4 class="font-black text-sm uppercase tracking-wider text-white">Top Customers</h4>
                             <p class="text-[10px] text-purple-100 font-bold uppercase tracking-widest">By Revenue</p>
                         </div>
                     </div>
-
-                    {{-- Multi Select: Salesman --}}
-                    <div class="relative w-full md:w-72" x-data="{ 
-                            open: false, 
-                            search: '', 
-                            selected: @entangle('filterSalesTopCust').live,
-                            items: {{ json_encode($optSales) }}
-                         }">
+                    <div class="relative w-full md:w-72"
+                        x-data="{ open: false, search: '', selected: @entangle('filterSalesTopCust').live, items: {{ json_encode($optSales) }} }">
                         <button @click="open = !open" @click.outside="open = false" type="button"
                             class="w-full pl-4 pr-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-none bg-white text-purple-600 shadow-lg flex items-center justify-between transition-transform active:scale-95">
                             <span
-                                x-text="selected.length > 0 ? selected.length + ' Sales Dipilih' : 'Filter Salesman...'"></span>
-                            <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                                x-text="selected.length > 0 ? selected.length + ' Sales Dipilih' : 'Filter Salesman...'"></span><i
+                                class="fas fa-chevron-down text-xs opacity-50"></i>
                         </button>
-
                         <div x-show="open" x-transition
                             class="absolute z-50 mt-2 w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-2 border border-slate-100 dark:border-white/10 text-slate-800 dark:text-slate-200">
-                            <div class="p-2 border-b border-slate-100 dark:border-white/5">
-                                <input x-model="search" type="text" placeholder="Cari..."
+                            <div class="p-2 border-b border-slate-100 dark:border-white/5"><input x-model="search"
+                                    type="text" placeholder="Cari..."
                                     class="w-full px-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-purple-500 uppercase font-bold">
                             </div>
-                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar">
-                                <template
+                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar"><template
                                     x-for="item in items.filter(i => i.toLowerCase().includes(search.toLowerCase()))"
-                                    :key="item">
-                                    <label
-                                        class="flex items-center gap-3 px-2 py-2 hover:bg-purple-50 dark:hover:bg-white/10 rounded-lg cursor-pointer">
-                                        <input type="checkbox" :value="item" x-model="selected"
-                                            class="rounded border-slate-300 text-purple-500 focus:ring-purple-500 w-3.5 h-3.5">
-                                        <span class="text-[10px] font-bold uppercase truncate" x-text="item"></span>
-                                    </label>
-                                </template>
-                            </div>
-                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center">
-                                <button @click="selected = []"
+                                    :key="item"><label
+                                        class="flex items-center gap-3 px-2 py-2 hover:bg-purple-50 dark:hover:bg-white/10 rounded-lg cursor-pointer"><input
+                                            type="checkbox" :value="item" x-model="selected"
+                                            class="rounded border-slate-300 text-purple-500 focus:ring-purple-500 w-3.5 h-3.5"><span
+                                            class="text-[10px] font-bold uppercase truncate"
+                                            x-text="item"></span></label></template></div>
+                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center"><button
+                                    @click="selected = []"
                                     class="text-[9px] text-red-500 font-bold hover:underline">Reset Filter</button>
                             </div>
                         </div>
@@ -365,7 +293,6 @@
                 </div>
             </div>
 
-            {{-- C. TOP SUPPLIER (PINK) --}}
             <div
                 class="rounded-[2.5rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-pink-100 shadow-sm">
                 <div
@@ -373,48 +300,36 @@
                     <div class="flex items-center gap-4">
                         <div
                             class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
-                            <i class="fas fa-truck text-xl"></i>
-                        </div>
+                            <i class="fas fa-truck text-xl"></i></div>
                         <div>
                             <h4 class="font-black text-sm uppercase tracking-wider text-white">Top Suppliers</h4>
                             <p class="text-[10px] text-pink-100 font-bold uppercase tracking-widest">By Revenue</p>
                         </div>
                     </div>
-
-                    {{-- Multi Select: Kategori --}}
-                    <div class="relative w-full md:w-72" x-data="{ 
-                            open: false, 
-                            search: '', 
-                            selected: @entangle('filterKategoriTopSupp').live,
-                            items: {{ json_encode($optKategoriList) }}
-                         }">
+                    <div class="relative w-full md:w-72"
+                        x-data="{ open: false, search: '', selected: @entangle('filterKategoriTopSupp').live, items: {{ json_encode($optKategoriList) }} }">
                         <button @click="open = !open" @click.outside="open = false" type="button"
                             class="w-full pl-4 pr-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-none bg-white text-pink-600 shadow-lg flex items-center justify-between transition-transform active:scale-95">
                             <span
-                                x-text="selected.length > 0 ? selected.length + ' Kategori' : 'Filter Kategori...'"></span>
-                            <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                                x-text="selected.length > 0 ? selected.length + ' Kategori' : 'Filter Kategori...'"></span><i
+                                class="fas fa-chevron-down text-xs opacity-50"></i>
                         </button>
-
                         <div x-show="open" x-transition
                             class="absolute z-50 mt-2 w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-2 border border-slate-100 dark:border-white/10 text-slate-800 dark:text-slate-200">
-                            <div class="p-2 border-b border-slate-100 dark:border-white/5">
-                                <input x-model="search" type="text" placeholder="Cari..."
+                            <div class="p-2 border-b border-slate-100 dark:border-white/5"><input x-model="search"
+                                    type="text" placeholder="Cari..."
                                     class="w-full px-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-pink-500 uppercase font-bold">
                             </div>
-                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar">
-                                <template
+                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar"><template
                                     x-for="item in items.filter(i => i.toLowerCase().includes(search.toLowerCase()))"
-                                    :key="item">
-                                    <label
-                                        class="flex items-center gap-3 px-2 py-2 hover:bg-pink-50 dark:hover:bg-white/10 rounded-lg cursor-pointer">
-                                        <input type="checkbox" :value="item" x-model="selected"
-                                            class="rounded border-slate-300 text-pink-500 focus:ring-pink-500 w-3.5 h-3.5">
-                                        <span class="text-[10px] font-bold uppercase truncate" x-text="item"></span>
-                                    </label>
-                                </template>
-                            </div>
-                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center">
-                                <button @click="selected = []"
+                                    :key="item"><label
+                                        class="flex items-center gap-3 px-2 py-2 hover:bg-pink-50 dark:hover:bg-white/10 rounded-lg cursor-pointer"><input
+                                            type="checkbox" :value="item" x-model="selected"
+                                            class="rounded border-slate-300 text-pink-500 focus:ring-pink-500 w-3.5 h-3.5"><span
+                                            class="text-[10px] font-bold uppercase truncate"
+                                            x-text="item"></span></label></template></div>
+                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center"><button
+                                    @click="selected = []"
                                     class="text-[9px] text-red-500 font-bold hover:underline">Reset Filter</button>
                             </div>
                         </div>
@@ -424,18 +339,141 @@
                     <div id="chart-top-supplier" style="min-height: 400px;"></div>
                 </div>
             </div>
-
         </div>
 
-        {{-- 3. SALESMAN TAB --}}
-        <div x-show="activeTab === 'salesman'" x-transition.opacity class="max-w-5xl mx-auto" wire:ignore>
+        {{-- 3. SALESMAN TAB (REDESIGNED SCORECARD) --}}
+        <div x-show="activeTab === 'salesman'" x-transition.opacity class="space-y-8" wire:ignore>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div
+                    class="relative p-6 rounded-[2.5rem] bg-gradient-to-r from-blue-600 to-blue-500 shadow-xl shadow-blue-500/20 overflow-hidden text-white group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><i
+                            class="fas fa-bullseye text-7xl"></i></div>
+                    <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Global Target</p>
+                    <h3 class="text-2xl font-black mt-1">Rp {{ $this->formatCompact($chartData['total_target'] ?? 0) }}
+                    </h3>
+                </div>
+                <div
+                    class="relative p-6 rounded-[2.5rem] bg-gradient-to-r from-emerald-600 to-emerald-500 shadow-xl shadow-emerald-500/20 overflow-hidden text-white group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><i
+                            class="fas fa-coins text-7xl"></i></div>
+                    <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Total Realisasi</p>
+                    <h3 class="text-2xl font-black mt-1">Rp {{ $this->formatCompact($chartData['total_real'] ?? 0) }}
+                    </h3>
+                </div>
+                @php
+                $tTarget = $chartData['total_target'] ?? 0;
+                $tReal = $chartData['total_real'] ?? 0;
+                $globalPersen = $tTarget > 0 ? ($tReal / $tTarget) * 100 : 0;
+                @endphp
+                <div
+                    class="relative p-6 rounded-[2.5rem] bg-gradient-to-r from-violet-600 to-purple-500 shadow-xl shadow-violet-500/20 overflow-hidden text-white group">
+                    <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform"><i
+                            class="fas fa-percent text-7xl"></i></div>
+                    <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Achievement Rate</p>
+                    <h3 class="text-2xl font-black mt-1">{{ number_format($globalPersen, 2) }}%</h3>
+                    <div class="w-full bg-black/20 h-1.5 rounded-full mt-3 overflow-hidden">
+                        <div class="bg-white h-full rounded-full" style="width: {{ min($globalPersen, 100) }}%"></div>
+                    </div>
+                </div>
+            </div>
+
             <div
-                class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
-                <h4
-                    class="font-black text-xs uppercase tracking-[0.2em] mb-10 flex items-center gap-3 dark:text-blue-300 text-indigo-900">
-                    <i class="fas fa-bullseye text-lg"></i> Top 10 Sales Performance
-                </h4>
-                <div id="chart-sales-perf" style="min-height: 500px;"></div>
+                class="rounded-[3rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-indigo-100 shadow-sm">
+                <div class="bg-gradient-to-r from-indigo-500 to-blue-600 p-6 flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
+                        <i class="fas fa-chart-bar text-lg"></i></div>
+                    <div>
+                        <h4 class="font-black text-sm uppercase tracking-wider text-white">Top 10 Sales Performance</h4>
+                        <p class="text-[10px] text-indigo-100 font-bold uppercase tracking-widest">Realisasi vs Target
+                        </p>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="chart-sales-perf" style="min-height: 450px;"></div>
+                </div>
+            </div>
+
+            <div
+                class="rounded-[3rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
+                <div
+                    class="bg-slate-50 dark:bg-white/5 p-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center">
+                    <h4
+                        class="font-black text-xs uppercase tracking-widest text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fas fa-list-ol text-blue-500"></i> Full Sales Leaderboard</h4>
+                    <span
+                        class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400 text-[10px] font-bold uppercase">{{ count($chartData['sales_details'] ?? []) }}
+                        Personil</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                        <thead
+                            class="bg-slate-50 dark:bg-black/20 text-slate-500 dark:text-slate-400 uppercase font-black tracking-wider">
+                            <tr>
+                                <th class="px-6 py-4 w-10 text-center">#</th>
+                                <th class="px-6 py-4">Salesman Name</th>
+                                <th class="px-6 py-4 text-right">Target</th>
+                                <th class="px-6 py-4 text-right">Realisasi</th>
+                                <th class="px-6 py-4 text-center w-48">Achievement</th>
+                                <th class="px-6 py-4 text-center">Gap (Rp)</th>
+                                <th class="px-6 py-4 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                            @if(isset($chartData['sales_details']) && count($chartData['sales_details']) > 0)
+                            @foreach($chartData['sales_details'] as $index => $s)
+                            <tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors group">
+                                <td class="px-6 py-4 text-center font-bold text-slate-400">{{ $index + 1 }}</td>
+                                <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-200">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-black shadow-sm {{ $index < 3 ? 'bg-amber-400' : 'bg-slate-200 dark:bg-white/20 text-slate-500' }}">
+                                            {{ substr($s['name'], 0, 2) }}</div>
+                                        {{ $s['name'] }} @if($index == 0) <i
+                                            class="fas fa-crown text-amber-400 ml-1"></i> @endif
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-mono text-slate-500">
+                                    {{ number_format($s['target'], 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 text-right font-mono font-black text-slate-800 dark:text-white">
+                                    {{ number_format($s['real'], 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 align-middle">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="flex-1 bg-slate-100 dark:bg-white/10 rounded-full h-2 overflow-hidden">
+                                            <div class="h-full rounded-full {{ $s['persen'] >= 100 ? 'bg-emerald-500' : ($s['persen'] >= 80 ? 'bg-blue-500' : 'bg-red-500') }}"
+                                                style="width: {{ min($s['persen'], 100) }}%"></div>
+                                        </div>
+                                        <span
+                                            class="text-[10px] font-bold w-10 text-right {{ $s['persen'] >= 100 ? 'text-emerald-600' : 'text-slate-500' }}">{{ number_format($s['persen'], 1) }}%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right font-mono text-[10px]">
+                                    @if($s['gap'] >= 0) <span
+                                        class="text-emerald-500">+{{ number_format($s['gap'], 0, ',', '.') }}</span>
+                                    @else <span class="text-red-500">{{ number_format($s['gap'], 0, ',', '.') }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($s['persen'] >= 100) <span
+                                        class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 text-[9px] font-black uppercase tracking-wider">Achieved</span>
+                                    @else <span
+                                        class="px-3 py-1 rounded-full bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 text-[9px] font-black uppercase tracking-wider">Missed</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                            @else
+                            <tr>
+                                <td colspan="7"
+                                    class="px-6 py-8 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+                                    Data Kinerja Sales Tidak Ditemukan</td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -641,7 +679,7 @@ document.addEventListener('livewire:init', () => {
             "#chart-top-supplier", 'Omzet', data.top_supp_val, data.top_supp_lbl, '#ec4899'));
         charts.ts.render();
 
-        // 6. Sales Performance
+        // 6. Sales Performance (Side by Side)
         if (charts.sp) charts.sp.destroy();
         charts.sp = new ApexCharts(document.querySelector("#chart-sales-perf"), {
             ...baseOptions,
@@ -655,15 +693,22 @@ document.addEventListener('livewire:init', () => {
             chart: {
                 ...baseOptions.chart,
                 type: 'bar',
-                height: 500
+                height: 500,
+                stacked: false
             },
             plotOptions: {
                 bar: {
-                    borderRadius: 8,
-                    columnWidth: '60%'
+                    borderRadius: 4,
+                    columnWidth: '55%',
+                    horizontal: false
                 }
             },
-            colors: ['#3b82f6', '#f59e0b'], // Biru & Kuning
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            colors: ['#3b82f6', '#fbbf24'],
             xaxis: {
                 categories: data.sales_names
             },
