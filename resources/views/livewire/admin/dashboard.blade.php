@@ -5,6 +5,7 @@
          }
      })">
 
+    {{-- HEADER & NAVIGATION --}}
     <div class="sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-6
         dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/80 border-slate-200 shadow-sm">
 
@@ -60,8 +61,7 @@
                             :class="open ? 'rotate-180' : ''"></i>
                     </button>
                     <div x-show="open" x-transition
-                        class="absolute z-50 mt-2 w-full border rounded-xl shadow-2xl p-2 max-h-48 overflow-y-auto right-0"
-                        :class="darkMode ? 'bg-slate-900 border-slate-800 shadow-black' : 'bg-white border-slate-200'">
+                        class="absolute z-50 mt-2 w-full border rounded-xl shadow-2xl p-2 max-h-48 overflow-y-auto right-0 bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800">
                         @foreach($optCabang as $cab)
                         <label
                             class="flex items-center px-2 py-2 hover:bg-blue-500/10 rounded-lg cursor-pointer transition-colors group">
@@ -85,94 +85,349 @@
     <div wire:loading.class="opacity-50 pointer-events-none"
         class="transition-opacity duration-300 px-4 sm:px-6 lg:px-8">
 
+        {{-- 1. OVERVIEW TAB (REDESIGNED & VERTICAL STACK) --}}
         <div x-show="activeTab === 'overview'" x-transition.opacity class="space-y-8">
 
+            {{-- KPI CARDS (COLORFUL GRADIENTS) --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                {{-- A. Gross Revenue (BLUE THEME) --}}
                 <div
-                    class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden
-                     dark:bg-blue-600/5 dark:border-blue-500/10 dark:shadow-2xl dark:shadow-blue-900/10 bg-white border-blue-100 shadow-sm hover:border-blue-300">
-                    <div class="relative z-10">
-                        <p class="text-[10px] font-black uppercase tracking-widest dark:text-blue-400 text-slate-400">
-                            Gross Revenue</p>
-                        <h3 class="text-3xl font-black mt-2 tracking-tighter dark:text-white text-blue-600">Rp
+                    class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl shadow-blue-500/20 border-white/10">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                        <i class="fas fa-chart-line text-8xl text-white transform rotate-12"></i>
+                    </div>
+                    <div class="relative z-10 text-white">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                                <i class="fas fa-wallet text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Gross Revenue</p>
+                        </div>
+                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">Rp
                             {{ $this->formatCompact($salesSum) }}</h3>
-                        <p class="text-[10px] mt-4 font-bold opacity-40 italic uppercase tracking-tighter">Real:
-                            {{ number_format($salesSum, 0, ',', '.') }}</p>
-                    </div>
-                    <i
-                        class="fas fa-chart-line absolute -right-4 -bottom-4 text-7xl opacity-[0.03] dark:text-blue-500 text-blue-600 group-hover:scale-110 transition-transform"></i>
-                </div>
-
-                <div
-                    class="p-6 rounded-[2.5rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-red-100 shadow-sm hover:border-red-300">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-red-500 opacity-80">Total Return</p>
-                    <h3 class="text-3xl font-black mt-2 tracking-tighter text-red-500">Rp
-                        {{ $this->formatCompact($returSum) }}</h3>
-                    <div
-                        class="mt-4 inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest dark:bg-red-500/10 dark:text-red-400 bg-red-50 text-red-600">
-                        Ratio: {{ number_format($persenRetur, 2) }}%
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-2 py-1 rounded-md bg-white/20 text-[9px] font-bold backdrop-blur-sm border border-white/10">
+                                <i class="fas fa-check-circle mr-1"></i> Real
+                            </span>
+                            <p class="text-[10px] font-mono opacity-60">{{ number_format($salesSum, 0, ',', '.') }}</p>
+                        </div>
                     </div>
                 </div>
 
+                {{-- B. Total Return (ROSE/RED THEME) --}}
                 <div
-                    class="p-6 rounded-[2.5rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-blue-100 shadow-sm hover:border-blue-300">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-blue-500 opacity-80">Outlet Active
-                    </p>
-                    <h3 class="text-3xl font-black mt-2 tracking-tighter dark:text-white text-blue-600">
-                        {{ number_format($totalOa) }} <span class="text-xs opacity-40">Toko</span></h3>
+                    class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-rose-500 to-pink-600 shadow-xl shadow-rose-500/20 border-white/10">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                        <i class="fas fa-undo-alt text-8xl text-white transform -rotate-12"></i>
+                    </div>
+                    <div class="relative z-10 text-white">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                                <i class="fas fa-exchange-alt text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Total Return</p>
+                        </div>
+                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">Rp
+                            {{ $this->formatCompact($returSum) }}</h3>
+                        <div class="mt-4 flex items-center gap-2">
+                            <span
+                                class="px-2 py-1 rounded-md bg-white/20 text-[9px] font-bold backdrop-blur-sm border border-white/10">
+                                Ratio: {{ number_format($persenRetur, 2) }}%
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
+                {{-- C. Outlet Active (PURPLE/VIOLET THEME) --}}
                 <div
-                    class="p-6 rounded-[2.5rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-emerald-100 shadow-sm hover:border-emerald-300">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-emerald-500 opacity-80">Effective
-                        Call</p>
-                    <h3 class="text-3xl font-black mt-2 tracking-tighter dark:text-white text-emerald-600">
-                        {{ number_format($totalEc) }} <span class="text-xs opacity-40">Nota</span></h3>
+                    class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-purple-500 to-violet-600 shadow-xl shadow-purple-500/20 border-white/10">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                        <i class="fas fa-store text-8xl text-white"></i>
+                    </div>
+                    <div class="relative z-10 text-white">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                                <i class="fas fa-shop text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Outlet Active</p>
+                        </div>
+                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">
+                            {{ number_format($totalOa) }} <span class="text-sm font-bold opacity-60">Toko</span>
+                        </h3>
+                        <div class="mt-4 w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-white/50 w-3/4 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- D. Effective Call (EMERALD/TEAL THEME) --}}
+                <div
+                    class="relative p-6 rounded-[2.5rem] border transition-all duration-500 group overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 shadow-xl shadow-emerald-500/20 border-white/10">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                        <i class="fas fa-file-invoice-dollar text-8xl text-white transform rotate-6"></i>
+                    </div>
+                    <div class="relative z-10 text-white">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                                <i class="fas fa-check-double text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black uppercase tracking-widest opacity-80">Effective Call</p>
+                        </div>
+                        <h3 class="text-3xl font-black tracking-tighter drop-shadow-sm">
+                            {{ number_format($totalEc) }} <span class="text-sm font-bold opacity-60">Nota</span>
+                        </h3>
+                        <div class="mt-4 w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-white/50 w-2/3 rounded-full"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            {{-- DAILY TREND CHARTS (MODIFIKASI: GRID-COLS-1 AGAR KE BAWAH) --}}
             <div class="grid grid-cols-1 gap-8" wire:ignore>
+
+                {{-- Chart 1: Sales Trend (BLUE THEME HEADER) --}}
                 <div
-                    class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
-                    <h4
-                        class="font-black text-xs uppercase tracking-[0.2em] mb-8 flex items-center gap-3 dark:text-white text-slate-800">
-                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Daily Sales Trend
-                    </h4>
-                    <div id="chart-sales-retur" style="min-height: 350px;"></div>
+                    class="rounded-[3rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-blue-100 shadow-sm">
+                    <div
+                        class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 border-b border-blue-100 dark:border-white/5 flex justify-between items-center">
+                        <h4
+                            class="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 dark:text-blue-300 text-blue-900">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                <i class="fas fa-chart-area"></i>
+                            </span>
+                            Daily Sales Trend
+                        </h4>
+                        <div
+                            class="px-4 py-2 rounded-xl bg-white dark:bg-white/10 border border-blue-100 dark:border-white/5 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider shadow-sm">
+                            Last 30 Days
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="chart-sales-retur" style="min-height: 350px;"></div>
+                    </div>
                 </div>
+
+                {{-- Chart 2: AR vs Collection (ORANGE THEME HEADER) --}}
                 <div
-                    class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
-                    <h4
-                        class="font-black text-xs uppercase tracking-[0.2em] mb-8 flex items-center gap-3 dark:text-white text-slate-800">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Tagihan vs Pembayaran
-                    </h4>
-                    <div id="chart-ar-coll" style="min-height: 350px;"></div>
+                    class="rounded-[3rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-orange-100 shadow-sm">
+                    <div
+                        class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 border-b border-orange-100 dark:border-white/5 flex justify-between items-center">
+                        <h4
+                            class="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-3 dark:text-orange-300 text-orange-900">
+                            <span
+                                class="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </span>
+                            Tagihan vs Pembayaran
+                        </h4>
+                        <div
+                            class="px-4 py-2 rounded-xl bg-white dark:bg-white/10 border border-orange-100 dark:border-white/5 text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-wider shadow-sm">
+                            Finance Flow
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="chart-ar-coll" style="min-height: 350px;"></div>
+                    </div>
                 </div>
+
             </div>
         </div>
 
+        {{-- 2. RANKING TAB (GRID 1 COLUMN AGAR TERSUSUN KE BAWAH) --}}
         <div x-show="activeTab === 'ranking'" x-transition.opacity class="grid grid-cols-1 gap-8" wire:ignore>
-            @foreach([
-            ['id' => 'chart-top-produk', 'label' => 'Top Products (Qty)', 'color' => 'blue', 'icon' => 'fa-box'],
-            ['id' => 'chart-top-customer', 'label' => 'Top Customers (Revenue)', 'color' => 'purple', 'icon' =>
-            'fa-users'],
-            ['id' => 'chart-top-supplier', 'label' => 'Top Suppliers (Revenue)', 'color' => 'pink', 'icon' =>
-            'fa-truck']
-            ] as $rank)
+
+            {{-- A. TOP PRODUK (BLUE) --}}
             <div
-                class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
-                <h4
-                    class="font-black text-[10px] uppercase tracking-[0.2em] mb-8 flex items-center gap-3 dark:text-white text-slate-700">
-                    <span
-                        class="w-10 h-10 rounded-xl flex items-center justify-center bg-{{$rank['color']}}-500/10 text-{{$rank['color']}}-500">
-                        <i class="fas {{$rank['icon']}}"></i>
-                    </span> {{$rank['label']}}
-                </h4>
-                <div id="{{ $rank['id'] }}" style="min-height: 400px;"></div>
+                class="rounded-[2.5rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-blue-100 shadow-sm">
+                <div
+                    class="bg-gradient-to-r from-blue-500 to-cyan-500 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
+                            <i class="fas fa-box text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-sm uppercase tracking-wider text-white">Top Products (Qty)</h4>
+                            <p class="text-[10px] text-blue-100 font-bold uppercase tracking-widest">Ranking by Quantity
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Multi Select: Supplier --}}
+                    <div class="relative w-full md:w-72" x-data="{ 
+                            open: false, 
+                            search: '', 
+                            selected: @entangle('filterSupplierTopProduk').live,
+                            items: {{ json_encode($optSupplierList) }}
+                         }">
+                        <button @click="open = !open" @click.outside="open = false" type="button"
+                            class="w-full pl-4 pr-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-none bg-white text-blue-600 shadow-lg flex items-center justify-between transition-transform active:scale-95">
+                            <span
+                                x-text="selected.length > 0 ? selected.length + ' Supplier Dipilih' : 'Filter Supplier...'"></span>
+                            <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                        </button>
+
+                        <div x-show="open" x-transition
+                            class="absolute z-50 mt-2 w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-2 border border-slate-100 dark:border-white/10 text-slate-800 dark:text-slate-200">
+                            <div class="p-2 border-b border-slate-100 dark:border-white/5">
+                                <input x-model="search" type="text" placeholder="Cari..."
+                                    class="w-full px-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-blue-500 uppercase font-bold">
+                            </div>
+                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar">
+                                <template
+                                    x-for="item in items.filter(i => i.toLowerCase().includes(search.toLowerCase()))"
+                                    :key="item">
+                                    <label
+                                        class="flex items-center gap-3 px-2 py-2 hover:bg-blue-50 dark:hover:bg-white/10 rounded-lg cursor-pointer">
+                                        <input type="checkbox" :value="item" x-model="selected"
+                                            class="rounded border-slate-300 text-blue-500 focus:ring-blue-500 w-3.5 h-3.5">
+                                        <span class="text-[10px] font-bold uppercase" x-text="item"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center">
+                                <button @click="selected = []"
+                                    class="text-[9px] text-red-500 font-bold hover:underline">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="chart-top-produk" style="min-height: 400px;"></div>
+                </div>
             </div>
-            @endforeach
+
+            {{-- B. TOP CUSTOMER (PURPLE) --}}
+            <div
+                class="rounded-[2.5rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-purple-100 shadow-sm">
+                <div
+                    class="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-sm uppercase tracking-wider text-white">Top Customers</h4>
+                            <p class="text-[10px] text-purple-100 font-bold uppercase tracking-widest">By Revenue</p>
+                        </div>
+                    </div>
+
+                    {{-- Multi Select: Salesman --}}
+                    <div class="relative w-full md:w-72" x-data="{ 
+                            open: false, 
+                            search: '', 
+                            selected: @entangle('filterSalesTopCust').live,
+                            items: {{ json_encode($optSales) }}
+                         }">
+                        <button @click="open = !open" @click.outside="open = false" type="button"
+                            class="w-full pl-4 pr-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-none bg-white text-purple-600 shadow-lg flex items-center justify-between transition-transform active:scale-95">
+                            <span
+                                x-text="selected.length > 0 ? selected.length + ' Sales Dipilih' : 'Filter Salesman...'"></span>
+                            <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                        </button>
+
+                        <div x-show="open" x-transition
+                            class="absolute z-50 mt-2 w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-2 border border-slate-100 dark:border-white/10 text-slate-800 dark:text-slate-200">
+                            <div class="p-2 border-b border-slate-100 dark:border-white/5">
+                                <input x-model="search" type="text" placeholder="Cari..."
+                                    class="w-full px-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-purple-500 uppercase font-bold">
+                            </div>
+                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar">
+                                <template
+                                    x-for="item in items.filter(i => i.toLowerCase().includes(search.toLowerCase()))"
+                                    :key="item">
+                                    <label
+                                        class="flex items-center gap-3 px-2 py-2 hover:bg-purple-50 dark:hover:bg-white/10 rounded-lg cursor-pointer">
+                                        <input type="checkbox" :value="item" x-model="selected"
+                                            class="rounded border-slate-300 text-purple-500 focus:ring-purple-500 w-3.5 h-3.5">
+                                        <span class="text-[10px] font-bold uppercase truncate" x-text="item"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center">
+                                <button @click="selected = []"
+                                    class="text-[9px] text-red-500 font-bold hover:underline">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="chart-top-customer" style="min-height: 400px;"></div>
+                </div>
+            </div>
+
+            {{-- C. TOP SUPPLIER (PINK) --}}
+            <div
+                class="rounded-[2.5rem] border overflow-hidden transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-pink-100 shadow-sm">
+                <div
+                    class="bg-gradient-to-r from-pink-500 to-rose-500 p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-inner">
+                            <i class="fas fa-truck text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-sm uppercase tracking-wider text-white">Top Suppliers</h4>
+                            <p class="text-[10px] text-pink-100 font-bold uppercase tracking-widest">By Revenue</p>
+                        </div>
+                    </div>
+
+                    {{-- Multi Select: Kategori --}}
+                    <div class="relative w-full md:w-72" x-data="{ 
+                            open: false, 
+                            search: '', 
+                            selected: @entangle('filterKategoriTopSupp').live,
+                            items: {{ json_encode($optKategoriList) }}
+                         }">
+                        <button @click="open = !open" @click.outside="open = false" type="button"
+                            class="w-full pl-4 pr-10 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-none bg-white text-pink-600 shadow-lg flex items-center justify-between transition-transform active:scale-95">
+                            <span
+                                x-text="selected.length > 0 ? selected.length + ' Kategori' : 'Filter Kategori...'"></span>
+                            <i class="fas fa-chevron-down text-xs opacity-50"></i>
+                        </button>
+
+                        <div x-show="open" x-transition
+                            class="absolute z-50 mt-2 w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl p-2 border border-slate-100 dark:border-white/10 text-slate-800 dark:text-slate-200">
+                            <div class="p-2 border-b border-slate-100 dark:border-white/5">
+                                <input x-model="search" type="text" placeholder="Cari..."
+                                    class="w-full px-3 py-1.5 rounded-lg text-xs bg-slate-50 dark:bg-white/5 border-none focus:ring-2 focus:ring-pink-500 uppercase font-bold">
+                            </div>
+                            <div class="max-h-48 overflow-y-auto p-1 custom-scrollbar">
+                                <template
+                                    x-for="item in items.filter(i => i.toLowerCase().includes(search.toLowerCase()))"
+                                    :key="item">
+                                    <label
+                                        class="flex items-center gap-3 px-2 py-2 hover:bg-pink-50 dark:hover:bg-white/10 rounded-lg cursor-pointer">
+                                        <input type="checkbox" :value="item" x-model="selected"
+                                            class="rounded border-slate-300 text-pink-500 focus:ring-pink-500 w-3.5 h-3.5">
+                                        <span class="text-[10px] font-bold uppercase truncate" x-text="item"></span>
+                                    </label>
+                                </template>
+                            </div>
+                            <div class="p-2 border-t border-slate-100 dark:border-white/5 text-center">
+                                <button @click="selected = []"
+                                    class="text-[9px] text-red-500 font-bold hover:underline">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="chart-top-supplier" style="min-height: 400px;"></div>
+                </div>
+            </div>
+
         </div>
 
+        {{-- 3. SALESMAN TAB --}}
         <div x-show="activeTab === 'salesman'" x-transition.opacity class="max-w-5xl mx-auto" wire:ignore>
             <div
                 class="p-8 rounded-[3rem] border transition-all dark:bg-neutral-900/40 dark:border-white/5 bg-white border-slate-100 shadow-sm">
@@ -187,6 +442,7 @@
     </div>
 </div>
 
+{{-- JAVASCRIPT CHARTS --}}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
 document.addEventListener('livewire:init', () => {
@@ -225,10 +481,10 @@ document.addEventListener('livewire:init', () => {
             },
             dataLabels: {
                 enabled: false
-            }, // MEMATIKAN ANGKA LANGSUNG PADA GRAFIK
+            },
         };
 
-        // 1. Sales vs Retur (Area)
+        // 1. Sales vs Retur
         if (charts.sr) charts.sr.destroy();
         charts.sr = new ApexCharts(document.querySelector("#chart-sales-retur"), {
             ...baseOptions,
@@ -258,13 +514,13 @@ document.addEventListener('livewire:init', () => {
             },
             xaxis: {
                 categories: data.dates,
-                type: 'datetime', // MENGGUNAKAN TIPE DATETIME AGAR TANGGAL TAMPIL
+                type: 'datetime',
                 labels: {
                     style: {
                         fontSize: '10px',
                         fontWeight: 600
                     },
-                    format: 'dd MMM' // FORMAT TANGGAL PADA SUMBU X
+                    format: 'dd MMM'
                 }
             },
             yaxis: {
@@ -275,15 +531,15 @@ document.addEventListener('livewire:init', () => {
             tooltip: {
                 x: {
                     format: 'dd MMMM yyyy'
-                }, // TANGGAL LENGKAP SAAT HOVER
+                },
                 y: {
                     formatter: fmtRp
-                } // NILAI ASLI SAAT HOVER
+                }
             }
         });
         charts.sr.render();
 
-        // 2. AR vs Collection (Bar)
+        // 2. AR vs Collection
         if (charts.ac) charts.ac.destroy();
         charts.ac = new ApexCharts(document.querySelector("#chart-ar-coll"), {
             ...baseOptions,
@@ -367,16 +623,19 @@ document.addEventListener('livewire:init', () => {
             }
         });
 
+        // 3. Top Produk
         if (charts.tp) charts.tp.destroy();
         charts.tp = new ApexCharts(document.querySelector("#chart-top-produk"), rankingOpts(
             "#chart-top-produk", 'Qty', data.top_produk_val, data.top_produk_lbl, '#3b82f6'));
         charts.tp.render();
 
+        // 4. Top Customer
         if (charts.tc) charts.tc.destroy();
         charts.tc = new ApexCharts(document.querySelector("#chart-top-customer"), rankingOpts(
             "#chart-top-customer", 'Omzet', data.top_cust_val, data.top_cust_lbl, '#8b5cf6'));
         charts.tc.render();
 
+        // 5. Top Supplier
         if (charts.ts) charts.ts.destroy();
         charts.ts = new ApexCharts(document.querySelector("#chart-top-supplier"), rankingOpts(
             "#chart-top-supplier", 'Omzet', data.top_supp_val, data.top_supp_lbl, '#ec4899'));
@@ -404,7 +663,7 @@ document.addEventListener('livewire:init', () => {
                     columnWidth: '60%'
                 }
             },
-            colors: ['#3b82f6', config.grid],
+            colors: ['#3b82f6', '#f59e0b'], // Biru & Kuning
             xaxis: {
                 categories: data.sales_names
             },
