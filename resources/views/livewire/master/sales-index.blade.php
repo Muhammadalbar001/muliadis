@@ -1,167 +1,250 @@
-<div class="min-h-screen space-y-6 pb-10 transition-colors duration-300 font-jakarta">
+<div class="min-h-screen space-y-6 pb-10 transition-colors duration-300 font-jakarta bg-slate-50 dark:bg-[#050505]">
 
     <div class="sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-6
-        dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/80 border-slate-200 shadow-sm">
+        dark:bg-[#0a0a0a]/80 dark:border-white/5 bg-white/95 border-slate-200 shadow-sm">
         <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
             <div class="flex items-center gap-4 w-full xl:w-auto">
-                <div class="p-2.5 rounded-xl shadow-lg bg-blue-600 text-white">
+                <div
+                    class="p-3 rounded-2xl shadow-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white ring-4 ring-blue-500/10">
                     <i class="fas fa-user-tie text-xl"></i>
                 </div>
                 <div>
                     <h1
-                        class="text-xl font-black tracking-tighter uppercase leading-none dark:text-white text-slate-800">
-                        Master <span class="text-blue-500">Salesman</span></h1>
+                        class="text-xl font-black tracking-tighter uppercase leading-none dark:text-white text-slate-900">
+                        Master <span class="text-blue-600">Salesman</span>
+                    </h1>
                     <p
-                        class="text-[9px] font-bold uppercase tracking-[0.3em] opacity-50 mt-1.5 dark:text-slate-400 text-slate-500">
-                        Personnel & Target Management</p>
+                        class="text-[9px] font-bold uppercase tracking-[0.3em] dark:text-slate-400 text-slate-600 mt-1.5 opacity-80">
+                        Personnel & Target Management
+                    </p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-2 items-center justify-end">
-                <input wire:model.live.debounce.300ms="search" type="text"
-                    class="px-4 py-2 rounded-xl border text-[11px] font-bold uppercase dark:bg-black/40 dark:border-white/10 dark:text-white bg-slate-100 border-slate-200"
-                    placeholder="Cari Sales / Kode...">
+            <div class="flex flex-wrap gap-3 items-center justify-end w-full xl:w-auto">
+                <div class="relative group">
+                    <i
+                        class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors text-xs"></i>
+                    <input wire:model.live.debounce.300ms="search" type="text"
+                        class="pl-10 pr-4 py-2.5 w-64 rounded-2xl border text-[11px] font-bold uppercase transition-all
+                        dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:border-blue-500/50
+                        bg-white border-slate-300 text-slate-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 outline-none" placeholder="Cari Sales / Kode...">
+                </div>
 
-                <button wire:click="autoDiscover"
-                    class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20">
-                    <i class="fas fa-magic mr-1" wire:loading.class="fa-spin" wire:target="autoDiscover"></i> Fix Data
-                </button>
+                <div class="flex gap-2">
+                    <button wire:click="autoDiscover"
+                        class="px-5 py-2.5 bg-slate-800 dark:bg-white dark:text-slate-900 text-white rounded-2xl text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg flex items-center gap-2">
+                        <i class="fas fa-sync-alt" wire:loading.class="fa-spin" wire:target="autoDiscover"></i> Fix Data
+                    </button>
 
-                <button wire:click="create"
-                    class="px-5 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase shadow-lg shadow-blue-600/20 transition-all active:scale-95">
-                    <i class="fas fa-plus mr-1"></i> Baru
-                </button>
+                    <button wire:click="create"
+                        class="px-6 py-2.5 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase shadow-xl shadow-blue-600/20 hover:bg-blue-700 hover:scale-105 transition-all active:scale-95 flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Baru
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <div
-            class="rounded-[2.5rem] border overflow-hidden dark:bg-slate-900/40 dark:border-white/5 bg-white border-slate-200 shadow-2xl">
-            <table class="w-full text-sm text-left border-collapse uppercase">
-                <thead>
-                    <tr
-                        class="dark:bg-white/5 bg-slate-50 text-slate-500 font-black text-[10px] tracking-widest border-b dark:border-white/5 border-slate-100">
-                        <th class="px-6 py-5 w-32">Kode Sales</th>
-                        <th class="px-6 py-5">Nama Salesman</th>
-                        <th class="px-6 py-5">Kota / Regional</th>
-                        <th class="px-6 py-5 text-center">Status</th>
-                        <th class="px-6 py-5 text-center">Kontrol</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y dark:divide-white/5 divide-slate-100">
-                    @forelse($sales as $item)
-                    <tr class="hover:bg-blue-500/[0.02] group transition-colors">
-                        <td class="px-6 py-4 font-mono font-bold text-xs">
-                            @if($item->sales_code)
-                            <span class="text-indigo-500">{{ $item->sales_code }}</span>
-                            @else
-                            <span
-                                class="px-2 py-0.5 bg-rose-50 text-rose-500 rounded text-[9px] font-black animate-pulse">MISSING</span>
-                            @endif
-                        </td>
+            class="rounded-[2.5rem] border overflow-hidden dark:bg-[#0f0f0f] dark:border-white/5 bg-white border-slate-200 shadow-2xl shadow-slate-200/60 dark:shadow-none">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left border-collapse">
+                    <thead>
+                        <tr
+                            class="dark:bg-white/[0.02] bg-blue-600 text-white font-black text-[9px] uppercase tracking-[0.2em] border-b dark:border-white/5 border-blue-700">
+                            <th class="px-8 py-6 w-40 text-center">Identity</th>
+                            <th class="px-8 py-6">Salesman Details</th>
+                            <th class="px-8 py-6">Operational Area</th>
+                            <th class="px-8 py-6 text-center">Status</th>
+                            <th class="px-8 py-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y dark:divide-white/5 divide-slate-100">
+                        @forelse($sales as $item)
+                        <tr class="hover:bg-blue-600/[0.04] dark:hover:bg-blue-400/[0.02] group transition-all">
+                            <td class="px-8 py-5">
+                                @if($item->sales_code)
+                                <div class="flex justify-center">
+                                    <span
+                                        class="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 font-mono font-black text-[11px] border border-blue-200 dark:border-blue-500/20">
+                                        {{ $item->sales_code }}
+                                    </span>
+                                </div>
+                                @else
+                                <div class="flex justify-center">
+                                    <span
+                                        class="px-3 py-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-600 rounded-xl text-[9px] font-black border border-rose-200 dark:border-rose-500/20 animate-pulse">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i> MISSING
+                                    </span>
+                                </div>
+                                @endif
+                            </td>
 
-                        <td class="px-6 py-4 font-black dark:text-white text-slate-800 text-xs">{{ $item->sales_name }}
-                        </td>
+                            <td class="px-8 py-5">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-blue-600 dark:bg-white/5 flex items-center justify-center font-black text-white dark:text-blue-400 text-xs border border-blue-700 dark:border-white/10 group-hover:scale-110 transition-all shadow-md shadow-blue-500/20">
+                                        {{ substr($item->sales_name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <p
+                                            class="font-black dark:text-white text-slate-900 text-xs uppercase tracking-tight">
+                                            {{ $item->sales_name }}</p>
+                                    </div>
+                                </div>
+                            </td>
 
-                        <td class="px-6 py-4 text-[10px] font-bold dark:text-slate-400 text-slate-500">
-                            {{ $item->city ?: '-' }}
-                        </td>
+                            <td class="px-8 py-5">
+                                <div
+                                    class="flex items-center gap-2 text-slate-700 dark:text-slate-400 font-black text-[10px] uppercase tracking-wide">
+                                    <i class="fas fa-map-marker-alt text-blue-600/70 dark:text-blue-500/50 text-xs"></i>
+                                    {{ $item->city ?: 'KOTA TIDAK DISET' }}
+                                </div>
+                            </td>
 
-                        <td class="px-6 py-4 text-center">
-                            <span
-                                class="px-3 py-1 rounded-full text-[9px] font-black border {{ $item->status == 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' }}">
-                                {{ strtoupper($item->status) }}
-                            </span>
-                        </td>
+                            <td class="px-8 py-5">
+                                <div class="flex justify-center">
+                                    <div
+                                        class="flex items-center gap-2 px-3 py-1.5 rounded-full border {{ $item->status == 'Active' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30' : 'bg-slate-500/10 text-slate-600 border-slate-500/30' }}">
+                                        <div
+                                            class="w-1.5 h-1.5 rounded-full {{ $item->status == 'Active' ? 'bg-emerald-600 animate-pulse' : 'bg-slate-500' }}">
+                                        </div>
+                                        <span
+                                            class="text-[9px] font-black uppercase tracking-widest">{{ $item->status }}</span>
+                                    </div>
+                                </div>
+                            </td>
 
-                        <td class="px-6 py-4 text-center">
-                            <div
-                                class="flex justify-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                                <button wire:click="manageTargets({{ $item->id }})"
-                                    class="w-8 h-8 rounded-lg border border-slate-200 text-purple-500 hover:bg-purple-500 hover:text-white transition-all shadow-sm"
-                                    title="Atur Target">
-                                    <i class="fas fa-crosshairs text-[10px]"></i>
-                                </button>
+                            <td class="px-8 py-5">
+                                <div
+                                    class="flex justify-end gap-2 opacity-50 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                    <button wire:click="manageTargets({{ $item->id }})"
+                                        class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 hover:bg-purple-600 hover:text-white dark:hover:bg-purple-500 transition-all flex items-center justify-center shadow-sm border border-purple-100 dark:border-none"
+                                        title="Atur Target">
+                                        <i class="fas fa-crosshairs text-xs"></i>
+                                    </button>
 
-                                <button wire:click="edit({{ $item->id }})"
-                                    class="w-8 h-8 rounded-lg border border-slate-200 text-blue-500 hover:bg-blue-500 hover:text-white transition-all shadow-sm">
-                                    <i class="fas fa-edit text-[10px]"></i>
-                                </button>
+                                    <button wire:click="edit({{ $item->id }})"
+                                        class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 transition-all flex items-center justify-center shadow-sm border border-blue-100 dark:border-none">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
 
-                                <button onclick="confirm('Hapus Salesman ini?') || event.stopImmediatePropagation()"
-                                    wire:click="delete({{ $item->id }})"
-                                    class="w-8 h-8 rounded-lg border border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                                    <i class="fas fa-trash-alt text-[10px]"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="px-6 py-20 text-center opacity-20 font-black uppercase text-xs">Belum ada
-                            data</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            <div class="px-6 py-5 border-t dark:border-white/5 border-slate-100">{{ $sales->links() }}</div>
+                                    <button onclick="confirm('Hapus Salesman ini?') || event.stopImmediatePropagation()"
+                                        wire:click="delete({{ $item->id }})"
+                                        class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 hover:bg-rose-600 hover:text-white dark:hover:bg-rose-500 transition-all flex items-center justify-center shadow-sm border border-rose-100 dark:border-none">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-32 text-center">
+                                <div class="flex flex-col items-center opacity-20 text-slate-400">
+                                    <i class="fas fa-user-friends text-6xl mb-4"></i>
+                                    <p class="font-black uppercase text-sm tracking-[0.3em]">No Sales Data Found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if($sales->hasPages())
+            <div class="px-8 py-6 border-t dark:border-white/5 border-slate-100 bg-slate-50/50 dark:bg-transparent">
+                {{ $sales->links() }}
+            </div>
+            @endif
         </div>
     </div>
 
     @if($isOpen)
-    <div class="fixed inset-0 z-[160] overflow-y-auto" role="dialog">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md" wire:click="closeModal"></div>
+    <div class="fixed inset-0 z-[160] overflow-y-auto px-4" role="dialog">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md transition-opacity" wire:click="closeModal">
+            </div>
+
             <div
-                class="relative dark:bg-[#0a0a0a] bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border dark:border-white/10 border-slate-200">
-                <div class="bg-blue-600 px-8 py-6 text-white flex justify-between items-center shadow-lg">
-                    <h3 class="font-black uppercase tracking-widest text-sm">
-                        {{ $salesId ? 'Edit Identitas Sales' : 'Tambah Sales Baru' }}</h3>
-                    <button wire:click="closeModal" class="opacity-70 hover:opacity-100"><i
-                            class="fas fa-times"></i></button>
+                class="relative dark:bg-[#0d0d0d] bg-white rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.4)] w-full max-w-lg overflow-hidden border dark:border-white/10 border-slate-200 transform transition-all">
+                <div
+                    class="bg-gradient-to-r from-blue-700 to-blue-500 px-10 py-8 text-white flex justify-between items-center relative overflow-hidden shadow-lg">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 rotate-12">
+                        <i class="fas fa-user-plus text-7xl"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="font-black uppercase tracking-widest text-sm">Personnel Profile</h3>
+                        <p class="text-[10px] font-bold opacity-70 mt-1 uppercase">
+                            {{ $salesId ? 'Update Existing Record' : 'Register New Executive' }}</p>
+                    </div>
+                    <button wire:click="closeModal"
+                        class="relative z-10 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
                 </div>
-                <div class="p-8 space-y-5">
-                    <div>
-                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Kode Sales
-                            (Wajib)</label>
+
+                <div class="p-10 space-y-6">
+                    <div class="group">
+                        <label
+                            class="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 group-focus-within:text-blue-600 transition-colors block mb-2 ml-1 tracking-wider">Identitas
+                            Kode (ID)</label>
                         <input type="text" wire:model="sales_code"
-                            class="w-full rounded-xl border-slate-200 dark:bg-white/5 dark:text-white text-xs font-bold uppercase focus:ring-blue-500"
-                            placeholder="CONTOH: SLS001">
+                            class="w-full rounded-2xl border-slate-300 dark:bg-white/5 dark:border-white/10 dark:text-white text-xs font-black uppercase focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all p-3.5 bg-slate-50 shadow-inner"
+                            placeholder="MISAL: SL-HO-001">
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Nama Salesman (Sesuai
-                            KTP/Sistem)</label>
+
+                    <div class="group">
+                        <label
+                            class="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 group-focus-within:text-blue-600 transition-colors block mb-2 ml-1 tracking-wider">Nama
+                            Lengkap Salesman</label>
                         <input type="text" wire:model="sales_name"
-                            class="w-full rounded-xl border-slate-200 dark:bg-white/5 dark:text-white text-xs font-bold uppercase focus:ring-blue-500">
+                            class="w-full rounded-2xl border-slate-300 dark:bg-white/5 dark:border-white/10 dark:text-white text-xs font-black uppercase focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all p-3.5 bg-slate-50 shadow-inner"
+                            placeholder="NAMA LENGKAP SESUAI KTP">
                         @error('sales_name') <span
-                            class="text-rose-500 text-[10px] uppercase font-bold">{{ $message }}</span> @enderror
+                            class="text-rose-600 text-[9px] uppercase font-black mt-1.5 ml-1 block">{{ $message }}</span>
+                        @enderror
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Kota/Area</label>
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="group">
+                            <label
+                                class="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 group-focus-within:text-blue-600 transition-colors block mb-2 ml-1 tracking-wider">Penempatan
+                                Area</label>
                             <input type="text" wire:model="city"
-                                class="w-full rounded-xl border-slate-200 dark:bg-white/5 dark:text-white text-xs font-bold uppercase">
+                                class="w-full rounded-2xl border-slate-300 dark:bg-white/5 dark:border-white/10 dark:text-white text-xs font-black uppercase focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all p-3.5 bg-slate-50 shadow-inner"
+                                placeholder="AREA KERJA">
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Status</label>
+                        <div class="group">
+                            <label
+                                class="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 group-focus-within:text-blue-600 transition-colors block mb-2 ml-1 tracking-wider">Status
+                                Keaktifan</label>
                             <select wire:model="status"
-                                class="w-full rounded-xl border-slate-200 dark:bg-white/5 dark:text-white text-xs font-bold uppercase">
+                                class="w-full rounded-2xl border-slate-300 dark:bg-white/5 dark:border-white/10 dark:text-white text-xs font-black uppercase focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all p-3.5 bg-slate-50 shadow-inner appearance-none">
                                 <option value="Active">ACTIVE</option>
                                 <option value="Inactive">INACTIVE</option>
                             </select>
                         </div>
                     </div>
-                    <p class="text-[10px] text-amber-500 italic mt-2"><i class="fas fa-info-circle mr-1"></i> Mengubah
-                        Nama Salesman akan otomatis memperbarui seluruh riwayat transaksi (Penjualan/Retur/AR) dari nama
-                        lama ke nama baru.</p>
+
+                    <div
+                        class="bg-amber-100 dark:bg-amber-500/5 p-4 rounded-2xl border border-amber-300/50 dark:border-amber-500/10">
+                        <div class="flex gap-3">
+                            <i class="fas fa-info-circle text-amber-600 mt-0.5"></i>
+                            <p class="text-[10px] text-amber-700 dark:text-amber-500 font-black leading-relaxed">
+                                PERHATIAN: Perubahan nama akan memicu pembaharuan massal pada data transaksi (Sales,
+                                Return, AR).
+                            </p>
+                        </div>
+                    </div>
                 </div>
+
                 <div
-                    class="dark:bg-white/[0.02] bg-slate-50 px-8 py-6 flex justify-end gap-3 border-t dark:border-white/5 border-slate-100">
+                    class="dark:bg-white/[0.02] bg-slate-100 px-10 py-8 flex justify-end gap-3 border-t dark:border-white/5 border-slate-200">
                     <button wire:click="closeModal"
-                        class="px-6 py-2.5 text-[10px] font-black uppercase text-slate-400">Batal</button>
+                        class="px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:text-slate-800 transition-colors tracking-widest">Batal</button>
                     <button wire:click="store"
-                        class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase shadow-lg">Simpan</button>
+                        class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase shadow-xl shadow-blue-600/30 transition-all active:scale-95 tracking-widest">Simpan
+                        Data</button>
                 </div>
             </div>
         </div>
@@ -169,41 +252,54 @@
     @endif
 
     @if($isTargetOpen)
-    <div class="fixed inset-0 z-[170] overflow-y-auto" role="dialog">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md" wire:click="closeModal"></div>
+    <div class="fixed inset-0 z-[170] overflow-y-auto px-4" role="dialog">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-md transition-opacity" wire:click="closeModal">
+            </div>
+
             <div
-                class="relative dark:bg-[#0a0a0a] bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden border dark:border-white/10 border-slate-200">
-                <div class="bg-purple-600 px-8 py-6 text-white flex justify-between items-center shadow-lg">
-                    <div>
-                        <h3 class="font-black uppercase tracking-widest text-sm">Target Penjualan</h3>
-                        <p class="text-[10px] font-bold opacity-70 mt-1 uppercase">{{ $selectedSalesNameForTarget }}</p>
+                class="relative dark:bg-[#0d0d0d] bg-white rounded-[2.5rem] shadow-[0_0_60px_rgba(0,0,0,0.5)] w-full max-w-2xl overflow-hidden border dark:border-white/10 border-slate-200 transform transition-all">
+                <div
+                    class="bg-gradient-to-r from-purple-700 to-indigo-600 px-10 py-8 text-white flex justify-between items-center shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 opacity-10">
+                        <i class="fas fa-bullseye text-8xl"></i>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <select wire:model.live="targetYear"
-                            class="bg-white/10 border-none text-white text-xs font-bold rounded-lg focus:ring-0">
-                            @for($y = date('Y')-1; $y <= date('Y')+1; $y++) <option value="{{ $y }}"
-                                class="text-slate-800">{{ $y }}</option>
-                                @endfor
-                        </select>
-                        <button wire:click="closeModal" class="opacity-70 hover:opacity-100"><i
-                                class="fas fa-times"></i></button>
+                    <div class="relative z-10">
+                        <h3 class="font-black uppercase tracking-widest text-sm">Monthly Performance Target</h3>
+                        <p class="text-[10px] font-bold opacity-70 mt-1 uppercase tracking-[0.2em]">
+                            {{ $selectedSalesNameForTarget }}</p>
+                    </div>
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="flex flex-col items-end">
+                            <span class="text-[8px] font-black uppercase opacity-60 mb-1">Fiscal Year</span>
+                            <select wire:model.live="targetYear"
+                                class="bg-white/10 border-none text-white text-[11px] font-black rounded-xl focus:ring-0 cursor-pointer pl-4 pr-8 py-1.5 appearance-none">
+                                @for($y = date('Y')-1; $y <= date('Y')+1; $y++) <option value="{{ $y }}"
+                                    class="text-slate-800">{{ $y }}</option>
+                                    @endfor
+                            </select>
+                        </div>
+                        <button wire:click="closeModal"
+                            class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="p-8">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="p-10">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6">
                         @php $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                         'September', 'Oktober', 'November', 'Desember']; @endphp
                         @foreach($months as $index => $month)
-                        <div>
+                        <div class="group">
                             <label
-                                class="text-[9px] font-black uppercase text-slate-400 block mb-1">{{ $month }}</label>
+                                class="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 group-focus-within:text-purple-600 transition-colors block mb-2 ml-1 tracking-wider">{{ $month }}</label>
                             <div class="relative">
-                                <span
-                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Rp</span>
+                                <div
+                                    class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-500 group-focus-within:text-purple-600">
+                                    Rp</div>
                                 <input type="number" wire:model="monthlyTargets.{{ $index + 1 }}"
-                                    class="w-full pl-8 pr-3 py-2 rounded-xl border-slate-200 dark:bg-white/5 dark:text-white text-xs font-bold focus:ring-purple-500"
+                                    class="w-full pl-9 pr-4 py-3 rounded-2xl border-slate-300 dark:bg-white/5 dark:border-white/10 dark:text-white text-[11px] font-black focus:ring-4 focus:ring-purple-500/10 focus:border-purple-600 transition-all shadow-inner bg-slate-50"
                                     placeholder="0">
                             </div>
                         </div>
@@ -212,12 +308,12 @@
                 </div>
 
                 <div
-                    class="dark:bg-white/[0.02] bg-slate-50 px-8 py-6 flex justify-end gap-3 border-t dark:border-white/5 border-slate-100">
+                    class="dark:bg-white/[0.02] bg-slate-100 px-10 py-8 flex justify-end gap-3 border-t dark:border-white/5 border-slate-200">
                     <button wire:click="closeModal"
-                        class="px-6 py-2.5 text-[10px] font-black uppercase text-slate-400">Tutup</button>
+                        class="px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:text-slate-800 transition-colors tracking-widest">Tutup</button>
                     <button wire:click="saveTargets"
-                        class="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-[10px] font-black uppercase shadow-lg">Simpan
-                        Target</button>
+                        class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl text-[10px] font-black uppercase shadow-xl shadow-purple-600/30 transition-all active:scale-95 tracking-widest">Set
+                        Target Tahunan</button>
                 </div>
             </div>
         </div>

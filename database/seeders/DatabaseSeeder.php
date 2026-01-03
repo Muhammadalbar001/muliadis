@@ -10,31 +10,40 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Buat 1 Akun Admin
+        // 1. Super Admin
         User::create([
-            'name' => 'Administrator',
-            'username' => 'admin',
-            'email' => 'admin@muliadis.com',
-            'password' => Hash::make('password'), // password default
-            'role' => 'admin',
+            'name' => 'Super Administrator',
+            'username' => 'superadmin',
+            'email' => 'super@mulia.com',
+            'password' => Hash::make('password'),
+            'role' => 'superadmin',
         ]);
 
-        // Buat 1 Akun Pimpinan (Opsional)
+        // 2. Pimpinan
         User::create([
             'name' => 'Bapak Pimpinan',
             'username' => 'pimpinan',
-            'email' => 'bos@muliadis.com',
+            'email' => 'boss@mulia.com',
             'password' => Hash::make('password'),
             'role' => 'pimpinan',
         ]);
 
-        // Buat 1 Akun Pengguna Biasa (Opsional)
+        // 3. Supervisor
         User::create([
-            'name' => 'Staff Gudang',
-            'username' => 'staff',
-            'email' => 'staff@muliadis.com',
+            'name' => 'Area Supervisor',
+            'username' => 'supervisor',
+            'email' => 'spv@mulia.com',
             'password' => Hash::make('password'),
-            'role' => 'pengguna',
+            'role' => 'supervisor',
+        ]);
+
+        // 4. Admin (Dulu Staff)
+        User::create([
+            'name' => 'Staff Admin',
+            'username' => 'admin',
+            'email' => 'admin@mulia.com',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
         ]);
     }
 }

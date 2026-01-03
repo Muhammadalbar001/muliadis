@@ -9,24 +9,20 @@ use Illuminate\Support\Facades\Auth;
 class CheckRole
 {
     public function handle(Request $request, Closure $next, ...$roles)
-    {
-        if (!Auth::check()) {
-            return redirect('login');
-        }
-
-        $user = Auth::user();
-
-        // 1. Cek apakah role user ada di dalam daftar parameter middleware
-        if (in_array($user->role, $roles)) {
-            return $next($request);
-        }
-
-        // 2. Logic Tambahan: Jika rute membutuhkan 'admin' tapi user adalah 'pimpinan', 
-        // berikan akses otomatis (Full Control).
-        if (in_array('admin', $roles) && $user->role === 'pimpinan') {
-            return $next($request);
-        }
-
-        abort(403, 'Akses Ditolak: Anda tidak memiliki otoritas untuk halaman ini.');
+{
+    if (!Auth::check()) {
+        return redirect('login');
     }
+
+    $user = Auth::user();
+
+    // SEMENTARA: Izinkan semua role yang terdaftar untuk lewat
+    $allAllowedRoles = ['superadmin', 'pimpinan', 'supervisor', 'admin'];
+    
+    if (in_array($user->role, $allAllowedRoles)) {
+        return $next($request);
+    }
+
+    abort(403, 'Anda tidak memiliki izin untuk mengakses halaman ini.');
+}
 }

@@ -18,7 +18,7 @@ class UserIndex extends Component
     public $isEdit = false;
 
     // Form Fields
-    public $userId, $name, $username, $email, $role = 'staff', $password;
+    public $userId, $name, $username, $email, $role = 'admin', $password;
 
     public function render()
     {
@@ -50,7 +50,7 @@ class UserIndex extends Component
         $this->name = $user->name;
         $this->username = $user->username;
         $this->email = $user->email;
-        $this->role = $user->role; // Memuat role dari database ke form
+        $this->role = $user->role; 
         $this->isEdit = true;
         $this->isOpen = true;
     }
@@ -59,9 +59,10 @@ class UserIndex extends Component
     {
         $this->validate([
             'name' => 'required|min:3',
-            'username' => ['required', Rule::unique('users', 'username')->ignore($this->userId)],
-            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->userId)],
-            'role' => 'required|in:admin,pimpinan,staff',
+            'username' => ['required', 'alpha_dash', Rule::unique('users', 'username')->ignore($this->userId)],
+            'email' => ['nullable', 'email', Rule::unique('users', 'email')->ignore($this->userId)],
+            // Role disesuaikan dengan enum terbaru di migration
+            'role' => 'required|in:superadmin,pimpinan,supervisor,admin',
             'password' => $this->isEdit ? 'nullable|min:6' : 'required|min:6',
         ]);
 
@@ -81,25 +82,25 @@ class UserIndex extends Component
 
             $this->isOpen = false;
             $this->resetFields();
-            $this->dispatch('show-toast', ['type' => 'success', 'message' => 'Data User & Role berhasil disimpan.']);
+            $this->dispatch('show-toast', type: 'success', message: 'Data User & Role berhasil disimpan.');
         } catch (\Exception $e) {
-            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Gagal simpan: ' . $e->getMessage()]);
+            $this->dispatch('show-toast', type: 'error', message: 'Gagal simpan: ' . $e->getMessage());
         }
     }
 
     public function delete($id)
     {
         if ($id == Auth::id()) {
-            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Anda tidak bisa menghapus diri sendiri!']);
+            $this->dispatch('show-toast', type: 'error', message: 'Anda tidak bisa menghapus diri sendiri!');
             return;
         }
         
         try {
             $user = User::findOrFail($id);
             $user->delete();
-            $this->dispatch('show-toast', ['type' => 'success', 'message' => 'User berhasil dihapus.']);
+            $this->dispatch('show-toast', type: 'success', message: 'User berhasil dihapus.');
         } catch (\Exception $e) {
-            $this->dispatch('show-toast', ['type' => 'error', 'message' => 'Gagal menghapus: User ini mungkin memiliki keterkaitan data lain.']);
+            $this->dispatch('show-toast', type: 'error', message: 'Gagal menghapus: User ini mungkin memiliki keterkaitan data lain.');
         }
     }
 
@@ -112,7 +113,7 @@ class UserIndex extends Component
     private function resetFields()
     {
         $this->reset(['userId', 'name', 'username', 'email', 'role', 'password']);
-        $this->role = 'staff';
+        $this->role = 'admin'; 
         $this->resetErrorBag();
     }
 }
